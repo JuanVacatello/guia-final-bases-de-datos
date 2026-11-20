@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OLTP, OLAP y Data Warehouse</title>
+<meta name="description" content="Unidad 4: OLTP contra OLAP, Data Warehouse, ETL, staging area, modelo estrella, cubos, Data Mart y Data Mining, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="olap">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 4: Bases de datos</a></p>
+<h1>OLTP, OLAP y Data Warehouse</h1>
+<p><strong>El tema de teoría más tomado desde 2023.</strong> Casi siempre es «compare OLTP y OLAP»; si no, ETL y modelo estrella. Con una tabla y dos dibujos se escribe la respuesta completa.</p>
+
+<div class="datos-tema" data-estadisticas="olap" data-teoria="olap"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li><strong>OLTP</strong> = el sistema del día a día: muchas transacciones cortas (vender, cobrar), datos actuales, modelo <strong>normalizado</strong>, prioridad en ACID y concurrencia.</li>
+    <li><strong>OLAP</strong> = el análisis para decidir: pocas consultas enormes sobre <strong>datos históricos</strong>, modelo <strong>desnormalizado</strong> (estrella), solo lectura, se mira en <strong>cubos</strong> (por producto, por mes, por sucursal).</li>
+    <li>El <strong>Data Warehouse</strong> junta datos de muchas fuentes (incluso heterogéneas) con un proceso <strong>ETL</strong>: extraer, transformar (limpiar, unificar) en una <strong>staging area</strong> y cargar. Es integrado, orientado a temas, histórico y no volátil. Un <strong>Data Mart</strong> es un DW de un área.</li>
+    <li><strong>Modelo estrella</strong>: una <strong>tabla de hechos</strong> con las medidas (importe, cantidad) y FK a las <strong>dimensiones</strong> (tiempo, producto, cliente). Normalizar las dimensiones da el <strong>copo de nieve</strong>.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Del sistema de ventas al tablero del gerente</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 260" role="img" aria-labelledby="dw-t dw-d">
+  <title id="dw-t">Arquitectura de un Data Warehouse</title>
+  <desc id="dw-d">A la izquierda, las fuentes: la base OLTP de ventas en SQL Server, un sistema de stock en Oracle, planillas Excel y archivos de texto. Pasan por el proceso ETL: extraer, transformar en la staging area (limpiar, unificar códigos, calcular) y cargar. Llegan al Data Warehouse con el modelo estrella, histórico y de solo lectura. De ahí salen Data Marts por área y las herramientas: cubos OLAP, reportes y Data Mining.</desc>
+  <defs><marker id="pw" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--azul" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">Fuentes (OLTP y otras)</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="40" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="95" y="64" text-anchor="middle">Ventas (SQL Server)</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="90" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="95" y="114" text-anchor="middle">Stock (Oracle)</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="140" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="95" y="164" text-anchor="middle">Planillas Excel</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="190" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="95" y="214" text-anchor="middle">Archivos de texto</text>
+
+  <rect class="dg-caja dg-caja--ambar" x="220" y="40" width="250" height="190" rx="12"/>
+  <text class="dg-texto dg-texto--titulo" x="345" y="66" text-anchor="middle">ETL</text>
+  <text class="dg-texto dg-texto--chico" x="240" y="94"><tspan font-weight="700">E</tspan>xtraer de cada fuente</text>
+  <rect class="dg-caja" x="236" y="106" width="218" height="72" rx="8"/>
+  <text class="dg-texto dg-texto--chico" x="248" y="126"><tspan font-weight="700">T</tspan>ransformar en la staging area:</text>
+  <text class="dg-texto dg-texto--chico" x="248" y="146">limpiar, unificar códigos,</text>
+  <text class="dg-texto dg-texto--chico" x="248" y="164">quitar duplicados, calcular</text>
+  <text class="dg-texto dg-texto--chico" x="240" y="204"><tspan font-weight="700">L</tspan>oad: cargar en el DW</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="240" y="222">(de noche, sin frenar al OLTP)</text>
+
+  <rect class="dg-caja dg-caja--violeta" x="520" y="60" width="160" height="150" rx="12"/>
+  <text class="dg-texto dg-texto--titulo" x="600" y="90" text-anchor="middle">Data</text>
+  <text class="dg-texto dg-texto--titulo" x="600" y="108" text-anchor="middle">Warehouse</text>
+  <text class="dg-texto dg-texto--chico" x="600" y="136" text-anchor="middle">modelo estrella</text>
+  <text class="dg-texto dg-texto--chico" x="600" y="154" text-anchor="middle">histórico (años)</text>
+  <text class="dg-texto dg-texto--chico" x="600" y="172" text-anchor="middle">solo lectura</text>
+  <text class="dg-texto dg-texto--chico" x="600" y="190" text-anchor="middle">integrado</text>
+
+  <rect class="dg-caja dg-caja--bien" x="730" y="30" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="805" y="54" text-anchor="middle">Data Mart Ventas</text>
+  <rect class="dg-caja dg-caja--bien" x="730" y="80" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="805" y="104" text-anchor="middle">Cubos OLAP</text>
+  <rect class="dg-caja dg-caja--bien" x="730" y="130" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="805" y="154" text-anchor="middle">Reportes / tableros</text>
+  <rect class="dg-caja dg-caja--bien" x="730" y="180" width="150" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="805" y="204" text-anchor="middle">Data Mining</text>
+
+  <line class="dg-linea dg-linea--azul" x1="172" y1="60" x2="218" y2="100" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="172" y1="110" x2="218" y2="120" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="172" y1="160" x2="218" y2="150" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="172" y1="210" x2="218" y2="170" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="472" y1="135" x2="518" y2="135" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="682" y1="100" x2="728" y2="52" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="682" y1="120" x2="728" y2="100" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="682" y1="150" x2="728" y2="150" marker-end="url(#pw)"/>
+  <line class="dg-linea dg-linea--azul" x1="682" y1="170" x2="728" y2="198" marker-end="url(#pw)"/>
+</svg>
+</div>
+<figcaption>La <strong>staging area</strong> es el lugar intermedio donde se transforman los datos antes de cargarlos: así el ETL no carga nada sucio en el DW ni frena a los sistemas OLTP.</figcaption>
+</figure>
+
+<h3>Modelo estrella: ventas</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 330" role="img" aria-labelledby="es-t es-d">
+  <title id="es-t">Modelo estrella de ventas</title>
+  <desc id="es-d">En el centro la tabla de hechos Ventas, con las claves de tiempo, producto, cliente y sucursal y las medidas cantidad e importe. Alrededor, cuatro dimensiones: Tiempo (fecha, mes, trimestre, año), Producto (nombre, rubro, marca), Cliente (nombre, ciudad, segmento) y Sucursal (nombre, provincia, región). Cada dimensión se une a los hechos por una sola clave.</desc>
+  <line class="dg-linea dg-linea--gruesa" x1="450" y1="165" x2="170" y2="80"/>
+  <line class="dg-linea dg-linea--gruesa" x1="450" y1="165" x2="730" y2="80"/>
+  <line class="dg-linea dg-linea--gruesa" x1="450" y1="165" x2="170" y2="250"/>
+  <line class="dg-linea dg-linea--gruesa" x1="450" y1="165" x2="730" y2="250"/>
+  <rect class="dg-caja dg-caja--violeta" x="340" y="85" width="220" height="160" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="450" y="110" text-anchor="middle">Hechos: Ventas</text>
+  <text class="dg-codigo" x="360" y="136">id_tiempo    (FK)</text>
+  <text class="dg-codigo" x="360" y="154">id_producto  (FK)</text>
+  <text class="dg-codigo" x="360" y="172">id_cliente   (FK)</text>
+  <text class="dg-codigo" x="360" y="190">id_sucursal  (FK)</text>
+  <line class="dg-linea dg-linea--fina" x1="352" y1="200" x2="548" y2="200"/>
+  <text class="dg-codigo dg-texto--violeta" x="360" y="218" font-weight="700">cantidad, importe</text>
+  <text class="dg-texto dg-texto--chico" x="360" y="236">← medidas que se suman</text>
+
+  <rect class="dg-caja dg-caja--azul" x="40" y="20" width="230" height="100" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="155" y="44" text-anchor="middle">Dim. Tiempo</text>
+  <text class="dg-texto dg-texto--chico" x="155" y="68" text-anchor="middle">fecha, día de semana,</text>
+  <text class="dg-texto dg-texto--chico" x="155" y="86" text-anchor="middle">mes, trimestre, año</text>
+  <rect class="dg-caja dg-caja--azul" x="630" y="20" width="230" height="100" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="745" y="44" text-anchor="middle">Dim. Producto</text>
+  <text class="dg-texto dg-texto--chico" x="745" y="68" text-anchor="middle">nombre, rubro,</text>
+  <text class="dg-texto dg-texto--chico" x="745" y="86" text-anchor="middle">marca (todo en una tabla)</text>
+  <rect class="dg-caja dg-caja--azul" x="40" y="210" width="230" height="100" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="155" y="234" text-anchor="middle">Dim. Cliente</text>
+  <text class="dg-texto dg-texto--chico" x="155" y="258" text-anchor="middle">nombre, ciudad,</text>
+  <text class="dg-texto dg-texto--chico" x="155" y="276" text-anchor="middle">segmento</text>
+  <rect class="dg-caja dg-caja--azul" x="630" y="210" width="230" height="100" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="745" y="234" text-anchor="middle">Dim. Sucursal</text>
+  <text class="dg-texto dg-texto--chico" x="745" y="258" text-anchor="middle">nombre, provincia,</text>
+  <text class="dg-texto dg-texto--chico" x="745" y="276" text-anchor="middle">región</text>
+</svg>
+</div>
+<figcaption>«¿Cuánto vendió cada región por trimestre?» = un join de los hechos con 2 dimensiones y un GROUP BY. Las dimensiones están <strong>desnormalizadas a propósito</strong> (rubro y marca dentro de Producto) para tener pocos joins. Se cargan <strong>primero las dimensiones</strong> y después los hechos.</figcaption>
+</figure>
+
+<h3>El cubo y sus operaciones</h3>
+<figure>
+<div class="figura figura--chica" style="max-width:none">
+<svg viewBox="0 0 640 250" role="img" aria-labelledby="cu-t cu-d" style="max-width:640px">
+  <title id="cu-t">Cubo OLAP con tres dimensiones</title>
+  <desc id="cu-d">Un cubo con ejes producto, tiempo y sucursal. Cada celda es un hecho, por ejemplo el importe vendido de un producto en un mes en una sucursal. Operaciones: drill-down baja al detalle (de año a mes), roll-up sube y resume (de mes a año), slice corta una rebanada fijando una dimensión, dice toma un subcubo.</desc>
+  <polygon class="dg-caja dg-caja--azul" points="60,90 200,90 200,220 60,220"/>
+  <polygon class="dg-caja dg-caja--violeta" points="60,90 120,40 260,40 200,90"/>
+  <polygon class="dg-caja dg-caja--ambar" points="200,90 260,40 260,170 200,220"/>
+  <line class="dg-linea dg-linea--fina" x1="106" y1="90" x2="106" y2="220"/><line class="dg-linea dg-linea--fina" x1="153" y1="90" x2="153" y2="220"/>
+  <line class="dg-linea dg-linea--fina" x1="60" y1="133" x2="200" y2="133"/><line class="dg-linea dg-linea--fina" x1="60" y1="176" x2="200" y2="176"/>
+  <rect class="dg-caja dg-caja--bien" x="106" y="133" width="47" height="43"/>
+  <text class="dg-texto dg-texto--chico" x="130" y="242" text-anchor="middle">Producto →</text>
+  <text class="dg-texto dg-texto--chico" x="34" y="160" text-anchor="middle" transform="rotate(-90 34 160)">Tiempo →</text>
+  <text class="dg-texto dg-texto--chico" x="250" y="30">Sucursal ↗</text>
+  <text class="dg-texto dg-texto--chico dg-texto--verde" x="20" y="24">celda verde = un hecho</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="40">(importe de un producto,</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="56">un mes, una sucursal)</text>
+  <text class="dg-texto dg-texto--titulo" x="320" y="60">Operaciones</text>
+  <text class="dg-texto dg-texto--chico" x="320" y="88"><tspan font-weight="700">Drill-down:</tspan> bajar al detalle (año → mes)</text>
+  <text class="dg-texto dg-texto--chico" x="320" y="112"><tspan font-weight="700">Roll-up:</tspan> subir y resumir (mes → año)</text>
+  <text class="dg-texto dg-texto--chico" x="320" y="136"><tspan font-weight="700">Slice:</tspan> una rebanada (solo 2024)</text>
+  <text class="dg-texto dg-texto--chico" x="320" y="160"><tspan font-weight="700">Dice:</tspan> un subcubo (2024, rubro X, Sur)</text>
+  <text class="dg-texto dg-texto--chico" x="320" y="184"><tspan font-weight="700">Pivot:</tspan> rotar los ejes</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="320" y="214">Cada dimensión es una cara del cubo</text>
+</svg>
+</div>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>OLTP contra OLAP (la pregunta que más salió)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">OLTP (transaccional)</th><th scope="col">OLAP (analítico, DSS)</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Para qué</th><td>Operar el negocio día a día</td><td>Analizar y tomar decisiones</td></tr>
+    <tr><th scope="row">Usuarios</th><td>Muchos: cajeros, clientes, sistemas</td><td>Pocos: gerentes, analistas</td></tr>
+    <tr><th scope="row">Operaciones</th><td>INSERT, UPDATE, DELETE y SELECT de pocas filas</td><td>SELECT enormes con agregados; carga masiva periódica</td></tr>
+    <tr><th scope="row">Datos</th><td>Actuales, detallados, cambian todo el tiempo</td><td>Históricos (años), resumidos, no volátiles</td></tr>
+    <tr><th scope="row">Diseño</th><td><strong>Normalizado</strong> (3FN): sin redundancia</td><td><strong>Desnormalizado</strong>: estrella o copo de nieve</td></tr>
+    <tr><th scope="row">Prioridad</th><td>ACID, concurrencia, respuesta en milisegundos</td><td>Velocidad de lectura de grandes volúmenes</td></tr>
+    <tr><th scope="row">Índices</th><td>Pocos (cada escritura los paga)</td><td>Muchos (casi no hay escrituras)</td></tr>
+    <tr><th scope="row">Ejemplo</th><td>Registrar una venta en una caja</td><td>Ventas por región y trimestre de los últimos 5 años</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Estrella contra copo de nieve</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Estrella</th><th scope="col">Copo de nieve</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Dimensiones</th><td>Una tabla cada una, desnormalizada</td><td>Normalizadas en varias tablas (Producto → Rubro → Familia)</td></tr>
+    <tr><th scope="row">Joins</th><td class="celda-bien">Pocos: más rápida</td><td class="celda-mal">Más</td></tr>
+    <tr><th scope="row">Redundancia</th><td>Más (el rubro se repite)</td><td>Menos</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Cómo se implementa OLAP</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Tipo</th><th scope="col">Dónde guarda</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">ROLAP</th><td>En una base relacional, con el modelo estrella</td></tr>
+    <tr><th scope="row">MOLAP</th><td>En una base multidimensional (cubos precalculados)</td></tr>
+    <tr><th scope="row">HOLAP</th><td>Mezcla: detalle relacional, resúmenes en cubos</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Los de «OLTP y atomicidad» están en <a href="transacciones.html#trampas">Transacciones</a>.</p>
+<ul class="trampas" data-trampas="olap"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Compare OLTP y OLAP en cuanto a su utilización y diseño de base de datos <small>5 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p><strong>OLTP</strong> (On-Line Transaction Processing) son los sistemas que operan el negocio: registrar ventas, cobros, reservas. Tienen muchos usuarios concurrentes que ejecutan transacciones cortas que leen y modifican pocas filas, sobre datos actuales. Por eso priorizan las propiedades ACID, la concurrencia y el tiempo de respuesta, y usan un modelo <strong>normalizado</strong> (3FN) que evita redundancia y anomalías al modificar, con pocos índices. Ejemplo: el sistema de cajas de un supermercado.</p>
+    <p><strong>OLAP</strong> (On-Line Analytical Processing) son los sistemas de soporte a decisiones: pocos usuarios (gerentes, analistas) hacen consultas complejas que leen y agregan millones de filas de datos <strong>históricos</strong>. Los datos se cargan periódicamente desde los OLTP mediante ETL a un Data Warehouse y no se modifican. Se usa un modelo <strong>desnormalizado</strong>, en estrella (tabla de hechos con medidas y dimensiones alrededor), con muchos índices y resúmenes precalculados, y se analiza en cubos (drill-down, roll-up, slice). Ejemplo: ventas por sucursal y trimestre de los últimos cinco años.</p>
+    <p>En síntesis: OLTP está optimizado para escribir rápido y consistente; OLAP, para leer y resumir mucho.</p>
+  </div>
+  <p class="modelo__salio">Salió el 28/02/2023, el 01/08/2023, el 05/03/2024, el 23/07/2024 (máx. 10 renglones) y el 30/07/2024.</p>
+</details>
+
+<details class="modelo">
+  <summary>Funcionalidad de una ETL y concepto de staging area <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El proceso <strong>ETL</strong> (Extract, Transform, Load) es el que alimenta un Data Warehouse. <strong>Extrae</strong> los datos de las fuentes, que pueden ser heterogéneas (bases de distintos motores, planillas, archivos); los <strong>transforma</strong>: limpia errores, completa faltantes, unifica códigos y formatos (fechas, monedas, «M»/«Masculino»), elimina duplicados, integra los datos de distintas fuentes y calcula valores derivados; y los <strong>carga</strong> en el DW, primero las dimensiones y después los hechos. Corre de forma periódica, normalmente fuera del horario de operación.</p>
+    <p>La <strong>staging area</strong> es un área de almacenamiento intermedia entre las fuentes y el DW donde se dejan los datos extraídos para transformarlos. Así la extracción es rápida y no frena a los sistemas OLTP, las transformaciones no ensucian el DW si fallan a mitad de camino, y se puede reprocesar o auditar lo extraído.</p>
+  </div>
+  <p class="modelo__salio">Salió el 07/03/2023 (con modelo estrella) y el 27/09/2023.</p>
+</details>
+
+<details class="modelo">
+  <summary>Explique el modelo estrella para un Data Warehouse <small>3 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El <strong>modelo estrella</strong> es el diseño típico de un Data Warehouse o Data Mart. En el centro hay una <strong>tabla de hechos</strong>, que registra los eventos del negocio a analizar (por ejemplo, cada venta) con sus <strong>medidas</strong> numéricas (cantidad, importe) y una clave foránea a cada dimensión. Alrededor están las <strong>tablas de dimensiones</strong>, que describen el contexto del hecho: tiempo (día, mes, trimestre, año), producto (nombre, rubro, marca), cliente, sucursal.</p>
+    <p>Las dimensiones están <strong>desnormalizadas</strong>: toda la jerarquía en una sola tabla, para que cualquier consulta sea un join de los hechos con cada dimensión que necesite y un GROUP BY. Eso hace las consultas simples y rápidas, a costa de redundancia, que no importa porque los datos no se modifican. Cada dimensión equivale a un eje del cubo.</p>
+    <p>Si se normalizan las dimensiones, el resultado es el modelo <strong>copo de nieve</strong>. Para cargarlo, primero las dimensiones y después los hechos.</p>
+  </div>
+  <p class="modelo__salio">Salió el 07/03/2023, el 23/05/2023 (Data Mart) y el 18/10/2024.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="b" open>
+  <summary class="ejercicio__titulo">1. Un banco quiere saber qué clientes podrían dejar de serlo, mirando 10 años de movimientos. ¿Qué es?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) OLTP</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Data Mining sobre un Data Warehouse</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Un Data Mart de cajas</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> Buscar patrones ocultos (que nadie pidió explícitamente) en datos históricos es Data Mining. Técnicas típicas para la cátedra: redes neuronales, árboles de decisión y algoritmos genéticos.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">2. En el modelo estrella de ventas, ¿dónde va «importe»?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) En la tabla de hechos: es una medida</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) En la dimensión Producto</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) En la staging area</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> Lo que se suma o promedia es medida y va en los hechos. Lo que se usa para agrupar o filtrar (rubro, mes, región) va en las dimensiones.</div>
+</details>
+
+<details class="ejercicio" data-correcta="c">
+  <summary class="ejercicio__titulo">3. ¿Por qué el OLTP se normaliza y el DW no?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Porque el DW tiene menos datos</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Porque el DW no usa SQL</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) El OLTP escribe todo el tiempo (la redundancia trae anomalías); el DW casi solo lee (menos joins = más rápido)</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> Es el corazón de la comparación: el diseño sigue al uso.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="olap"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

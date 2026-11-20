@@ -1,0 +1,2389 @@
+{
+  "meta": {
+    "materia": "Bases de Datos (plan K23), antes Gestión de Datos (plan K08). Mismo programa y mismo formato de final.",
+    "descripcion": "Base de datos de los finales de Gestión de Datos (UTN FRBA) 2018-2024, transcriptos desde las fotos, PDFs, .docx y .txt de la carpeta. Es la fuente única para el análisis, el banco de V/F y los simulacros.",
+    "temas": {
+      "transacciones": "Transacciones, ACID, aislamiento y bloqueos",
+      "hashing": "Hashing vs Árbol B e índices",
+      "integridad": "Integridad y objetos de BD (constraints, triggers, vistas, snapshots, SP vs función)",
+      "olap": "OLTP/OLAP, Data Warehouse, ETL, modelo estrella",
+      "grafos": "Grafos",
+      "arboles": "Árboles (B, B+, ABB, barridos) y Huffman",
+      "ordenamiento": "Algoritmos de ordenamiento",
+      "relacional": "Arquitectura ANSI/SPARC, modelo relacional, joins y SQL"
+    },
+    "tipos_practica": {
+      "A": "¿Qué devuelve / qué pasa? (analizar una consulta o un script)",
+      "B": "Escribir una consulta (o una sentencia DML)",
+      "C": "Programar objetos: trigger, SP, función o DDL para una regla",
+      "D": "Concurrencia: procesos en paralelo, aislamiento y bloqueos"
+    },
+    "estados_respuesta": {
+      "oficial": "La dio la cátedra (revisión, Moodle) o se deduce de la nota escrita en el examen corregido",
+      "consenso": "Todas las fuentes coinciden y el razonamiento lo confirma",
+      "razonada": "Las fuentes se contradicen o están mal; se decidió razonando (ver nota)",
+      "sin_resolver": "No hay forma segura de decidir: conviene dejarla en blanco"
+    },
+    "unidades": {
+      "1": "Estructuras de datos (grafos, pilas, colas, listas, árboles; representación estática y dinámica)",
+      "2": "Manipulación de datos (ordenamiento, búsqueda, árboles binarios y n-arios, árbol B, hashing, Huffman, encriptamiento)",
+      "3": "Diseño de datos (modelo relacional, ER, claves, normalización, arquitectura ANSI/SPARC, cliente-servidor)",
+      "4": "Bases de datos (tipos de BD, SQL y T-SQL, transacciones y concurrencia, integridad, seguridad, recuperación, DW/OLAP)"
+    },
+    "tema_unidad": {
+      "grafos": 1,
+      "arboles": 2,
+      "hashing": 2,
+      "ordenamiento": 2,
+      "transacciones": 4,
+      "integridad": 4,
+      "olap": 4,
+      "relacional": "según el ítem (campo unidad)"
+    }
+  },
+  "finales": [
+    {
+      "id": "2018-02-21",
+      "fecha": "21/02/2018",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto del enunciado)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "El Árbol B+ es un árbol Principal Derecho Balanceado.",
+          "tema": "arboles",
+          "respuesta": "V",
+          "estado": "razonada",
+          "nota": "El libro de Estructuras de Datos de UTN (Pérez, sobre Pfaltz) dice que «los términos árbol y árbol principal derecho son sinónimos». El B+ es un árbol y está balanceado (todas las hojas al mismo nivel). Teóricas dice F sin justificarlo."
+        },
+        {
+          "n": "1b",
+          "texto": "Para entornos transaccionales de alta concurrencia es conveniente setear el Isolation Level en Repeatable Read.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Más bloqueos y más riesgo de deadlock; en alta concurrencia conviene un nivel más permisivo (Read Committed)."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique el objeto vista: definición, para qué casos lo usaría y su relación con la seguridad e integridad.",
+          "tema": "integridad",
+          "clave": "vista"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique el concepto de Dominio y las reglas de Integridad de Entidad, Referencial y Semántica.",
+          "tema": "integridad",
+          "clave": "reglas-integridad"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "C",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "Implementar la regla: si una provincia no posee ciudades, Habitantes debe ser NULL; si tiene, debe ser mayor a 0 (la regla se cumple hoy y acceden n aplicaciones).",
+          "respuesta": "Triggers AFTER sobre Provincia (INSERT/UPDATE) y sobre Ciudad (INSERT/UPDATE/DELETE) que validen la regla para las provincias afectadas y hagan ROLLBACK.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "¿Qué devuelve? SELECT pro.idPcia, ISNULL(pro.habitantes,0), pa.detalle FROM provincia pro JOIN pais pa ... WHERE pro.habitantes = (SELECT MAX(pro2.habitantes) ... del mismo país) ORDER BY pro.habitantes. Opciones A/B/C.",
+          "respuesta": "B: como mínimo 1 fila por país con al menos 1 provincia con ciudades (los NULL no pasan el '=' y puede haber empates).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2018-03-12",
+      "fecha": "12/03/2018",
+      "formato": "presencial",
+      "fuente": "finales 2018/2018-Final_12_de_Marzo.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si se desea que no se puedan eliminar registros de una tabla de auditoría, una opción es crear un trigger que lo impida.",
+          "tema": "integridad",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Por ejemplo un INSTEAD OF DELETE que no borre, o un AFTER DELETE con ROLLBACK."
+        },
+        {
+          "n": "1b",
+          "texto": "La cantidad de nodos de un árbol de expresión siempre es par.",
+          "tema": "arboles",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Con operadores binarios cada nodo interno tiene 2 hijos: n = 2i + 1, siempre impar. Ej: (2*3)+6 tiene 5 nodos."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Defina el concepto de transacción en un Sistema de Base de Datos.",
+          "tema": "transacciones",
+          "clave": "transaccion-def"
+        },
+        {
+          "n": "2b",
+          "texto": "¿Qué representa la sigla ACID? Desarrolle cada uno de sus componentes.",
+          "tema": "transacciones",
+          "clave": "acid"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "usuarios-ingresos",
+          "clave": "vista-usuarios-ingresos",
+          "texto": "Vista vw_final (último ingreso por usuario o fecha de alta si nunca ingresó) hecha con UNION, pero la segunda parte NO filtra a los que ya ingresaron. Opciones I-IV.",
+          "respuesta": "II: se crea pero no devuelve lo pedido (agrega la fecha de alta de TODOS los usuarios). Falta WHERE NOT EXISTS (ingresos del usuario).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "usuarios-ingresos",
+          "texto": "DELETE FROM usuarios WHERE idusuario = 8 da error: explicar el motivo e implementar los objetos para poder borrar usuarios así.",
+          "respuesta": "Falla por la FK de Ingresos. INSTEAD OF DELETE en Usuarios que borre primero los Ingresos de los usuarios de deleted y después los Usuarios (multifila, con IN/JOIN contra deleted).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2018-07-17",
+      "fecha": "17/07/2018",
+      "formato": "presencial",
+      "fuente": "finales 2018/2018-Final_17_de_Julio.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Es posible implementar el concepto de ABB (Árbol Binario de Búsqueda) en un Array.",
+          "tema": "arboles",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Representación estática: hijos de la posición i en 2i y 2i+1 (o 2i+1 y 2i+2)."
+        },
+        {
+          "n": "1b",
+          "texto": "Todo grafo de grado 2 es un árbol binario.",
+          "tema": "grafos",
+          "clave": "grafo-grado2",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "Oficial por la nota del 16/12/2022 (misma afirmación). Contraejemplo: un triángulo o un nodo con bucle tienen grado 2 y no son árboles."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Relacione y explique los conceptos de transacción, lockeos y aislamiento.",
+          "tema": "transacciones",
+          "clave": "transaccion-aislamiento-bloqueos"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique la arquitectura interna de un Sistema de Base de Datos.",
+          "tema": "relacional",
+          "clave": "arquitectura",
+          "unidad": 3
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "empresa-area-empleado",
+          "texto": "¿Qué devuelve? SELECT e.id_empresa, COUNT(DISTINCT a.id_area), COUNT(em.id_empresa) FROM empresa e JOIN area a ... LEFT JOIN empleado em ... GROUP BY e.id_empresa. Opciones A-D.",
+          "respuesta": "B: 1 fila por empresa con al menos 1 área; cantidad de áreas (todas, el LEFT JOIN las conserva) y cantidad de empleados.",
+          "estado": "razonada",
+          "nota": "Las dos resoluciones de alumnos dicen C, pero C exige 'al menos un empleado' y eso lo impediría solo un INNER JOIN con empleado."
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "empresa-area-empleado",
+          "texto": "Consulta: un renglón por empresa con al menos 1 área y ninguna área con más de 10 empleados: id_empresa, cantidad de áreas y cantidad de empleados.",
+          "respuesta": "JOIN empresa-área + LEFT JOIN empleado, GROUP BY empresa, y excluir empresas con alguna área de más de 10 empleados (NOT EXISTS / NOT IN con HAVING COUNT > 10).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2019-02-12",
+      "fecha": "12/02/2019",
+      "formato": "presencial",
+      "fuente": "finales 2019/2019-Final_12_de_Febrero.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Un constraint de tipo CHECK siempre puede ser reemplazado por un trigger.",
+          "tema": "integridad",
+          "clave": "check-trigger",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Todo lo que valida un CHECK lo puede validar un trigger (al revés no)."
+        },
+        {
+          "n": "1b",
+          "texto": "Los árboles B garantizan un número de niveles menor que otros árboles.",
+          "tema": "arboles",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "La altura depende de la cantidad de claves, el orden y la ocupación de los nodos; no hay garantía frente a 'cualquier otro árbol'."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Defina el concepto de transacción en un Sistema de Base de Datos.",
+          "tema": "transacciones",
+          "clave": "transaccion-def"
+        },
+        {
+          "n": "2b",
+          "texto": "Desarrolle el concepto de Grafos, su posible utilización, clasificación y representación computacional.",
+          "tema": "grafos",
+          "clave": "grafos-completo"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Persona(id, fecha_nacimiento, apellido, nombre, su_padre_es): mostrar las personas con sus abuelos paternos (nombre y apellido de ambos).",
+          "respuesta": "Doble self-join: hijo JOIN padre ON hijo.su_padre_es = padre.id JOIN abuelo ON padre.su_padre_es = abuelo.id.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Mostrar los padres y cuántos hijos tienen (nombre y apellido del padre y cantidad).",
+          "respuesta": "padre JOIN hijo ON hijo.su_padre_es = padre.id GROUP BY padre.id, padre.nombre, padre.apellido con COUNT(*).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2019-02-26",
+      "fecha": "26/02/2019",
+      "formato": "presencial",
+      "fuente": "finales 2019/2019-Final_26_de_Febrero.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "En el árbol de Huffman la cantidad total de nodos es (total de hojas × 2) − 1.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Cada nodo interno tiene exactamente 2 hijos: n = 2h − 1."
+        },
+        {
+          "n": "1b",
+          "texto": "Una columna que posea la constraint UNIQUE puede contener como máximo una sola fila con NULL en dicha columna.",
+          "tema": "integridad",
+          "clave": "unique-null",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "En SQL Server (el motor de la cátedra) UNIQUE admite un único NULL. En Oracle o PostgreSQL admite varios."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique el concepto, la funcionalidad y para qué se utilizan los triggers en una BD relacional.",
+          "tema": "integridad",
+          "clave": "triggers"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique qué significa la sigla ACID y desarrolle cada concepto.",
+          "tema": "transacciones",
+          "clave": "acid"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "tablas-genericas",
+          "clave": "cartesiano-vacia",
+          "texto": "SELECT t1.campoA, COUNT(*) FROM tabla1 t1, tabla2 GROUP BY t1.campoA; tabla1 tiene 500 filas y tabla2 está vacía. Opciones 1-4.",
+          "respuesta": "4) Conjunto vacío: el producto cartesiano con una tabla vacía es vacío (no hay grupos, ni siquiera COUNT = 0).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "tablas-genericas",
+          "texto": "Persons sin constraints: implementar los objetos para emular que el campo Ciudad sea FK a Ciudades(IdCiudad).",
+          "respuesta": "Trigger AFTER INSERT, UPDATE en Persons (si hay ciudad no nula inexistente → ROLLBACK) y trigger AFTER DELETE, UPDATE en Ciudades (si queda alguna persona apuntando a una ciudad borrada → ROLLBACK).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2019-09-25",
+      "fecha": "25/09/2019",
+      "formato": "presencial",
+      "fuente": "finales 2019/2019-Final_25_de_Septiembre.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "En una db relacional las vistas pueden ser utilizadas para brindar consistencia de datos.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "La consistencia la dan las transacciones y las constraints; las vistas sirven para seguridad y simplificación. (Matiz: WITH CHECK OPTION valida lo que se inserta por la vista.)"
+        },
+        {
+          "n": "1b",
+          "texto": "En Huffman, si un carácter posee el código 0011, entonces con seguridad existe al menos otro carácter cuyo código comienza con 001.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "El árbol de Huffman es completo: el nodo 0011 tiene un hermano 0010, que es hoja o tiene hojas debajo."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle 2 objetos de una base de datos que sirven para brindar seguridad.",
+          "tema": "integridad",
+          "clave": "seguridad-objetos"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique las principales diferencias entre una función y un stored procedure.",
+          "tema": "integridad",
+          "clave": "sp-vs-funcion"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "carreras-caballos",
+          "texto": "Carreras/Caballos: para la fecha del día, el/los nombres del caballo ganador (Puesto = 1) que menos dinero recibió en apuestas.",
+          "respuesta": "Filtrar fecha de hoy y puesto 1, y quedarse con los que tienen TotalApostado = MIN(...) (no usar TOP 1: pide 'el/los').",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "carreras-caballos",
+          "texto": "Implantar: 'por cada carrera, los valores no nulos de Puesto deben ser consecutivos iniciando en 1' (se cumple hoy, n aplicaciones).",
+          "respuesta": "Trigger AFTER INSERT, UPDATE en Caballos que, para las carreras afectadas, verifique que COUNT(puesto no nulo) = MAX(puesto) y que no haya repetidos; si no → ROLLBACK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2019-12-04",
+      "fecha": "04/12/2019",
+      "formato": "presencial",
+      "fuente": "finales 2019/2019-Final_4_de_Diciembre.pdf",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Una columna afectada por una constraint UNIQUE no puede almacenar valores repetidos ni NULL.",
+          "tema": "integridad",
+          "clave": "unique-null",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "No admite repetidos, pero sí un NULL (SQL Server)."
+        },
+        {
+          "n": "1b",
+          "texto": "Hashing es más performante que el Árbol B en la búsqueda de una clave única en particular existente.",
+          "tema": "hashing",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Acceso directo O(1) contra O(log n). Ojo: el 30/07/2024 la cátedra marcó FALSO una versión sin 'única' ('conviene buscar por una clave en hash que en B+')."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle dos objetos de bases de datos que puedan garantizar la integridad de la misma.",
+          "tema": "integridad",
+          "clave": "integridad-2-objetos"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique el concepto de ISOLATION LEVEL. Mencione las diferencias entre cada nivel.",
+          "tema": "transacciones",
+          "clave": "niveles-aislamiento"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "producto-stock",
+          "clave": "cartesiano-vacia",
+          "texto": "SELECT p.prod_codigo, COUNT(*) FROM PRODUCTOS p, DEPOSITO d GROUP BY p.prod_codigo HAVING COUNT(*) > 0; PRODUCTOS tiene 15000 filas y DEPOSITO está vacía. Opciones 1-5.",
+          "respuesta": "3) Conjunto vacío (producto cartesiano con tabla vacía).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "producto-stock",
+          "texto": "Un programador resuelve con CREATE FUNCTION FN_REASIGNAR_PRODUCTOS una reasignación de depósitos usando dos UPDATE sobre STOCK. ¿Es correcta? Corregir y justificar.",
+          "respuesta": "Incorrecta: una función no puede modificar tablas (UPDATE). Debe ser un STORED PROCEDURE. Además, mover todo el stock de un producto a un único depósito puede violar la PK (producto, depósito) si el producto tenía stock en varios.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2020-02-26",
+      "fecha": "26/02/2020",
+      "formato": "presencial",
+      "fuente": "finales 2020/Final GDD 26-02-2020.jpeg",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si una función de hash no posee una buena dispersión, se van a producir muchas colisiones.",
+          "tema": "hashing",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Mala dispersión = muchas claves caen en las mismas posiciones."
+        },
+        {
+          "n": "1b",
+          "texto": "Nunca es posible ejecutar la operación de insert sobre una vista.",
+          "tema": "integridad",
+          "clave": "insert-vista",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Se puede si la vista es actualizable (una tabla base, sin agregados ni DISTINCT) o con un trigger INSTEAD OF INSERT."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explicar la utilidad de obtener el plan de ejecución de un select de consulta de datos.",
+          "tema": "relacional",
+          "clave": "plan-ejecucion",
+          "unidad": 4
+        },
+        {
+          "n": "2b",
+          "texto": "Enumere y explique al menos tres algoritmos de clasificación u ordenamiento que conozca.",
+          "tema": "ordenamiento",
+          "clave": "algoritmos-3"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "C",
+          "modelo": "t1-t2",
+          "texto": "T1(ID, DETALLE) y T2(ID, ID_T1, DETALLE): agregar los objetos para establecer la integridad referencial entre T1 y T2, sin alterar la estructura ni usar FK constraints (rige desde que se crea el código).",
+          "respuesta": "Triggers: AFTER INSERT, UPDATE en T2 (ID_T1 debe existir en T1) y AFTER DELETE, UPDATE en T1 (no dejar hijos huérfanos), con ROLLBACK.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "t1-t2",
+          "texto": "Con el modelo anterior se ejecuta ALTER TABLE T2 ADD FOREIGN KEY (ID_T1) REFERENCES T1(ID) (mismo tipo). a) da error, b) se ejecuta sin problemas, c) ninguna.",
+          "respuesta": "Depende: falla si T1.ID no es PK/UNIQUE o si quedaron filas huérfanas de antes del trigger (la FK se crea WITH CHECK). Justificar ese análisis.",
+          "estado": "sin_resolver",
+          "nota": "No hay resolución en las fuentes."
+        }
+      ]
+    },
+    {
+      "id": "2021-03-10",
+      "fecha": "10/03/2021",
+      "formato": "virtual",
+      "fuente": "finales 2021/final-GDD-10-3-2021.pdf (captura de Moodle con corrección)",
+      "notas": "Formato virtual 2021: 2 V/F de 1 punto, 1 multiple choice de 3 puntos y 1 ejercicio de código de 5 puntos. Sin teoría para desarrollar.",
+      "vf": [
+        {
+          "n": "V/F 1",
+          "texto": "Las únicas restricciones posibles aplicables en el modelo relacional son por tabla.",
+          "tema": "relacional",
+          "clave": "restricciones-tabla",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "También hay restricciones por columna (NOT NULL, CHECK de columna) y entre tablas (FK).",
+          "unidad": 3
+        },
+        {
+          "n": "V/F 2",
+          "texto": "Las técnicas más comunes utilizadas en el Datamining son las redes neuronales, los árboles de decisión y los algoritmos genéticos.",
+          "tema": "olap",
+          "clave": "datamining-tecnicas",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "Comentario oficial de Moodle: 'Las reglas de inducción no son técnicas de DataMining'."
+        }
+      ],
+      "teoria": [],
+      "practica": [
+        {
+          "n": "MC",
+          "tipo": "D",
+          "modelo": "producto-concurrencia",
+          "clave": "serializable-producto",
+          "texto": "SERIALIZABLE con bloqueo de tabla compartido. A y B: BEGIN, SELECT detalle de producto id=1, UPDATE 'product' SET detalle='X'/'Y' WHERE id=1, COMMIT. Opciones: deadlock / X / Y / A o B termina antes / ninguna.",
+          "respuesta": "Ninguna de las anteriores (respuesta oficial).",
+          "estado": "oficial",
+          "nota": "Explicación más probable: el UPDATE apunta a la tabla 'product' y la tabla es 'producto' → el UPDATE falla en ambos, no hay deadlock y el detalle no cambia. Si la tabla estuviera bien escrita, habría deadlock."
+        },
+        {
+          "n": "Código",
+          "tipo": "C",
+          "modelo": "entrenador",
+          "texto": "DDL sobre Entrenador/Especialidad vacías: PK en los id, relación N:M entrenador-especialidad, tabla ATLETA con entrenador asignado, UNIQUE en espe_detalle e integridad referencial. Script ejecutable de una vez.",
+          "respuesta": "ALTER COLUMN ... NOT NULL antes de las PK; tabla intermedia con PK compuesta y dos FK; tipos iguales a los referenciados (CHAR(10)); UNIQUE; FK desde Atleta.",
+          "estado": "oficial",
+          "nota": "Comentarios del corrector: faltó NOT NULL antes de las PK y los tipos debían respetar CHAR(10)."
+        }
+      ]
+    },
+    {
+      "id": "2021-06-22",
+      "fecha": "22/06/2021",
+      "formato": "virtual",
+      "fuente": "finales 2021/Final GDD 22 6 2021 Enunciado.pdf (captura de Moodle)",
+      "vf": [
+        {
+          "n": "V/F 1",
+          "texto": "El Heap es un árbol n-ario el cual debe cumplir la norma de que el padre sea mayor que sus hijos en todos los niveles.",
+          "tema": "ordenamiento",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El heap es un árbol BINARIO (cargado por niveles de izquierda a derecha)."
+        },
+        {
+          "n": "V/F 2",
+          "texto": "Las únicas restricciones posibles aplicables en el modelo relacional son por tabla.",
+          "tema": "relacional",
+          "clave": "restricciones-tabla",
+          "respuesta": "F",
+          "estado": "oficial",
+          "unidad": 3
+        }
+      ],
+      "teoria": [],
+      "practica": [
+        {
+          "n": "MC",
+          "tipo": "A",
+          "modelo": "usuarios-ingresos",
+          "clave": "vista-usuarios-ingresos",
+          "texto": "Vista vw_final con UNION y WHERE NOT EXISTS (versión corregida del 12/03/2018). ¿Es correcta?",
+          "respuesta": "La vista es correcta y devuelve exactamente lo solicitado (oficial).",
+          "estado": "oficial"
+        },
+        {
+          "n": "Código",
+          "tipo": "C",
+          "modelo": "usuario-perfil",
+          "texto": "Usuario, Perfil, Usuario_Perfil y Log_Asignaciones: crear los objetos para controlar la vigencia de permisos (no vigente si hay una baja 'DEL' posterior a la fecha de alta) y dejar inactivo ('I') el perfil no vigente.",
+          "respuesta": "SP (o trigger sobre Log_Asignaciones) que haga UPDATE Usuario_Perfil SET uspe_activo = 'I' cuando EXISTS un log 'DEL' del mismo usuario y perfil con fecha posterior al alta.",
+          "estado": "consenso",
+          "nota": "El alumno obtuvo 5/5; su .sql no está en la carpeta."
+        }
+      ]
+    },
+    {
+      "id": "2021-08-02",
+      "fecha": "02/08/2021",
+      "formato": "virtual",
+      "fuente": "finales 2021/final-GDD-2-8-2021.pdf (captura de Moodle con corrección)",
+      "vf": [
+        {
+          "n": "V/F 1",
+          "texto": "Si un árbol binario es completo, entonces la cantidad de nodos que posee es impar.",
+          "tema": "arboles",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "Confirma la definición de la cátedra: completo = cada nodo tiene 0 o 2 hijos → n = 2i + 1."
+        },
+        {
+          "n": "V/F 2",
+          "texto": "El algoritmo de QuickSort tiene un orden de complejidad que varía según cómo vengan ordenados los datos.",
+          "tema": "ordenamiento",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "Puede ser O(n log n) o O(n²) (comentario oficial)."
+        }
+      ],
+      "teoria": [],
+      "practica": [
+        {
+          "n": "MC",
+          "tipo": "A",
+          "modelo": "usuarios-ingresos",
+          "clave": "vista-usuarios-ingresos",
+          "texto": "La misma vista vw_final con NOT EXISTS.",
+          "respuesta": "La vista es correcta y devuelve exactamente lo solicitado (oficial).",
+          "estado": "oficial"
+        },
+        {
+          "n": "Código",
+          "tipo": "C",
+          "modelo": "entrenador",
+          "texto": "Dado un código de entrenador devolver 'El entrenador X tiene un nivel N y sus dependientes acumulan Z horas semanales' (N = entrenados directos e indirectos; Z = horas directas e indirectas; profundidad desconocida).",
+          "respuesta": "Recursión: CTE recursiva (o función recursiva) sobre entrenado_por_id para contar dependientes y sumar horas, dentro de un SP o función que arme el texto.",
+          "estado": "oficial",
+          "nota": "Comentario del corrector a una solución sin recursión: 'No resuelve la recursividad' (1/5)."
+        }
+      ]
+    },
+    {
+      "id": "2021-09-23",
+      "fecha": "23/09/2021",
+      "formato": "virtual",
+      "fuente": "finales 2021/final-GDD-23-9-2021.pdf (captura de Moodle con corrección)",
+      "vf": [
+        {
+          "n": "V/F 1",
+          "texto": "Un sistema de Data Warehousing no permite la integración de bases de datos heterogéneas (relacionales, documentales, geográficas, archivos, etc.).",
+          "tema": "olap",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "Integrar fuentes heterogéneas es justamente una característica del DW."
+        },
+        {
+          "n": "V/F 2",
+          "texto": "Un vector se puede utilizar para representar cualquier grafo restricto.",
+          "tema": "grafos",
+          "respuesta": "V",
+          "estado": "oficial"
+        }
+      ],
+      "teoria": [],
+      "practica": [
+        {
+          "n": "MC",
+          "tipo": "A",
+          "modelo": "usuarios-ingresos",
+          "clave": "vista-usuarios-ingresos",
+          "texto": "La misma vista vw_final con NOT EXISTS.",
+          "respuesta": "La vista es correcta y devuelve exactamente lo solicitado (oficial).",
+          "estado": "oficial"
+        },
+        {
+          "n": "Código",
+          "tipo": "B",
+          "modelo": "entrenador",
+          "texto": "Para todos los entrenadores: apellido y nombre, los de quien lo entrena, cantidad de especialidades y horas semanales de ambos. Ninguna columna en NULL; si no tiene entrenador mostrar 'No posee entrenador'.",
+          "respuesta": "Self LEFT JOIN Entrenador e1 → e2 (su entrenador) + subconsultas correlacionadas para cantidades; ISNULL(..., 0) en los números y el texto solo en la columna del nombre.",
+          "estado": "oficial",
+          "nota": "Corrector: el 'No posee entrenador' era solo para la columna del nombre; en las numéricas mostrar 0."
+        }
+      ]
+    },
+    {
+      "id": "moodle-sf",
+      "fecha": "s/f (Moodle)",
+      "formato": "virtual",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (captura 'Final XX')",
+      "notas": "Solo se conserva una pregunta de multiple choice.",
+      "vf": [],
+      "teoria": [],
+      "practica": [
+        {
+          "n": "MC",
+          "tipo": "D",
+          "modelo": "prueba",
+          "texto": "prueba(valor) vacía. TRAN1 READ UNCOMMITTED; TRAN2 READ COMMITTED inserta 1, cuenta, COMMIT y luego ROLLBACK; TRAN1 cuenta antes y después. ¿Qué devuelven los COUNT(*) en t6, t7 y t10?",
+          "respuesta": "1, 1, 1 (oficial): TRAN2 ve lo propio, TRAN1 lee sucio y el ROLLBACK posterior al COMMIT no deshace nada.",
+          "estado": "oficial"
+        }
+      ]
+    },
+    {
+      "id": "2022-03-02",
+      "fecha": "02/03/2022",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "En un stored procedure, dentro de una transacción no se puede cambiar el nivel de aislamiento.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "SET TRANSACTION ISOLATION LEVEL se puede ejecutar dentro de un SP y dentro de una transacción."
+        },
+        {
+          "n": "1b",
+          "texto": "El método Heapsort siempre es más rápido que el método de la Burbuja para ordenar un conjunto de datos desordenados.",
+          "tema": "ordenamiento",
+          "respuesta": "V",
+          "estado": "razonada",
+          "nota": "Todas las fuentes dicen V (O(n log n) contra O(n²)). Ojo con el 'siempre': con muy pocos datos o datos casi ordenados la burbuja con bandera puede ganar; por eso hay quien la marca F."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Indique en qué casos considera que el método de Hashing sería mejor que el de Árbol B para la creación de índices.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Indique dos ejemplos donde sería necesario el uso de un grafo irrestricto para modelar una solución.",
+          "tema": "grafos",
+          "clave": "grafo-irrestricto-ejemplos"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "D",
+          "modelo": "producto-stock",
+          "texto": "STOCK(1,1,100). A y B en SERIALIZABLE (lecturas con bloqueo compartido): SELECT del producto, UPDATE cantidad = cantidad − 1; A hace COMMIT y B ROLLBACK. Opciones: 99 por el rollback de B / 100 o 99 según decida el motor / siempre 100 por deadlock / ninguna.",
+          "respuesta": "b) 100 o 99: ambos leen (S), ambos piden X → deadlock; si el motor mata a A queda 100 (B hace rollback), si mata a B queda 99.",
+          "estado": "razonada",
+          "nota": "El enunciado tiene 'UPDATE STOCK SET set cantidad', que tomado literal es un error de sintaxis. Se asume error de tipeo."
+        },
+        {
+          "n": "3b",
+          "tipo": "D",
+          "modelo": "producto-stock",
+          "texto": "Trigger tr_final FOR INSERT en ITEM_FACTURA con BEGIN TRANSACTION, cursor e IF (stock >= cantidad) UPDATE ... con READ COMMITTED y mucha concurrencia: el stock quedó negativo. Explicar por qué y cómo corregirlo.",
+          "respuesta": "Check-then-act: con READ COMMITTED el SELECT libera el bloqueo al terminar de leer, dos transacciones validan el mismo stock y ambas descuentan. Solución: UPDATE atómico con la condición en el WHERE (y verificar @@ROWCOUNT) o leer con UPDLOCK/HOLDLOCK, más un CHECK (cantidad >= 0).",
+          "estado": "razonada",
+          "nota": "La resolución del alumno propone Repeatable Read: evita el negativo pero genera deadlocks."
+        }
+      ]
+    },
+    {
+      "id": "2022-09-09",
+      "fecha": "09/09/2022",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "La reexpresión de caracteres al aplicar Huffman implica la disminución a menos de 8 bits de todos los caracteres.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "clave": "huffman-8bits",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Los caracteres poco frecuentes pueden quedar con códigos de más de 8 bits."
+        },
+        {
+          "n": "1b",
+          "texto": "La ejecución sin filas de resultado de una query dentro de un trigger en SQL Server genera la cancelación de la transacción.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Una consulta sin filas no es un error; el trigger sigue ejecutándose."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle el concepto de Grafo, su utilización, los tipos de grafos y sus diferentes representaciones computacionales.",
+          "tema": "grafos",
+          "clave": "grafos-completo"
+        },
+        {
+          "n": "2b",
+          "texto": "Indique los distintos niveles de aislamiento de un DBMS indicando claramente qué tipos de bloqueos se ejecutan en cada uno de ellos.",
+          "tema": "transacciones",
+          "clave": "niveles-aislamiento"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3",
+          "tipo": "D",
+          "modelo": "numeros",
+          "texto": "prueba(col1 int NOT NULL) vacía. Proceso 1: dos SELECT COUNT(*) en la misma transacción (a y b). Proceso 2: INSERT INTO prueba (col1) (SELECT MAX(col1)+1 FROM prueba). a) a y b siempre iguales b) nunca iguales c) depende d) no hay info e) ninguna.",
+          "respuesta": "a) Siempre iguales: con la tabla vacía MAX(col1) es NULL y NULL+1 es NULL → el INSERT falla por NOT NULL. La tabla sigue vacía (0 y 0) sin importar el aislamiento.",
+          "estado": "consenso"
+        },
+        {
+          "n": "4",
+          "tipo": "A",
+          "modelo": "numeros",
+          "clave": "min-max-selfjoin",
+          "texto": "TABLITA(numero UNIQUE). Describir errores o qué retorna: SELECT MAX(t1.numero), MAX(t2.numero) FROM tablita t1, tablita t2 WHERE t1.numero > t2.numero (más de 10 filas).",
+          "respuesta": "No tiene errores: devuelve el máximo y el segundo máximo (t2 nunca puede ser el máximo).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2022-sfA",
+      "fecha": "2022 (s/f, A)",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx ('Final XX/YY/2022 **', foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "La lectura consistente (READ COMMITTED), cuando una transacción modifica un dato, siempre tiene que generar un bloqueo exclusivo para que otra transacción no vea datos inconsistentes.",
+          "tema": "transacciones",
+          "respuesta": "V",
+          "estado": "razonada",
+          "nota": "Toda modificación toma un bloqueo exclusivo hasta el fin de la transacción; es lo que impide la lectura sucia. 'Teóricas GDD' dice F confundiendo con los bloqueos de lectura."
+        },
+        {
+          "n": "1b",
+          "texto": "Los accesos mediante funciones de HASH son eficientes siempre y se recomiendan usar en todos los casos en los que se necesite acceder a datos.",
+          "tema": "hashing",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "No sirven para rangos, orden ni claves duplicadas."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle el concepto de Atomicidad, aislamiento y transacciones.",
+          "tema": "transacciones",
+          "clave": "transaccion-aislamiento-bloqueos"
+        },
+        {
+          "n": "2b",
+          "texto": "Desarrolle el concepto de Modelo Relacional.",
+          "tema": "relacional",
+          "clave": "modelo-relacional",
+          "unidad": 3
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "producto-stock",
+          "texto": "Producto/Composición (combos): para todos los productos, nombre, nombre del componente y cantidad que lo compone; si no es compuesto mostrar 'sin compuesto' y 0.",
+          "respuesta": "Producto LEFT JOIN Composicion LEFT JOIN Producto (componente) con ISNULL(detalle, 'sin compuesto') e ISNULL(cantidad, 0).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "producto-stock",
+          "texto": "Objetos para controlar que el precio de un producto compuesto sea siempre igual a la suma de precio × cantidad de sus componentes.",
+          "respuesta": "Trigger AFTER INSERT, UPDATE, DELETE en Composición y AFTER UPDATE en Producto que recalculen la suma de los combos afectados y hagan ROLLBACK si no coincide.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2022-sfB",
+      "fecha": "2022 (s/f, B)",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx ('Final XX/YY/2022 ****', foto corregida: 8)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Un barrido simétrico sobre un ABB (árbol binario de búsqueda) devuelve un conjunto ordenado de datos.",
+          "tema": "arboles",
+          "clave": "abb-simetrico",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Inorden: izquierdo, raíz, derecho → orden ascendente."
+        },
+        {
+          "n": "1b",
+          "texto": "El método de ordenamiento quick sort tiene siempre el mismo orden de complejidad, es decir, la complejidad computacional es constante.",
+          "tema": "ordenamiento",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "O(n log n) en promedio y O(n²) en el peor caso."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Realice una comparación entre Hashing y árbol B como método de acceso a datos.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique las propiedades A.C.I.D. de una base de datos relacional.",
+          "tema": "transacciones",
+          "clave": "acid"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "pais-provincia-ciudad",
+          "clave": "paises-top5",
+          "texto": "País tiene más de 100 registros: consulta que retorne los 5 primeros países del alfabeto y los 5 últimos (las 2 columnas).",
+          "respuesta": "WHERE idpais IN (TOP 5 ORDER BY detalle) OR idpais IN (TOP 5 ORDER BY detalle DESC), o UNION ALL de dos derivadas con TOP.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "pais-provincia-ciudad",
+          "clave": "paises-top5",
+          "texto": "SELECT pa.IDPAIS, SUM(pro.HABITANTES), COUNT(*) FROM pais pa, provincias pro WHERE pa.IDPAIS = pro.IDPAIS GROUP BY pa.IDPAIS. Opciones A-D.",
+          "respuesta": "D: 1 fila por país con al menos 1 provincia; habitantes del país (suma de sus provincias); cantidad de provincias.",
+          "estado": "oficial",
+          "nota": "El mismo ejercicio salió el 17/12/2024 y el alumno que marcó D sacó 2/2."
+        }
+      ]
+    },
+    {
+      "id": "2022-12-06",
+      "fecha": "06/12/2022",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Es lo mismo utilizar una UNIQUE CONSTRAINT sobre un campo identificador de una tabla que una Primary Key, dado que ambas ofrecen el mismo concepto y funcionalidad.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "UNIQUE admite un NULL; la PK no admite NULL (integridad de entidad) y hay una sola por tabla."
+        },
+        {
+          "n": "1b",
+          "texto": "Siempre, en todos los casos, es más rápido el acceso a los datos mediante un índice que mediante algún algoritmo sobre la tabla.",
+          "tema": "hashing",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Tablas chicas o consultas que traen gran parte de la tabla: el recorrido secuencial gana."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique el concepto de transacción e isolation level.",
+          "tema": "transacciones",
+          "clave": "niveles-aislamiento"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique en qué casos usaría una función de HASH. Ejemplifique.",
+          "tema": "hashing",
+          "clave": "hashing-usos"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "producto-stock",
+          "clave": "productos-stock-depositos",
+          "texto": "Productos con stoc_cantidad > 0 en más de la mitad de los depósitos: código, depósito con más cantidad y stock total; primero los que tienen stock > 0 en todos los depósitos.",
+          "respuesta": "GROUP BY producto con HAVING COUNT(depósitos con stock > 0) > (SELECT COUNT(*) FROM deposito) / 2.0; subconsulta TOP 1 para el depósito; ORDER BY CASE para los que están en todos.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "D",
+          "modelo": "producto-concurrencia",
+          "clave": "procesos-ab-producto",
+          "texto": "A y B en SERIALIZABLE: T2 A SELECT, T3 B SELECT, T4 A UPDATE 'PROCESO A', T5 B UPDATE 'PROCESO B', T6 COMMIT. Opciones a-e.",
+          "respuesta": "d) Deadlock: los dos tienen bloqueo compartido y piden exclusivo; el motor mata a uno y queda 'PROCESO A' o 'PROCESO B'.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2022-12-16",
+      "fecha": "16/12/2022",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto corregida: 9)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "El Algoritmo de Huffman basa la asignación de códigos comprimidos en un árbol binario completo.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "clave": "huffman-completo",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "El alumno puso V y sumó el punto. 'Completo' para la cátedra = cada nodo tiene 0 o 2 hijos (no que las hojas estén al mismo nivel)."
+        },
+        {
+          "n": "1b",
+          "texto": "Todo grafo de grado 2 es un árbol binario.",
+          "tema": "grafos",
+          "clave": "grafo-grado2",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El alumno puso F y sumó el punto."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Indique un escenario donde la creación de índices con Tablas de Hashing sea más eficiente que con Árboles B.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Describir las ventajas y desventajas de los índices.",
+          "tema": "hashing",
+          "clave": "indices"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "producto-stock",
+          "clave": "productos-stock-depositos",
+          "texto": "Igual al 06/12/2022 pero solo productos con alguno de los tres envases con más productos asignados, y mostrando el detalle del envase.",
+          "respuesta": "Agregar WHERE prod_envase IN (SELECT TOP 3 envase ... GROUP BY ... ORDER BY COUNT(*) DESC) y JOIN a Envase para el detalle.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "D",
+          "modelo": "producto-concurrencia",
+          "clave": "procesos-ab-producto",
+          "texto": "A en REPEATABLE READ, B en READ COMMITTED: T2 A SELECT, T3 B SELECT, T4 A UPDATE, T5 B UPDATE, T6 COMMIT. Opciones a-e.",
+          "respuesta": "b) Queda 'PROCESO B': B libera su bloqueo de lectura al terminar el SELECT, A actualiza; B espera el bloqueo de A y escribe después del COMMIT de A.",
+          "estado": "oficial",
+          "nota": "El alumno marcó B y sacó 2/2."
+        }
+      ]
+    },
+    {
+      "id": "2022-12-22",
+      "fecha": "22/12/2022",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto corregida: 2)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si un índice es por clave duplicada, no se puede implementar con Hashing.",
+          "tema": "hashing",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "El alumno puso F y le restaron 1. Para la cátedra hashing se usa con claves únicas."
+        },
+        {
+          "n": "1b",
+          "texto": "Para una misma tabla y evento, solo puede haber un trigger de AFTER.",
+          "tema": "integridad",
+          "clave": "triggers-por-evento",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El alumno puso V y le restaron 1. Puede haber varios AFTER; INSTEAD OF hay uno solo por evento."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Elija un algoritmo de clasificación visto en la materia con complejidad computacional constante y descríbalo.",
+          "tema": "ordenamiento",
+          "clave": "algoritmo-constante"
+        },
+        {
+          "n": "2b",
+          "texto": "Realice una comparación entre una view y un snapshot.",
+          "tema": "integridad",
+          "clave": "vista-snapshot"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "mundial",
+          "texto": "MundialFutbol(IdMundial, Anio, PaisCampeon, PaisSubCampeon): nombre del país que fue el último en ganar un mundial por primera vez.",
+          "respuesta": "SELECT TOP 1 PaisCampeon FROM MundialFutbol GROUP BY PaisCampeon ORDER BY MIN(Anio) DESC.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "mundial",
+          "texto": "Implantar: el campeón y el subcampeón no pueden ser el mismo y la diferencia entre mundiales no puede ser menor a 4 años (se cumple hoy, n aplicaciones).",
+          "respuesta": "CHECK (PaisCampeon <> PaisSubCampeon) o trigger; trigger AFTER INSERT, UPDATE con IF EXISTS (mundial a menos de 4 años de uno de inserted, distinto id) → ROLLBACK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-02-22",
+      "fecha": "22/02/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si una palabra se escribe igual de izquierda a derecha como de derecha a izquierda, entonces su código de Huffman se escribe igual de izquierda a derecha como de derecha a izquierda.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "F",
+          "estado": "razonada",
+          "nota": "La palabra es capicúa pero cada código no lo es. Contraejemplo ABCBA con A=11, B=0, C=10: 11 0 10 0 11 = 11010011, que al revés es 11001011. Teóricas y una resolución dicen V; otros bancos, F."
+        },
+        {
+          "n": "1b",
+          "texto": "Luego de CREATE TABLE tablitaFinal (campo1 VARCHAR2(5)) y poblar la tabla, para cualquier set de datos se da: SELECT COUNT(campo1) = SELECT COUNT(*).",
+          "tema": "relacional",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "COUNT(campo) no cuenta NULL; COUNT(*) cuenta filas.",
+          "unidad": 4
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrollar el concepto de join, enumere y explique cada uno de los tipos. Ejemplifique.",
+          "tema": "relacional",
+          "clave": "join",
+          "unidad": 4
+        },
+        {
+          "n": "2b",
+          "texto": "Describa cómo representar en forma estática y dinámica un grafo irrestricto.",
+          "tema": "grafos",
+          "clave": "grafo-irrestricto-representacion"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "numeros",
+          "clave": "tablita-script",
+          "texto": "TABLITAFINAL(numero UNIQUE) vacía, sin triggers: INSERT 1; INSERT 3; INSERT NULL; UPDATE numero = ISNULL(numero,5)+1 WHERE 1=1 OR ...; INSERT NULL; COMMIT. Indicar errores y contenido final.",
+          "respuesta": "Todo funciona salvo el COMMIT (no hay BEGIN TRANSACTION). El UPDATE afecta todas las filas: 1→2, 3→4, NULL→6. Final: NULL, 2, 4, 6.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "D",
+          "modelo": "producto-concurrencia",
+          "clave": "serializable-producto",
+          "texto": "Mismo ejercicio que el 10/03/2021: SERIALIZABLE, bloqueo de tabla compartido, A/B con SELECT y UPDATE 'product' detalle X/Y. Opciones a-f.",
+          "respuesta": "f) Ninguna de las anteriores, siguiendo la respuesta oficial del mismo ejercicio en 2021.",
+          "estado": "razonada",
+          "nota": "El alumno respondió e) deadlock (sin nota visible). La clave oficial 2021 fue 'Ninguna': el UPDATE usa la tabla 'product' y no 'producto'."
+        }
+      ]
+    },
+    {
+      "id": "2023-02-28",
+      "fecha": "28/02/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Un nivel de aislamiento REPEATABLE READ no genera problemas de interbloqueo.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Dos transacciones que leen la misma fila y después la actualizan se bloquean mutuamente."
+        },
+        {
+          "n": "1b",
+          "texto": "Un Split en un ARBOL B es una operación tan costosa que hace que sea recomendable siempre aplicar índices de funciones de hash antes que índices de tipo ARBOL B.",
+          "tema": "hashing",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "El split es ocasional y el árbol B sirve para rangos y orden; hashing no."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Describa (en no más de 1 carilla) el concepto de OLAP y OLTP. Ejemplifique.",
+          "tema": "olap",
+          "clave": "oltp-olap"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique (en no más de 10 renglones) las diferencias entre un árbol B y un árbol binario de búsqueda balanceado.",
+          "tema": "arboles",
+          "clave": "arbolb-vs-abb"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "D",
+          "modelo": "producto-stock",
+          "clave": "descuenta-stock",
+          "texto": "SP descuenta_stock: BEGIN TRAN; IF EXISTS (stock >= @cant) UPDATE ... COMMIT ELSE ROLLBACK; el nivel de aislamiento se define en cada ejecución. 1) siempre funciona 2) puede dejar stock negativo 3) con algún nivel puede dar interbloqueo 4) todas.",
+          "respuesta": "2) y 3): con READ COMMITTED dos ejecuciones validan el mismo stock y ambas descuentan (negativo); con REPEATABLE READ o SERIALIZABLE ambas retienen el bloqueo de lectura y se interbloquean.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "producto-stock",
+          "clave": "stock-duplicados",
+          "texto": "Los datos NO están correctos: implementar los objetos para que en STOCK no pueda existir 2 veces el mismo depósito para el mismo producto.",
+          "respuesta": "Primero consolidar los duplicados (sumar y dejar una fila por par) y después UNIQUE (id_producto, id_deposito) o un trigger AFTER INSERT, UPDATE con GROUP BY ... HAVING COUNT(*) > 1 → ROLLBACK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-03-07",
+      "fecha": "07/03/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si a un árbol binario de búsqueda (ABB) se le ejecuta un barrido simétrico, devuelve un conjunto ordenado de datos.",
+          "tema": "arboles",
+          "clave": "abb-simetrico",
+          "respuesta": "V",
+          "estado": "consenso"
+        },
+        {
+          "n": "1b",
+          "texto": "En una View, nunca se pueden realizar insert de registros.",
+          "tema": "integridad",
+          "clave": "insert-vista",
+          "respuesta": "F",
+          "estado": "consenso"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Compare los métodos de Hashing y Árbol B en cuanto a su eficiencia en la recuperación de datos.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique la funcionalidad de una ETL y el modelo estrella en una implementación de Data Warehouse.",
+          "tema": "olap",
+          "clave": "etl-estrella"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "numeros",
+          "texto": "Secuencias (≥ 20 filas, clave sin nulos y con un solo valor duplicado): SELECT clave FROM Secuencias WHERE clave IN (SELECT TOP 5 clave ORDER BY clave) OR clave IN (SELECT TOP 5 clave ORDER BY clave DESC) ORDER BY 1. ¿Da error? Si no, mínimo y máximo de filas.",
+          "respuesta": "No da error. Mínimo 10 filas, máximo 11 (si el duplicado queda justo en el borde del top 5, entran las dos copias).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "numeros",
+          "texto": "En una única instrucción DML eliminar los 2 registros que poseen el valor duplicado en clave.",
+          "respuesta": "DELETE FROM Secuencias WHERE clave IN (SELECT clave FROM Secuencias GROUP BY clave HAVING COUNT(*) > 1).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-05-23",
+      "fecha": "23/05/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si en un árbol de Huffman todas las hojas están en el mismo nivel, entonces todos los códigos poseen la misma longitud.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "La longitud del código es la profundidad de la hoja."
+        },
+        {
+          "n": "1b",
+          "texto": "Una Constraint de check puede evaluar campos de distintas tablas.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Solo columnas de la misma fila/tabla. (En SQL Server se podría 'hacer trampa' llamando a una función, pero la respuesta esperada es F.)"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique el concepto de split y fusión en un árbol B.",
+          "tema": "arboles",
+          "clave": "split-fusion"
+        },
+        {
+          "n": "2b",
+          "texto": "Describa el modelo estrella de un dataMart.",
+          "tema": "olap",
+          "clave": "estrella"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3.1",
+          "tipo": "A",
+          "modelo": "t1-t2-t3",
+          "texto": "T1 -< T2 >- T3. a) ¿Qué devuelve SELECT T1.id, (SELECT COUNT(DISTINCT T2.t3_id) FROM T2 WHERE T2.t1_id = T1.id) FROM T1? b) Reescribirla sin subconsultas. c) ¿Qué cambia si se saca el DISTINCT?",
+          "respuesta": "a) Cada id de T1 con la cantidad de T3 distintos relacionados (0 si ninguno). b) T1 LEFT JOIN T2 + GROUP BY T1.id + COUNT(T2.t3_id). c) Nada: (t1_id, t3_id) es la PK de T2, no hay repetidos.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3.2",
+          "tipo": "A",
+          "modelo": "t1-t2-t3",
+          "texto": "Indicar los errores de una consulta (o cómo hacerla más eficiente si T1 tiene más de 1 millón de filas y T2 10).",
+          "respuesta": "SUM sobre una columna CHAR, ORDER BY dentro de la subconsulta sin TOP, HAVING escrito después del ORDER BY, columna T1.t1_col2 fuera del GROUP BY.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-07-25",
+      "fecha": "25/07/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Una view puede utilizarse para brindar seguridad.",
+          "tema": "integridad",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Restringe filas y columnas visibles."
+        },
+        {
+          "n": "1b",
+          "texto": "Si sobre un ABB con N niveles se desea consultar una clave que no existe, la cantidad exacta de lecturas que realiza es N.",
+          "tema": "arboles",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Es como máximo N: depende de la rama que recorra."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explicar las principales diferencias entre Árbol B+ y Hashing para el acceso a los datos.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Explicar los niveles de aislamiento read uncommitted y serializable; mencione un ejemplo de cuándo utilizaría cada uno.",
+          "tema": "transacciones",
+          "clave": "ru-serializable-ejemplos"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "numeros",
+          "texto": "Numeros(clave PK, valor), clave > 0 garantizado y tabla no vacía: consulta ANSI SQL que retorne el primer hueco de clave, o el valor siguiente a la máxima si no hay huecos.",
+          "respuesta": "CASE WHEN no existe la clave 1 THEN 1 ELSE MIN(n.clave + 1) de las claves cuyo siguiente no existe (NOT EXISTS) END.",
+          "estado": "razonada",
+          "nota": "Las resoluciones de alumnos fallan si falta la clave 1 y usan TOP sin ORDER BY."
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "numeros",
+          "texto": "Sentencia DML que inserte un solo registro usando la consulta anterior para la clave y NULL en valor. ¿Puede dar error? Justificar.",
+          "respuesta": "INSERT INTO Numeros (clave, valor) SELECT <consulta>, NULL. Sí puede fallar: dos ejecuciones concurrentes calculan el mismo hueco y la segunda viola la PK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-08-01",
+      "fecha": "01/08/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto corregida: 6)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "La lectura confirmada (READ COMMITTED) nunca genera bloqueos, dado que solo los niveles de aislamiento superiores como SERIALIZABLE pueden hacerlo.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El alumno puso F y sumó. Read Committed toma bloqueos compartidos al leer (y exclusivos al escribir)."
+        },
+        {
+          "n": "1b",
+          "texto": "Pueden existir situaciones donde recorrer secuencialmente una tabla es más eficiente que acceder mediante un índice.",
+          "tema": "hashing",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "El alumno puso V y sumó."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Describa (en no más de 1 carilla) el concepto de OLAP y OLTP. Ejemplifique.",
+          "tema": "olap",
+          "clave": "oltp-olap"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique (en no más de 10 renglones) las diferencias entre un árbol B y un árbol binario de búsqueda balanceado.",
+          "tema": "arboles",
+          "clave": "arbolb-vs-abb"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "D",
+          "modelo": "producto-stock",
+          "clave": "descuenta-stock",
+          "texto": "El mismo SP descuenta_stock ejecutado N veces en paralelo con EXEC descuenta_stock 1, 1, 100: explicar qué problema presenta.",
+          "respuesta": "Con READ COMMITTED puede dejar stock negativo (todas validan antes de que alguna descuente); con REPEATABLE READ o SERIALIZABLE, deadlocks y víctimas.",
+          "estado": "consenso",
+          "nota": "El alumno sacó 1/2."
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "producto-stock",
+          "clave": "stock-duplicados",
+          "texto": "Por error hay N registros de stock para el mismo depósito y producto: dejar 1 registro por par con la suma de las cantidades y evitar que vuelva a pasar.",
+          "respuesta": "SP (o script) que inserte las sumas y borre los duplicados en una transacción + UNIQUE (id_deposito, id_producto) o trigger.",
+          "estado": "consenso",
+          "nota": "El alumno sacó 0,5/2."
+        }
+      ]
+    },
+    {
+      "id": "2023-09-27",
+      "fecha": "27/09/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Una función escalar no puede retornar null.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "RETURN NULL es válido."
+        },
+        {
+          "n": "1b",
+          "texto": "Si el árbol de Huffman posee N niveles, entonces el código de mayor tamaño posee N bits.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "N − 1 bits: la raíz es el nivel 1 y no aporta bit."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle 2 objetos de una base de datos que sirven para asegurar la Integridad de datos.",
+          "tema": "integridad",
+          "clave": "integridad-2-objetos"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique la funcionalidad de una ETL y el concepto de staging área en una implementación de Data Warehouse.",
+          "tema": "olap",
+          "clave": "etl"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "D",
+          "modelo": "numeros",
+          "texto": "PARAMETROS(clave PK, valor varchar NULL). SP sp_increment_parametro: BEGIN TRAN; SELECT @valor; UPDATE valor = @valor + 1; COMMIT. Inconvenientes si muchos usuarios lo invocan en paralelo con SERIALIZABLE.",
+          "respuesta": "Deadlocks: todos leen con bloqueo compartido retenido y después piden exclusivo; el motor mata víctimas y esas invocaciones se pierden (con error). Además @valor + 1 convierte el varchar a int: falla si el valor no es numérico.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "numeros",
+          "clave": "min-max-selfjoin",
+          "texto": "PARAMETROS con al menos 1000 filas: ¿qué devuelve SELECT MIN(f1.clave), MAX(f2.clave) FROM parametros f1, parametros f2 WHERE f1.clave > f2.clave?",
+          "respuesta": "La segunda clave más chica y la segunda más grande.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-12-05",
+      "fecha": "05/12/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Una tabla no puede tener 2 claves foráneas que referencien a la misma tabla.",
+          "tema": "integridad",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Ej.: Persona con FK a padre y FK a madre."
+        },
+        {
+          "n": "1b",
+          "texto": "Si una columna posee la constraint UNIQUE, entonces una sola fila como máximo puede contener NULL en dicha columna.",
+          "tema": "integridad",
+          "clave": "unique-null",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "En SQL Server."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Determinar qué índices implementaría sobre las tablas de una consulta (usuario/rol con OR, LIKE '%Gonzalez' y lower()) sabiendo que no hay claves implementadas. Justificar.",
+          "tema": "hashing",
+          "clave": "indices"
+        },
+        {
+          "n": "2b",
+          "texto": "Enumere y explique al menos tres algoritmos de clasificación que conozca.",
+          "tema": "ordenamiento",
+          "clave": "algoritmos-3"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "juego",
+          "texto": "Juego(jugador, jugada, carta), 2 jugadores, gana la carta mayor y en empate gana el 1; empieza el 1 y luego el ganador de la mano anterior. Describir qué retorna una query ordenada por jugada y por un CASE con subconsulta TOP 1 ... ORDER BY carta DESC de la jugada anterior.",
+          "respuesta": "Las jugadas en orden y, dentro de cada una, primero quien ganó la mano anterior. Falla en los empates: el TOP 1 entre cartas iguales no garantiza elegir al jugador 1.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "juego",
+          "texto": "Jugador y mayor carta jugada por cada uno, primero el de la mayor carta (empate: jugador 1). Sin tablas auxiliares, cursores, subconsultas en el FROM ni vistas.",
+          "respuesta": "SELECT jugador, MAX(carta) FROM Juego GROUP BY jugador ORDER BY MAX(carta) DESC, jugador.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2023-12-12",
+      "fecha": "12/12/2023",
+      "formato": "presencial",
+      "fuente": "finales 2023 y algunos antes/Finales GDD.docx (foto)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Una de las ventajas de los Stored Procedures es que se utilizan para manejar la seguridad en la base de datos.",
+          "tema": "integridad",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Se da permiso de EXECUTE sobre el SP sin dar permisos sobre las tablas."
+        },
+        {
+          "n": "1b",
+          "texto": "No es posible realizar [palabra faltante en la foto] a través de una vista.",
+          "tema": "integridad",
+          "clave": "insert-vista",
+          "respuesta": "?",
+          "estado": "sin_resolver",
+          "nota": "El enunciado está incompleto. Si era 'inserts', es F."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explicar 2 métodos de ordenamiento recursivos vistos durante la materia.",
+          "tema": "ordenamiento",
+          "clave": "algoritmos-recursivos"
+        },
+        {
+          "n": "2b",
+          "texto": "Dé un ejemplo donde sería adecuado aplicar un nivel de aislamiento Read uncommitted y otro para Serializable. Justifique.",
+          "tema": "transacciones",
+          "clave": "ru-serializable-ejemplos"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "C",
+          "modelo": "numeros",
+          "texto": "Numeros(clave PK, valor) vacía: trigger de insert que valide que las claves sean consecutivas desde 1. Ya posee un trigger INSTEAD OF que no puede modificarse y una constraint de no positivos.",
+          "respuesta": "Trigger AFTER INSERT (no puede haber otro INSTEAD OF INSERT): IF MAX(clave) <> COUNT(*) → ROLLBACK (con claves positivas y únicas eso equivale a 1..n sin huecos).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "numeros",
+          "texto": "Otro trigger de insert que valide que los valores no nulos del campo valor sean únicos. Explicar por qué no se puede con una Constraint UNIQUE.",
+          "respuesta": "Trigger AFTER INSERT (y UPDATE) con GROUP BY valor HAVING COUNT(*) > 1 sobre los no nulos → ROLLBACK. UNIQUE no sirve porque en SQL Server admite un solo NULL.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-02-20",
+      "fecha": "20/02/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/20-02-24.jpg",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "El tiempo de ejecución de cualquier algoritmo de clasificación es directamente proporcional a la cantidad de elementos a ordenar.",
+          "tema": "ordenamiento",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Crece como n log n o n², no linealmente."
+        },
+        {
+          "n": "1b",
+          "texto": "En una tabla de una base de datos relacional no se puede definir más de un trigger por cada evento (insert, delete, update).",
+          "tema": "integridad",
+          "clave": "triggers-por-evento",
+          "respuesta": "F",
+          "estado": "consenso"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Describa la arquitectura interna de un DBMS: niveles o capas, funcionalidad y funcionamiento de cada uno.",
+          "tema": "relacional",
+          "clave": "arquitectura",
+          "unidad": 3
+        },
+        {
+          "n": "2b",
+          "texto": "Desarrolle el concepto de Grafos, su posible utilización, clasificación y representación computacional.",
+          "tema": "grafos",
+          "clave": "grafos-completo"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "alojamientos-feriados",
+          "texto": "N = feriados de 2012. SELECT COUNT(*), FechaCheckOut FROM Alojamientos RIGHT JOIN Feriados ON FechaCheckOut = Fecha AND anio = 2012 GROUP BY FechaCheckOut ORDER BY 2. Opciones I-VI.",
+          "respuesta": "V) Como máximo N + 1 filas: hasta N fechas que coinciden más un grupo NULL (todos los feriados sin checkout, incluidos los de otros años que el RIGHT JOIN conserva).",
+          "estado": "razonada",
+          "nota": "La resolución del alumno dice II (máximo N): olvida el grupo NULL."
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "alojamientos-feriados",
+          "texto": "Lo mismo con LEFT JOIN y GROUP BY Fecha.",
+          "respuesta": "V) Como máximo N + 1 filas: hasta N fechas de feriado más un grupo NULL (alojamientos sin feriado).",
+          "estado": "razonada"
+        }
+      ]
+    },
+    {
+      "id": "2024-02-27",
+      "fecha": "27/02/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final 27-02-24.txt (reconstruido de memoria por un alumno)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "El nivel de aislamiento SERIALIZABLE es el único que evita las lecturas fantasmas.",
+          "tema": "transacciones",
+          "respuesta": "V",
+          "estado": "razonada",
+          "nota": "Entre los 4 niveles ANSI que enseña la cátedra, V. (SQL Server además tiene SNAPSHOT, que también las evita.)"
+        },
+        {
+          "n": "1b",
+          "texto": "Si en Huffman el código del símbolo más largo es de 15 bits, entonces el árbol tiene 16 niveles.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Niveles = bits del código más largo + 1."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explicar Hashing como método de acceso a datos.",
+          "tema": "hashing",
+          "clave": "hashing-acceso"
+        },
+        {
+          "n": "2b",
+          "texto": "Explicar las diferencias entre vista y snapshot.",
+          "tema": "integridad",
+          "clave": "vista-snapshot"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "SELECT 1 FROM PAIS P JOIN PROVINCIA PR ON P.idpais = PR.idpais JOIN CIUDAD C ON C.idpcia = PR.idpcia GROUP BY p.idpcia (joins por PK/FK, sin nulos ni tablas vacías). Opciones: 1 fila / 1 por provincia / error de ejecución / error de compilación.",
+          "respuesta": "Error de compilación: PAIS no tiene la columna idpcia (Invalid column name).",
+          "estado": "razonada",
+          "nota": "El alumno no estaba seguro ('ninguna')."
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "Para cada país, el total de sus provincias y de sus ciudades.",
+          "respuesta": "Pais LEFT JOIN Provincia LEFT JOIN Ciudad, GROUP BY país, COUNT(DISTINCT idpcia) y COUNT(idciudad).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-03-05",
+      "fecha": "05/03/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/05-03-24.jpg",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "La funcionalidad de un Constraint de tipo check siempre puede ser reemplazada por un trigger.",
+          "tema": "integridad",
+          "clave": "check-trigger",
+          "respuesta": "V",
+          "estado": "consenso"
+        },
+        {
+          "n": "1b",
+          "texto": "Los niveles de aislamiento permiten que no se generen deadlocks.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Los niveles altos (RR, Serializable) los vuelven más probables."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Comparar procesos OLTP vs. OLAP en cuanto a su utilización y diseño de base de datos.",
+          "tema": "olap",
+          "clave": "oltp-olap"
+        },
+        {
+          "n": "2b",
+          "texto": "¿Qué representa la sigla ACID? Desarrolle cada uno de sus componentes.",
+          "tema": "transacciones",
+          "clave": "acid"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "numeros",
+          "texto": "Numeros(numero PK) con al menos N registros (N > 4): SELECT 1 FROM Numeros t1, Numeros t2 WHERE t1.numero < t2.numero GROUP BY t1.numero, t2.numero. Opciones: 1 / N / N−1 / N² / Σ i de 1 a N−1 / ninguna.",
+          "respuesta": "e) Σ i (i = 1..N−1) = N(N−1)/2: una fila por cada par distinto con el primero menor.",
+          "estado": "razonada",
+          "nota": "Si la tabla tuviera más de N filas la cuenta sería mayor; se toma N como la cantidad de filas, que es lo que busca la pregunta."
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "numeros",
+          "clave": "min-max-selfjoin",
+          "texto": "Reescribir con una sola tabla en el FROM principal: SELECT MIN(t1.numero) AS Valor1, MAX(t2.numero) AS Valor2 FROM Numeros t1, Numeros t2 WHERE t1.numero > t2.numero.",
+          "respuesta": "Es el 2º mínimo y el 2º máximo: SELECT MIN(numero), (SELECT MAX(numero) FROM Numeros WHERE numero < (SELECT MAX(numero) FROM Numeros)) FROM Numeros WHERE numero > (SELECT MIN(numero) FROM Numeros).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-04-especial",
+      "fecha": "04/2024 (especial)",
+      "formato": "presencial",
+      "fuente": "finales 2024/final-especial-abri-24l.jpg (foto corregida: 9)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Toda consulta que utilice al menos una función de grupo debe ir acompañada de la cláusula GROUP BY.",
+          "tema": "relacional",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El alumno puso F y sumó. SELECT COUNT(*) FROM t no lleva GROUP BY.",
+          "unidad": 4
+        },
+        {
+          "n": "1b",
+          "texto": "La reexpresión de caracteres al aplicar Huffman implica la disminución de 8 bits para la expresión de todos los caracteres.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "clave": "huffman-8bits",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "El alumno puso F y sumó."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrollar el concepto de join, enumere y explique cada uno de los tipos. Ejemplifique.",
+          "tema": "relacional",
+          "clave": "join",
+          "unidad": 4
+        },
+        {
+          "n": "2b",
+          "texto": "Enumere y explique al menos tres algoritmos de clasificación u ordenamiento que conozca.",
+          "tema": "ordenamiento",
+          "clave": "algoritmos-3"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Persona con su_padre_es: personas con sus abuelos paternos.",
+          "respuesta": "Doble self-join hijo → padre → abuelo.",
+          "estado": "oficial",
+          "nota": "2/2 en la foto."
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Padres y cuántos hijos tienen.",
+          "respuesta": "Self-join + GROUP BY padre + COUNT(*).",
+          "estado": "consenso",
+          "nota": "La foto muestra 1/2: probablemente por algún detalle (agrupar por id y no solo por nombre)."
+        }
+      ]
+    },
+    {
+      "id": "2024-07-23",
+      "fecha": "23/07/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final-23-07-24.jpg (foto corregida: 8)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Un árbol binario completo es un árbol N-ario con N=2, donde todos sus niveles están llenos.",
+          "tema": "arboles",
+          "respuesta": "F",
+          "estado": "razonada",
+          "nota": "Eso es un árbol LLENO. Para la cátedra, completo = cada nodo tiene 0 o 2 hijos. El alumno la dejó en blanco (0 puntos)."
+        },
+        {
+          "n": "1b",
+          "texto": "Las funciones creadas por el usuario (objeto function) en T-SQL no permiten sentencias INSERT/DELETE/UPDATE en su cuerpo.",
+          "tema": "integridad",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "El alumno puso V y sumó. (Matiz: sí permiten DML sobre variables de tipo tabla locales.)"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique las diferencias entre los modelos OLAP y OLTP (máx. 10 renglones).",
+          "tema": "olap",
+          "clave": "oltp-olap"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique LECTURA SUCIA, LECTURA REPETIBLE y LECTURA FANTASMA. Indique cómo se comportan READ COMMITTED y REPEATABLE READ ante esos conceptos.",
+          "tema": "transacciones",
+          "clave": "niveles-aislamiento"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "usuario-login",
+          "texto": "Usuario/Perfil/Usuario_Perfil/Login: por usuario, nombre, fecha de alta, detalle de estado, cantidad de perfiles, perfil con más logins fallidos (empate: menor código) y logins fallidos totales. Sin subselects en el FROM.",
+          "respuesta": "Usuario LEFT JOIN Usuario_Perfil + GROUP BY usuario; subconsulta TOP 1 ... ORDER BY COUNT DESC, id para el perfil; subconsulta COUNT para fallidos.",
+          "estado": "consenso",
+          "nota": "El alumno sacó 1/2."
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "usuario-login",
+          "texto": "Objetos para que con 3 logins fallidos en el mismo día la cuenta pase a bloqueada sin grabar más fallidos ese día, y que con el password genérico '00x@T3st' un usuario bloqueado o inactivo se reactive registrando 'Primer ingreso'. Considerar concurrencia.",
+          "respuesta": "INSTEAD OF INSERT en Login (multifila, con cursor si hace falta) que decida por fila: descartar, insertar, bloquear o reactivar; leer los contadores con UPDLOCK/HOLDLOCK para la concurrencia.",
+          "estado": "consenso",
+          "nota": "El alumno sacó 2/2."
+        }
+      ]
+    },
+    {
+      "id": "2024-07-30",
+      "fecha": "30/07/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/FINAL 30-07-24/Final 30.07.24.jpg + resolucionCatedra.txt (respuestas de la cátedra en la revisión)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Conviene en términos de velocidad buscar en una estructura de hash por una clave que buscar en una estructura de árbol B+.",
+          "tema": "hashing",
+          "respuesta": "F",
+          "estado": "oficial",
+          "nota": "Respuesta de la cátedra en la revisión. 'Teóricas GDD' dice V. Lectura más probable: 'una clave' no dice que sea única ni existente; con claves duplicadas o colisiones hashing no conviene."
+        },
+        {
+          "n": "1b",
+          "texto": "El nivel de aislamiento repeatable read acepta lecturas fantasmas.",
+          "tema": "transacciones",
+          "respuesta": "V",
+          "estado": "oficial"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explique y desarrolle 2 objetos de base de datos que puedan ser utilizados para asegurar la integridad de datos.",
+          "tema": "integridad",
+          "clave": "integridad-2-objetos",
+          "nota": "Cátedra: valían Constraints (cuentan como 1), Triggers, Stored Procedures o Vistas WITH CHECK OPTION."
+        },
+        {
+          "n": "2b",
+          "texto": "Comparar procesos OLTP vs. OLAP (DSS) en cuanto a su utilización de base de datos.",
+          "tema": "olap",
+          "clave": "oltp-olap"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "C",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "Crear los objetos para poder borrar una Provincia con un comando DELETE.",
+          "respuesta": "Trigger INSTEAD OF DELETE en Provincia que soporte varias filas: primero DELETE de Ciudad WHERE idpcia IN (SELECT idpcia FROM deleted) y después de Provincia. Con un SP no vale: tiene que funcionar con DELETE.",
+          "estado": "oficial"
+        },
+        {
+          "n": "3b",
+          "tipo": "D",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "A: BEGIN; INSERT país 1000; INSERT provincia con 3 columnas y 4 valores; COMMIT. B: BEGIN; READ UNCOMMITTED; INSERT el mismo país 1000; COMMIT. Opciones A-E.",
+          "respuesta": "E) Ninguna: B queda bloqueado por la clave que insertó A; el INSERT de provincia de A falla (columnas ≠ valores) pero A confirma el país; luego el INSERT de B falla por PK. Queda el país sin provincia.",
+          "estado": "oficial"
+        }
+      ]
+    },
+    {
+      "id": "2024-10-18",
+      "fecha": "18/10/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final-18-10-24.jpg",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Las funciones de hashing no poseen funciones inversas.",
+          "tema": "hashing",
+          "respuesta": "V",
+          "estado": "razonada",
+          "nota": "Muchas claves van a la misma posición (no es inyectiva): no se puede volver atrás. Teóricas, Resumen y el banco de Reinosa dicen V; un banco dice F ('hay funciones invertibles')."
+        },
+        {
+          "n": "1b",
+          "texto": "Un constraint de tipo CHECK siempre puede ser reemplazado por un trigger.",
+          "tema": "integridad",
+          "clave": "check-trigger",
+          "respuesta": "V",
+          "estado": "consenso"
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Describa el concepto de Transaccionalidad, aislamiento y bloqueos en una base de datos relacional.",
+          "tema": "transacciones",
+          "clave": "transaccion-aislamiento-bloqueos"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique detalladamente el modelo estrella para el armado de un Data Warehouse en un DBMS.",
+          "tema": "olap",
+          "clave": "estrella"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Persona con su_padre_es: personas con sus abuelos paternos.",
+          "respuesta": "Doble self-join hijo → padre → abuelo.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "persona",
+          "clave": "persona-abuelos-padres",
+          "texto": "Padres y cuántos hijos tienen.",
+          "respuesta": "Self-join + GROUP BY padre + COUNT(*).",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-12-03",
+      "fecha": "03/12/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final 03-12-24.jpg",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "El análisis del plan de consulta permite detectar la operatoria interna desarrollada por un RDBMS para procesar la consulta.",
+          "tema": "relacional",
+          "respuesta": "V",
+          "estado": "consenso",
+          "unidad": 4
+        },
+        {
+          "n": "1b",
+          "texto": "Colocar un nivel de aislamiento muy restrictivo garantiza que siempre se van a poder ejecutar y finalizar con éxito un procedimiento.",
+          "tema": "transacciones",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Más bloqueos = más esperas y deadlocks; un proceso puede ser elegido víctima."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Indique por qué un índice conformado por una clave numérica corta es más rápido en el acceso a los datos que un índice compuesto o conformado con un string largo.",
+          "tema": "hashing",
+          "clave": "indices"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique en qué casos la presencia de un índice en una tabla podría generar mayor caída de performance que la ventaja aportada.",
+          "tema": "hashing",
+          "clave": "indices"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "laboratorio",
+          "clave": "left-join-anulado",
+          "texto": "dia LEFT JOIN horario h1 (turno 0) JOIN materia m1 LEFT JOIN horario h2 (turno 1) JOIN materia m2, con ISNULL(..., 'LIBRE'), para ver la ocupación del laboratorio 401. a) no compila b) error en ejecución c) se ejecuta pero no retorna lo pedido d) retorna lo solicitado.",
+          "respuesta": "c) El JOIN con materia anula el LEFT JOIN: los días con un turno libre desaparecen y nunca se muestra 'LIBRE'.",
+          "estado": "razonada",
+          "nota": "En la foto el alumno marcó d). Para que funcione, los JOIN con materia tienen que ser LEFT JOIN."
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "laboratorio",
+          "texto": "Implementar 'una materia no puede estar asignada en el mismo día en laboratorios diferentes' sin alterar la estructura.",
+          "respuesta": "Trigger AFTER INSERT, UPDATE en Horario: IF EXISTS (inserted i JOIN Horario h ON misma materia y día AND h.labo_id <> i.labo_id) → ROLLBACK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-12-10",
+      "fecha": "10/12/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final 10-12-24.txt (reconstruido de memoria; falta un V/F)",
+      "vf": [
+        {
+          "n": "1",
+          "texto": "La complejidad computacional de los métodos de ordenamiento depende del espacio ocupado por las estructuras que se usan.",
+          "tema": "ordenamiento",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "La complejidad temporal depende de la cantidad de elementos (y de cómo vienen), no del espacio."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Describir transaccionalidad, aislamiento y bloqueos.",
+          "tema": "transacciones",
+          "clave": "transaccion-aislamiento-bloqueos"
+        },
+        {
+          "n": "2b",
+          "texto": "Definir grafos, clasificación y representación computacional.",
+          "tema": "grafos",
+          "clave": "grafos-completo"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "persona",
+          "texto": "Explicar qué devuelve: SELECT a.nombre, b.nombre, c.nombre FROM persona c LEFT JOIN persona b ON c.su_padre_es = b.id LEFT JOIN persona a ON b.su_padre_es = a.id.",
+          "respuesta": "Todas las personas (c) con el nombre de su padre (b) y de su abuelo paterno (a); NULL cuando no lo tienen. Columnas en orden abuelo, padre, persona.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "C",
+          "modelo": "persona",
+          "texto": "Codificar la restricción de que no puede haber una relación cíclica entre padre e hijo (que alguien termine siendo ancestro de sí mismo).",
+          "respuesta": "Trigger AFTER INSERT, UPDATE en Persona con CTE recursiva que sube por su_padre_es desde cada fila de inserted; si vuelve a la misma persona → ROLLBACK.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2024-12-17",
+      "fecha": "17/12/2024",
+      "formato": "presencial",
+      "fuente": "finales 2024/final 17-12-24.JPG (foto corregida: 8)",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "ABB: si el barrido postorden es 9, 12, 16, 15 y 10, entonces el preorden sobre el mismo árbol es 10, 9, 12, 15 y 16.",
+          "tema": "arboles",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Raíz 10; izquierda 9; derecha 15 con hijos 12 y 16. Preorden real: 10, 9, 15, 12, 16."
+        },
+        {
+          "n": "1b",
+          "texto": "Huffman: el árbol binario es completo.",
+          "tema": "arboles",
+          "subtema": "huffman",
+          "clave": "huffman-completo",
+          "respuesta": "V",
+          "estado": "oficial",
+          "nota": "El alumno puso V y sumó."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Realice una comparación entre Hashing y árbol B como método de acceso a datos.",
+          "tema": "hashing",
+          "clave": "hashing-vs-arbolb"
+        },
+        {
+          "n": "2b",
+          "texto": "Explique un método estático de implementación de árboles binarios.",
+          "tema": "arboles",
+          "clave": "arbol-estatico"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "pais-provincia-ciudad",
+          "clave": "paises-top5",
+          "texto": "Los 5 primeros países del alfabeto y los 5 últimos (las 2 columnas).",
+          "respuesta": "Igual que en 2022: dos TOP 5 (ASC y DESC) combinados.",
+          "estado": "oficial",
+          "nota": "2/2 en la foto."
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "pais-provincia-ciudad",
+          "clave": "paises-top5",
+          "texto": "SELECT pa.IDPAIS, SUM(pro.HABITANTES), COUNT(*) FROM pais pa INNER JOIN provincias pro ON ... GROUP BY pa.IDPAIS. Opciones A-D.",
+          "respuesta": "D.",
+          "estado": "oficial",
+          "nota": "El alumno marcó D y sacó 2/2."
+        }
+      ]
+    },
+    {
+      "id": "2025-02-11",
+      "fecha": "11/02/2025",
+      "formato": "presencial",
+      "fuente": "INVESTIGACION-para-claude-code.md + hilo de UTNianos (transcripción de un alumno)",
+      "notas": "Dieron 5 minutos para leer el examen antes de decidir si rendir.",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "En SQL, una subconsulta en el WHERE siempre debe retornar una columna.",
+          "tema": "relacional",
+          "unidad": 4,
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Con EXISTS la subconsulta puede devolver cualquier cantidad de columnas. Con IN o con un comparador sí tiene que devolver una sola."
+        },
+        {
+          "n": "1b",
+          "texto": "En una tabla de una base de datos relacional no se puede definir más de un trigger por cada evento (insert, update, delete).",
+          "tema": "integridad",
+          "clave": "triggers-por-evento",
+          "respuesta": "F",
+          "estado": "consenso",
+          "nota": "Puede haber varios AFTER por evento; INSTEAD OF, uno solo."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Explicar la utilidad de obtener el plan de ejecución de un SELECT de consulta de datos.",
+          "tema": "relacional",
+          "unidad": 4,
+          "clave": "plan-ejecucion"
+        },
+        {
+          "n": "2b",
+          "texto": "Indique los distintos niveles de aislamiento de un DBMS indicando claramente qué tipos de bloqueos se ejecutan en cada uno de ellos.",
+          "tema": "transacciones",
+          "clave": "niveles-aislamiento"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "tablas-genericas",
+          "clave": "cartesiano-vacia",
+          "texto": "Consulta con producto cartesiano contra una tabla vacía (según el alumno, idéntica a un final anterior; el enunciado está en una imagen del hilo).",
+          "respuesta": "Conjunto vacío: el producto cartesiano con una tabla vacía no tiene filas.",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "B",
+          "modelo": "empleado-jefe",
+          "texto": "Empleado(empl_id PK, empl_descr, empl_jefe FK a Empleado): crear una VISTA con código y nombre del jefe, código y nombre de cada empleado a cargo y la cantidad de empleados a cargo del jefe, con alias en cada columna, solo para jefes con más de 5 empleados.",
+          "respuesta": "CREATE VIEW con self-join jefe-empleado; la cantidad con una subconsulta correlacionada; filtrar los jefes con más de 5 empleados.",
+          "estado": "consenso",
+          "nota": "La solución publicada en el foro pone COUNT(*) junto a columnas sin GROUP BY: así no compila en SQL Server."
+        }
+      ]
+    },
+    {
+      "id": "2025-02-18",
+      "fecha": "18/02/2025",
+      "formato": "presencial",
+      "fuente": "INVESTIGACION-para-claude-code.md + hilo de UTNianos (respuestas de un alumno)",
+      "notas": "Los dos V/F fueron Verdaderos según el alumno, pero el texto está en una imagen del hilo que no se pudo leer. Dieron 5 minutos para leer el examen.",
+      "vf": [],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Desarrolle el concepto de grafos: tipos, usos y representación estática y dinámica.",
+          "tema": "grafos",
+          "clave": "grafos-completo"
+        },
+        {
+          "n": "2b",
+          "texto": "Desarrollar el concepto de join, enumere y explique cada uno de los tipos.",
+          "tema": "relacional",
+          "unidad": 4,
+          "clave": "join"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "A",
+          "modelo": "numeros",
+          "clave": "tablita-script",
+          "texto": "Script sobre una tabla con numero UNIQUE (INSERTs, UPDATE ... WHERE 1=1 OR numero IS NOT NULL AND numero > 0, INSERT NULL): indicar errores y contenido final. Enunciado en imagen; parecido al del 22/02/2023.",
+          "respuesta": "Sin errores según el alumno: queda 2, 4, 6, NULL. El WHERE es siempre verdadero porque AND se evalúa antes que OR.",
+          "estado": "consenso",
+          "nota": "Si el script termina con COMMIT sin BEGIN TRANSACTION, ese COMMIT da error (como en 2023)."
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "numeros",
+          "clave": "min-max-selfjoin",
+          "texto": "Producto cartesiano de una tabla consigo misma (t1.numero > t2.numero) con MAX sobre las dos copias, sin GROUP BY: ¿qué devuelve?",
+          "respuesta": "El mayor y el segundo mayor valor. No hace falta GROUP BY porque el SELECT solo tiene funciones de agregado.",
+          "estado": "consenso"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-29",
+      "fecha": "29/07/2025",
+      "formato": "presencial",
+      "fuente": "INVESTIGACION-para-claude-code.md + hilo de UTNianos (transcripción de un alumno)",
+      "notas": "V/F sin justificar. La materia ya se llama Bases de Datos.",
+      "vf": [
+        {
+          "n": "1a",
+          "texto": "Si a un árbol binario de búsqueda se le realiza un barrido simétrico, se obtiene un conjunto ordenado de datos.",
+          "tema": "arboles",
+          "clave": "abb-simetrico",
+          "respuesta": "V",
+          "estado": "consenso"
+        },
+        {
+          "n": "1b",
+          "texto": "El algoritmo Quicksort utiliza la técnica de «divide y vencerás».",
+          "tema": "ordenamiento",
+          "respuesta": "V",
+          "estado": "consenso",
+          "nota": "Elige un pivote, parte en dos sublistas y resuelve cada una recursivamente."
+        }
+      ],
+      "teoria": [
+        {
+          "n": "2a",
+          "texto": "Definir brevemente el concepto de constraint. Dar 3 ejemplos y explicarlos.",
+          "tema": "integridad",
+          "clave": "constraints"
+        },
+        {
+          "n": "2b",
+          "texto": "Definir qué son las propiedades ACID.",
+          "tema": "transacciones",
+          "clave": "acid"
+        }
+      ],
+      "practica": [
+        {
+          "n": "3a",
+          "tipo": "B",
+          "modelo": "pais-provincia-ciudad",
+          "texto": "País/Provincia/Ciudad: consulta que devuelva los países que no tienen ciudades cargadas.",
+          "respuesta": "Pais con NOT EXISTS (Provincia JOIN Ciudad del mismo país).",
+          "estado": "consenso"
+        },
+        {
+          "n": "3b",
+          "tipo": "A",
+          "modelo": "pais-provincia-ciudad",
+          "clave": "left-join-anulado",
+          "texto": "FROM Pais LEFT JOIN Provincia ... JOIN Ciudad ...: elegir el resultado entre 4 opciones (no transcriptas).",
+          "respuesta": "Ninguna de las 4, según el alumno: el JOIN con Ciudad anula el LEFT JOIN y se pierden los países sin provincias o sin ciudades.",
+          "estado": "consenso"
+        }
+      ]
+    }
+  ]
+}

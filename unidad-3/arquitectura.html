@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitectura ANSI/SPARC</title>
+<meta name="description" content="Unidad 3: arquitectura ANSI/SPARC de tres niveles, independencia de datos y componentes internos de un DBMS, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="arquitectura">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 3: Diseño de datos</a></p>
+<h1>Arquitectura ANSI/SPARC y del motor</h1>
+<p>Los tres niveles de una base de datos y las piezas internas del DBMS. Salió dos veces como «describa la arquitectura interna de un DBMS». Con los dos dibujos de esta página se responde entera.</p>
+
+<div class="datos-tema" data-estadisticas="arquitectura" data-teoria="relacional:arquitectura"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#modelo">🟪 Respuesta modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li><strong>ANSI/SPARC</strong> separa la base en <strong>tres niveles</strong>: <strong>externo</strong> (lo que ve cada usuario: vistas), <strong>conceptual</strong> (todas las tablas, relaciones y reglas) e <strong>interno</strong> (cómo se guarda: archivos, páginas, índices).</li>
+    <li>Entre niveles hay <strong>correspondencias</strong>. Eso da <strong>independencia lógica</strong> (cambiar el conceptual sin romper vistas ni programas) e <strong>independencia física</strong> (cambiar índices o archivos sin tocar el conceptual).</li>
+    <li>Por dentro, una consulta pasa por: <strong>procesador de consultas</strong> (analiza y optimiza: plan de ejecución) → <strong>ejecutor</strong> → <strong>gestor de transacciones</strong> (bloqueos y log) → <strong>gestor de buffer</strong> → <strong>gestor de almacenamiento</strong> → disco, pidiendo servicios al sistema operativo.</li>
+    <li>El <strong>diccionario de datos</strong> (catálogo) guarda los metadatos: qué tablas, columnas, constraints, índices y permisos existen.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Los tres niveles</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 330" role="img" aria-labelledby="ns-t ns-d">
+  <title id="ns-t">Arquitectura ANSI/SPARC de tres niveles</title>
+  <desc id="ns-d">Arriba, tres vistas externas: ventas ve clientes y facturas; RR. HH. ve empleados sin sueldos; un auditor ve solo totales. En el medio, el esquema conceptual con todas las tablas, relaciones y restricciones. Abajo, el esquema interno: archivos, páginas, índices árbol B+. Entre externo y conceptual está la correspondencia que da independencia lógica; entre conceptual e interno, la que da independencia física.</desc>
+  <defs><marker id="pa" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="28">Externo</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="46">vistas de usuarios</text>
+  <rect class="dg-caja dg-caja--azul" x="190" y="14" width="200" height="54" rx="10"/><text class="dg-texto" x="290" y="38" text-anchor="middle">Ventas</text><text class="dg-texto dg-texto--chico" x="290" y="56" text-anchor="middle">clientes y facturas</text>
+  <rect class="dg-caja dg-caja--azul" x="420" y="14" width="200" height="54" rx="10"/><text class="dg-texto" x="520" y="38" text-anchor="middle">RR. HH.</text><text class="dg-texto dg-texto--chico" x="520" y="56" text-anchor="middle">empleados sin sueldos</text>
+  <rect class="dg-caja dg-caja--azul" x="650" y="14" width="200" height="54" rx="10"/><text class="dg-texto" x="750" y="38" text-anchor="middle">Auditoría</text><text class="dg-texto dg-texto--chico" x="750" y="56" text-anchor="middle">solo totales</text>
+
+  <line class="dg-linea" x1="290" y1="70" x2="440" y2="128" marker-end="url(#pa)"/>
+  <line class="dg-linea" x1="520" y1="70" x2="520" y2="128" marker-end="url(#pa)"/>
+  <line class="dg-linea" x1="750" y1="70" x2="600" y2="128" marker-end="url(#pa)"/>
+  <text class="dg-texto dg-texto--chico dg-texto--verde" x="20" y="104">↕ independencia lógica</text>
+
+  <text class="dg-texto dg-texto--titulo" x="20" y="158">Conceptual</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="176">esquema lógico (uno)</text>
+  <rect class="dg-caja dg-caja--violeta" x="190" y="130" width="660" height="60" rx="10"/>
+  <text class="dg-texto" x="520" y="156" text-anchor="middle">Todas las tablas, columnas, tipos, PK, FK, CHECK, vistas, permisos</text>
+  <text class="dg-texto dg-texto--chico" x="520" y="176" text-anchor="middle">lo que diseña el DBA, sin decir cómo se guarda</text>
+
+  <line class="dg-linea" x1="520" y1="192" x2="520" y2="246" marker-end="url(#pa)"/>
+  <text class="dg-texto dg-texto--chico dg-texto--verde" x="20" y="226">↕ independencia física</text>
+
+  <text class="dg-texto dg-texto--titulo" x="20" y="278">Interno</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="296">almacenamiento físico</text>
+  <rect class="dg-caja dg-caja--ambar" x="190" y="248" width="660" height="60" rx="10"/>
+  <text class="dg-texto" x="520" y="274" text-anchor="middle">Archivos de datos y de log, páginas de 8 KB, índices B+, particiones</text>
+  <text class="dg-texto dg-texto--chico" x="520" y="294" text-anchor="middle">cambiar un índice no cambia las tablas ni las consultas</text>
+</svg>
+</div>
+<figcaption>Una vista es el nivel externo hecho objeto: por eso las vistas dan <strong>seguridad</strong> (cada uno ve lo suyo) e <strong>independencia lógica</strong>.</figcaption>
+</figure>
+
+<h3>Qué pasa adentro del motor con un SELECT</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 340" role="img" aria-labelledby="mo-t mo-d">
+  <title id="mo-t">Componentes internos de un DBMS</title>
+  <desc id="mo-d">La consulta SQL entra al procesador de consultas: el analizador revisa sintaxis y nombres contra el diccionario de datos, el optimizador elige el plan de ejecución más barato. El ejecutor corre el plan. El gestor de transacciones controla la concurrencia con bloqueos y escribe el log para la recuperación. El gestor de buffer mantiene páginas en memoria. El gestor de almacenamiento lee y escribe páginas en disco usando el sistema operativo.</desc>
+  <defs><marker id="pk" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--azul" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="dg-caja" x="20" y="14" width="200" height="40" rx="20"/><text class="dg-codigo" x="120" y="39" text-anchor="middle">SELECT … FROM …</text>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="120" y1="56" x2="120" y2="78" marker-end="url(#pk)"/>
+
+  <rect class="dg-carril" x="20" y="80" width="560" height="78" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="34" y="102">Procesador de consultas</text>
+  <rect class="dg-caja dg-caja--azul" x="34" y="112" width="160" height="36" rx="8"/><text class="dg-texto dg-texto--chico" x="114" y="134" text-anchor="middle">Analizador (parser)</text>
+  <rect class="dg-caja dg-caja--azul" x="214" y="112" width="160" height="36" rx="8"/><text class="dg-texto dg-texto--chico" x="294" y="134" text-anchor="middle">Optimizador → plan</text>
+  <rect class="dg-caja dg-caja--azul" x="394" y="112" width="170" height="36" rx="8"/><text class="dg-texto dg-texto--chico" x="479" y="134" text-anchor="middle">Ejecutor</text>
+  <line class="dg-linea dg-linea--azul" x1="196" y1="130" x2="212" y2="130" marker-end="url(#pk)"/>
+  <line class="dg-linea dg-linea--azul" x1="376" y1="130" x2="392" y2="130" marker-end="url(#pk)"/>
+
+  <rect class="dg-caja dg-caja--violeta" x="620" y="80" width="260" height="78" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="750" y="110" text-anchor="middle">Diccionario de datos</text>
+  <text class="dg-texto dg-texto--chico" x="750" y="130" text-anchor="middle">metadatos: tablas, columnas,</text>
+  <text class="dg-texto dg-texto--chico" x="750" y="146" text-anchor="middle">índices, estadísticas, permisos</text>
+  <line class="dg-linea dg-linea--punteada" x1="582" y1="118" x2="618" y2="118"/>
+
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="479" y1="160" x2="479" y2="182" marker-end="url(#pk)"/>
+  <rect class="dg-carril" x="20" y="184" width="860" height="62" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="34" y="208">Gestor de transacciones</text>
+  <text class="dg-texto dg-texto--chico" x="34" y="230">ACID, commit y rollback</text>
+  <rect class="dg-caja dg-caja--ambar" x="300" y="196" width="260" height="38" rx="8"/><text class="dg-texto dg-texto--chico" x="430" y="219" text-anchor="middle">Concurrencia: bloqueos, aislamiento</text>
+  <rect class="dg-caja dg-caja--ambar" x="580" y="196" width="286" height="38" rx="8"/><text class="dg-texto dg-texto--chico" x="723" y="219" text-anchor="middle">Recuperación: log, backup, recovery</text>
+
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="479" y1="248" x2="479" y2="262" marker-end="url(#pk)"/>
+  <rect class="dg-caja dg-caja--bien" x="20" y="264" width="420" height="36" rx="8"/><text class="dg-texto dg-texto--chico" x="230" y="287" text-anchor="middle">Gestor de buffer: páginas en memoria (caché)</text>
+  <rect class="dg-caja dg-caja--bien" x="460" y="264" width="420" height="36" rx="8"/><text class="dg-texto dg-texto--chico" x="670" y="287" text-anchor="middle">Gestor de almacenamiento: archivos y páginas</text>
+  <rect class="dg-caja" x="20" y="306" width="860" height="28" rx="8"/><text class="dg-texto dg-texto--chico" x="450" y="325" text-anchor="middle">Sistema operativo y disco (el motor no lo reemplaza: le pide E/S, memoria y red)</text>
+</svg>
+</div>
+<figcaption>El <strong>optimizador</strong> es el que arma el <strong>plan de ejecución</strong> (ver <a href="../unidad-4/sql.html">SQL</a>). El <strong>gestor de transacciones</strong> es todo lo de <a href="../unidad-4/transacciones.html">Transacciones</a>.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+<h3>Los tres niveles</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Nivel</th><th scope="col">Describe</th><th scope="col">Quién lo usa</th><th scope="col">Objeto típico</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Externo</th><td>La parte de la base que ve cada usuario o aplicación</td><td>Usuarios, programas</td><td>Vistas, permisos</td></tr>
+    <tr><th scope="row">Conceptual</th><td>Toda la base: entidades, relaciones, restricciones</td><td>Diseñador, DBA</td><td>CREATE TABLE, constraints</td></tr>
+    <tr><th scope="row">Interno</th><td>Cómo se guarda físicamente</td><td>DBA, el motor</td><td>Índices, archivos, particiones</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Las dos independencias</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Lógica</th><th scope="col">Física</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Entre</th><td>Externo y conceptual</td><td>Conceptual e interno</td></tr>
+    <tr><th scope="row">Permite</th><td>Agregar columnas o tablas sin cambiar vistas ni programas</td><td>Crear un índice o mover archivos sin cambiar tablas ni consultas</td></tr>
+    <tr><th scope="row">Dificultad</th><td>Más difícil de lograr</td><td>Más fácil: los motores la dan casi completa</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas</h2>
+<ul class="trampas" data-trampas="arquitectura"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuesta modelo</h2>
+<details class="modelo" open>
+  <summary>Describa la arquitectura interna de un DBMS: niveles, funcionalidad y funcionamiento <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Según <strong>ANSI/SPARC</strong>, una base se describe en tres niveles. El <strong>externo</strong> es lo que ve cada usuario o aplicación (vistas). El <strong>conceptual</strong> describe toda la base: tablas, relaciones y restricciones, sin decir cómo se guardan. El <strong>interno</strong> describe el almacenamiento físico: archivos, páginas e índices. Las correspondencias entre niveles dan independencia lógica (cambiar el conceptual sin afectar las vistas) y física (cambiar el almacenamiento sin afectar el conceptual).</p>
+    <p>Internamente, el DBMS tiene: un <strong>procesador de consultas</strong>, que analiza la sentencia, la valida contra el <strong>diccionario de datos</strong> y la optimiza eligiendo el plan de ejecución más barato; un <strong>ejecutor</strong> que corre el plan; un <strong>gestor de transacciones</strong> que garantiza ACID con control de concurrencia (bloqueos y niveles de aislamiento) y recuperación (log, recovery); un <strong>gestor de buffer</strong> que mantiene páginas en memoria; y un <strong>gestor de almacenamiento</strong> que lee y escribe páginas en disco a través del sistema operativo.</p>
+    <p>Además, un gestor de seguridad controla usuarios y permisos.</p>
+  </div>
+  <p class="modelo__salio">Salió el 17/07/2018 y el 20/02/2024.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+<details class="ejercicio" data-correcta="b" open>
+  <summary class="ejercicio__titulo">1. El DBA crea un índice nuevo sobre Cliente(apellido) y ninguna consulta ni programa cambia. ¿Qué independencia se aprovechó?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Lógica</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Física</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Ninguna: los índices no son parte de la arquitectura</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> El índice es del nivel interno; el conceptual (las tablas) no cambió.</div>
+</details>
+<details class="ejercicio" data-correcta="c">
+  <summary class="ejercicio__titulo">2. ¿Qué componente decide si una consulta usa un índice o recorre la tabla?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) El gestor de transacciones</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) El sistema operativo</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) El optimizador, al armar el plan de ejecución</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> Usa las estadísticas del diccionario para estimar el costo de cada camino y elige el más barato. Lo ves con el plan de ejecución.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="arquitectura"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ordenamiento</title>
+<meta name="description" content="Unidad 2: métodos de ordenamiento (burbuja, inserción, selección, QuickSort, Heapsort, MergeSort) y su complejidad, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="ordenamiento">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 2: Manipulación de datos</a></p>
+<h1>Ordenamiento</h1>
+<p>Métodos de clasificación y su complejidad. La teoría pide <strong>«explique tres algoritmos»</strong>; los V/F giran casi todos alrededor de <strong>QuickSort contra Heapsort</strong>. Con la tabla de complejidades tenés el 90 %.</p>
+
+<div class="datos-tema" data-estadisticas="ordenamiento"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Los simples (<strong>burbuja, selección, inserción</strong>) son <strong>O(n²)</strong>. Burbuja con bandera e inserción andan muy bien con datos <strong>casi ordenados</strong>.</li>
+    <li><strong>QuickSort</strong>: divide y vencerás con un pivote. <strong>O(n log n) en promedio, O(n²) en el peor caso</strong> (datos ya ordenados con pivote en un extremo). Su complejidad <strong>depende de cómo vienen los datos</strong>.</li>
+    <li><strong>Heapsort</strong>: arma un heap (árbol binario completo en un vector, padre ≥ hijos) y saca el máximo n veces. <strong>O(n log n) siempre</strong>, sin memoria extra.</li>
+    <li><strong>MergeSort</strong>: divide en mitades, ordena cada una y las intercala. <strong>O(n log n) siempre</strong>, estable, pero usa memoria extra. QuickSort y MergeSort son los <strong>recursivos</strong>.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>QuickSort: un pivote parte el problema en dos</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 250" role="img" aria-labelledby="qs-t qs-d">
+  <title id="qs-t">Partición de QuickSort</title>
+  <desc id="qs-d">Vector 5, 3, 8, 1, 9, 2, 7. Se elige el 5 como pivote. Se parte en menores 3, 1, 2 y mayores 8, 9, 7, con el 5 en su lugar definitivo. Cada parte se ordena igual, en forma recursiva: 1, 2, 3 y 7, 8, 9. Resultado 1, 2, 3, 5, 7, 8, 9.</desc>
+  <defs><marker id="pq" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <g font-family="IBM Plex Mono, monospace">
+    <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="44">vector</text>
+    <rect class="dg-caja dg-caja--violeta" x="270" y="24" width="50" height="34"/><text class="dg-codigo" x="295" y="46" text-anchor="middle">5</text>
+    <rect class="dg-caja" x="320" y="24" width="50" height="34"/><text class="dg-codigo" x="345" y="46" text-anchor="middle">3</text>
+    <rect class="dg-caja" x="370" y="24" width="50" height="34"/><text class="dg-codigo" x="395" y="46" text-anchor="middle">8</text>
+    <rect class="dg-caja" x="420" y="24" width="50" height="34"/><text class="dg-codigo" x="445" y="46" text-anchor="middle">1</text>
+    <rect class="dg-caja" x="470" y="24" width="50" height="34"/><text class="dg-codigo" x="495" y="46" text-anchor="middle">9</text>
+    <rect class="dg-caja" x="520" y="24" width="50" height="34"/><text class="dg-codigo" x="545" y="46" text-anchor="middle">2</text>
+    <rect class="dg-caja" x="570" y="24" width="50" height="34"/><text class="dg-codigo" x="595" y="46" text-anchor="middle">7</text>
+    <text class="dg-texto dg-texto--chico dg-texto--violeta" x="640" y="46">pivote = 5</text>
+
+    <line class="dg-linea" x1="380" y1="62" x2="250" y2="104" marker-end="url(#pq)"/>
+    <line class="dg-linea" x1="445" y1="62" x2="445" y2="104" marker-end="url(#pq)"/>
+    <line class="dg-linea" x1="520" y1="62" x2="640" y2="104" marker-end="url(#pq)"/>
+    <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="132">partición</text>
+    <rect class="dg-caja dg-caja--azul" x="150" y="108" width="50" height="34"/><text class="dg-codigo" x="175" y="130" text-anchor="middle">3</text>
+    <rect class="dg-caja dg-caja--azul" x="200" y="108" width="50" height="34"/><text class="dg-codigo" x="225" y="130" text-anchor="middle">1</text>
+    <rect class="dg-caja dg-caja--azul" x="250" y="108" width="50" height="34"/><text class="dg-codigo" x="275" y="130" text-anchor="middle">2</text>
+    <rect class="dg-caja dg-caja--violeta" x="420" y="108" width="50" height="34"/><text class="dg-codigo" x="445" y="130" text-anchor="middle">5</text>
+    <rect class="dg-caja dg-caja--ambar" x="590" y="108" width="50" height="34"/><text class="dg-codigo" x="615" y="130" text-anchor="middle">8</text>
+    <rect class="dg-caja dg-caja--ambar" x="640" y="108" width="50" height="34"/><text class="dg-codigo" x="665" y="130" text-anchor="middle">9</text>
+    <rect class="dg-caja dg-caja--ambar" x="690" y="108" width="50" height="34"/><text class="dg-codigo" x="715" y="130" text-anchor="middle">7</text>
+    <text class="dg-texto dg-texto--chico" x="225" y="160" text-anchor="middle">menores: se ordenan igual</text>
+    <text class="dg-texto dg-texto--chico" x="445" y="160" text-anchor="middle">ya en su lugar</text>
+    <text class="dg-texto dg-texto--chico" x="665" y="160" text-anchor="middle">mayores: se ordenan igual</text>
+
+    <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="214">resultado</text>
+    <rect class="dg-caja dg-caja--bien" x="270" y="190" width="50" height="34"/><text class="dg-codigo" x="295" y="212" text-anchor="middle">1</text>
+    <rect class="dg-caja dg-caja--bien" x="320" y="190" width="50" height="34"/><text class="dg-codigo" x="345" y="212" text-anchor="middle">2</text>
+    <rect class="dg-caja dg-caja--bien" x="370" y="190" width="50" height="34"/><text class="dg-codigo" x="395" y="212" text-anchor="middle">3</text>
+    <rect class="dg-caja dg-caja--bien" x="420" y="190" width="50" height="34"/><text class="dg-codigo" x="445" y="212" text-anchor="middle">5</text>
+    <rect class="dg-caja dg-caja--bien" x="470" y="190" width="50" height="34"/><text class="dg-codigo" x="495" y="212" text-anchor="middle">7</text>
+    <rect class="dg-caja dg-caja--bien" x="520" y="190" width="50" height="34"/><text class="dg-codigo" x="545" y="212" text-anchor="middle">8</text>
+    <rect class="dg-caja dg-caja--bien" x="570" y="190" width="50" height="34"/><text class="dg-codigo" x="595" y="212" text-anchor="middle">9</text>
+  </g>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="450" y="244" text-anchor="middle">peor caso: si el vector ya venía ordenado y el pivote es el primero, una parte queda vacía en cada paso → n niveles → O(n²)</text>
+</svg>
+</div>
+<figcaption>Pivote bueno (cerca de la mediana): dos mitades, <strong>log n</strong> niveles de n comparaciones → <strong>O(n log n)</strong>. Pivote malo siempre: <strong>O(n²)</strong>.</figcaption>
+</figure>
+
+<h3>Heapsort: el heap es un árbol guardado en un vector</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="hp-t hp-d">
+  <title id="hp-t">Heap como árbol y como vector, y la extracción del máximo</title>
+  <desc id="hp-d">Heap de 7 elementos: 9 en la raíz, hijos 7 y 8, nietos 3, 5, 2 y 6. Cada padre es mayor o igual que sus hijos. En el vector: 9, 7, 8, 3, 5, 2, 6. Paso de Heapsort: el 9 se intercambia con el último (6), queda fijo al final, y el 6 baja intercambiándose con el hijo mayor hasta que se cumple de nuevo la propiedad.</desc>
+  <line class="dg-linea" x1="140" y1="40" x2="85" y2="96"/><line class="dg-linea" x1="140" y1="40" x2="195" y2="96"/>
+  <line class="dg-linea" x1="85" y1="100" x2="55" y2="160"/><line class="dg-linea" x1="85" y1="100" x2="115" y2="160"/>
+  <line class="dg-linea" x1="195" y1="100" x2="165" y2="160"/><line class="dg-linea" x1="195" y1="100" x2="225" y2="160"/>
+  <circle class="dg-caja dg-caja--violeta" cx="140" cy="36" r="17"/><text class="dg-texto dg-texto--titulo" x="140" y="41" text-anchor="middle">9</text>
+  <circle class="dg-caja dg-caja--azul" cx="85" cy="100" r="17"/><text class="dg-texto" x="85" y="105" text-anchor="middle">7</text>
+  <circle class="dg-caja dg-caja--azul" cx="195" cy="100" r="17"/><text class="dg-texto" x="195" y="105" text-anchor="middle">8</text>
+  <circle class="dg-caja dg-caja--azul" cx="55" cy="164" r="17"/><text class="dg-texto" x="55" y="169" text-anchor="middle">3</text>
+  <circle class="dg-caja dg-caja--azul" cx="115" cy="164" r="17"/><text class="dg-texto" x="115" y="169" text-anchor="middle">5</text>
+  <circle class="dg-caja dg-caja--azul" cx="165" cy="164" r="17"/><text class="dg-texto" x="165" y="169" text-anchor="middle">2</text>
+  <circle class="dg-caja dg-caja--azul" cx="225" cy="164" r="17"/><text class="dg-texto" x="225" y="169" text-anchor="middle">6</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="140" y="214" text-anchor="middle">padre ≥ hijos; binario completo por niveles</text>
+
+  <g transform="translate(300,40)">
+    <text class="dg-texto dg-texto--titulo" x="0" y="0">El mismo heap en un vector</text>
+    <rect class="dg-caja dg-caja--violeta" x="0" y="16" width="44" height="32"/><text class="dg-codigo" x="22" y="37" text-anchor="middle">9</text>
+    <rect class="dg-caja" x="44" y="16" width="44" height="32"/><text class="dg-codigo" x="66" y="37" text-anchor="middle">7</text>
+    <rect class="dg-caja" x="88" y="16" width="44" height="32"/><text class="dg-codigo" x="110" y="37" text-anchor="middle">8</text>
+    <rect class="dg-caja" x="132" y="16" width="44" height="32"/><text class="dg-codigo" x="154" y="37" text-anchor="middle">3</text>
+    <rect class="dg-caja" x="176" y="16" width="44" height="32"/><text class="dg-codigo" x="198" y="37" text-anchor="middle">5</text>
+    <rect class="dg-caja" x="220" y="16" width="44" height="32"/><text class="dg-codigo" x="242" y="37" text-anchor="middle">2</text>
+    <rect class="dg-caja" x="264" y="16" width="44" height="32"/><text class="dg-codigo" x="286" y="37" text-anchor="middle">6</text>
+    <text class="dg-texto dg-texto--chico dg-texto--2" x="0" y="66">hijos de i en 2i y 2i + 1: sin punteros</text>
+  </g>
+  <g transform="translate(300,140)">
+    <text class="dg-texto dg-texto--titulo" x="0" y="0">Un paso: sacar el máximo</text>
+    <rect class="dg-caja dg-caja--ambar" x="0" y="16" width="44" height="32"/><text class="dg-codigo" x="22" y="37" text-anchor="middle">6</text>
+    <rect class="dg-caja" x="44" y="16" width="44" height="32"/><text class="dg-codigo" x="66" y="37" text-anchor="middle">7</text>
+    <rect class="dg-caja" x="88" y="16" width="44" height="32"/><text class="dg-codigo" x="110" y="37" text-anchor="middle">8</text>
+    <rect class="dg-caja" x="132" y="16" width="44" height="32"/><text class="dg-codigo" x="154" y="37" text-anchor="middle">3</text>
+    <rect class="dg-caja" x="176" y="16" width="44" height="32"/><text class="dg-codigo" x="198" y="37" text-anchor="middle">5</text>
+    <rect class="dg-caja" x="220" y="16" width="44" height="32"/><text class="dg-codigo" x="242" y="37" text-anchor="middle">2</text>
+    <rect class="dg-caja dg-caja--bien" x="264" y="16" width="44" height="32"/><text class="dg-codigo" x="286" y="37" text-anchor="middle">9</text>
+    <text class="dg-texto dg-texto--chico" x="330" y="30">1. el 9 va al final: ya está en su lugar</text>
+    <text class="dg-texto dg-texto--chico" x="330" y="48">2. el 6 «se hunde» por el hijo mayor (8): O(log n)</text>
+    <text class="dg-texto dg-texto--chico" x="330" y="66">3. repetir n veces → O(n log n) siempre</text>
+  </g>
+</svg>
+</div>
+<figcaption>Heapsort hace lo mismo sin importar cómo vienen los datos: por eso su orden es <strong>O(n log n) en el mejor, promedio y peor caso</strong>. Es la respuesta a «elija un algoritmo de complejidad constante» (22/12/2022).</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>La tabla que hay que saber de memoria</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Método</th><th scope="col">Mejor</th><th scope="col">Promedio</th><th scope="col">Peor</th><th scope="col">Memoria extra</th><th scope="col">Idea</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Burbuja</th><td>O(n) con bandera</td><td>O(n²)</td><td>O(n²)</td><td>No</td><td>Intercambia vecinos; el mayor «sube» al final</td></tr>
+    <tr><th scope="row">Selección</th><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>No</td><td>Busca el mínimo y lo pone primero</td></tr>
+    <tr><th scope="row">Inserción</th><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>No</td><td>Inserta cada uno en su lugar entre los ya ordenados</td></tr>
+    <tr><th scope="row">QuickSort</th><td class="celda-bien">O(n log n)</td><td class="celda-bien">O(n log n)</td><td class="celda-mal">O(n²)</td><td>No (pila de recursión)</td><td>Pivote, partición, recursión</td></tr>
+    <tr><th scope="row">Heapsort</th><td class="celda-bien">O(n log n)</td><td class="celda-bien">O(n log n)</td><td class="celda-bien">O(n log n)</td><td>No</td><td>Heap en vector; saca el máximo n veces</td></tr>
+    <tr><th scope="row">MergeSort</th><td class="celda-bien">O(n log n)</td><td class="celda-bien">O(n log n)</td><td class="celda-bien">O(n log n)</td><td>Sí (vector auxiliar)</td><td>Mitades, recursión, intercalar</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Cuánto pesa la diferencia</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">n (elementos)</th><th scope="col">n log₂ n</th><th scope="col">n²</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">10</th><td>~33</td><td>100</td></tr>
+    <tr><th scope="row">1.000</th><td>~10.000</td><td>1.000.000</td></tr>
+    <tr><th scope="row">1.000.000</th><td>~20.000.000</td><td>1.000.000.000.000</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="aviso">Ninguno es «directamente proporcional» a n (V/F F del 20/02/2024): crecen como n log n o n². Y la complejidad depende de la <strong>cantidad y el orden</strong> de los datos, <strong>no del espacio</strong> (F, 10/12/2024).</p>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los marcados <span class="sello sello--polemica">⚠️ polémica</span> tienen fuentes que se contradicen: está la explicación.</p>
+<ul class="trampas" data-trampas="ordenamiento"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Enumere y explique al menos tres algoritmos de ordenamiento <small>3 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <ul>
+      <li><strong>Burbuja:</strong> recorre el vector comparando pares vecinos e intercambiándolos si están desordenados; en cada pasada el mayor queda al final. O(n²). Con una bandera que corta si en una pasada no hubo intercambios, con datos casi ordenados se acerca a O(n).</li>
+      <li><strong>QuickSort:</strong> divide y vencerás. Elige un pivote y parte el vector en los menores y los mayores que él; el pivote queda en su lugar definitivo y se aplica lo mismo, recursivamente, a cada parte. O(n log n) en promedio; O(n²) en el peor caso, cuando el pivote cae siempre en un extremo (por ejemplo, datos ya ordenados con el primero como pivote).</li>
+      <li><strong>Heapsort:</strong> arma un heap (árbol binario completo guardado en un vector, donde cada padre es mayor o igual que sus hijos). El máximo queda en la raíz: se intercambia con el último, se reduce el heap y se reacomoda. Repetido n veces, O(n log n) en todos los casos y sin memoria extra.</li>
+    </ul>
+    <p>Los simples (burbuja, inserción) sirven para pocos datos o casi ordenados; para volúmenes grandes, QuickSort (más rápido en promedio) o Heapsort (sin peor caso).</p>
+  </div>
+  <p class="modelo__salio">Salió el 26/02/2020, el 05/12/2023 y el 04/2024 (especial).</p>
+</details>
+
+<details class="modelo">
+  <summary>Un algoritmo de complejidad «constante» (siempre la misma) <small>22/12/2022</small></summary>
+  <div class="modelo__cuerpo">
+    <p>La pregunta pide un método cuyo orden de complejidad <strong>no cambie según cómo vengan los datos</strong>: <strong>Heapsort</strong>, O(n log n) en el mejor, promedio y peor caso.</p>
+    <p>Funciona en dos fases. Primero arma un <strong>heap</strong> sobre el mismo vector: un árbol binario completo cargado por niveles (los hijos de la posición i están en 2i y 2i + 1) donde cada padre es mayor o igual que sus hijos, así que el máximo queda en la raíz. Después, n veces: intercambia la raíz con el último elemento del heap, que queda fijo en su lugar definitivo, achica el heap en uno y «hunde» la nueva raíz intercambiándola con su hijo mayor hasta restablecer la propiedad (O(log n)).</p>
+    <p>Total: O(n log n) siempre. Ordena en el lugar (sin vector auxiliar) y no es estable. También vale MergeSort (siempre O(n log n), pero con memoria extra).</p>
+  </div>
+  <p class="modelo__salio">Salió el 22/12/2022.</p>
+</details>
+
+<details class="modelo">
+  <summary>Explique dos métodos de ordenamiento recursivos <small>12/12/2023</small></summary>
+  <div class="modelo__cuerpo">
+    <p><strong>QuickSort:</strong> elige un pivote, reubica los menores a su izquierda y los mayores a su derecha (partición) y se llama a sí mismo sobre cada parte; el caso base es una parte de 0 o 1 elementos. O(n log n) en promedio, O(n²) si las particiones salen siempre desparejas.</p>
+    <p><strong>MergeSort:</strong> parte el vector en dos mitades, se llama a sí mismo para ordenar cada una y después las <strong>intercala</strong> (merge) comparando el primero de cada mitad. Siempre O(n log n), es estable, pero necesita un vector auxiliar del tamaño de los datos.</p>
+    <p>Los dos aplican <strong>divide y vencerás</strong>: QuickSort hace el trabajo al dividir; MergeSort, al juntar.</p>
+  </div>
+  <p class="modelo__salio">Salió el 12/12/2023.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="c" open>
+  <summary class="ejercicio__titulo">1. Los datos ya vienen ordenados y QuickSort usa el primer elemento como pivote. ¿Qué pasa?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Termina en O(n): ya está ordenado</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) O(n log n), como siempre</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Su peor caso: O(n²)</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> El pivote es siempre el menor: una parte queda vacía y la otra con n − 1. Son n niveles de partición.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. ¿Cuál de estos vectores es un heap (padre ≥ hijos, hijos de i en 2i y 2i + 1)?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 9, 8, 7, 9, 1</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 10, 6, 9, 2, 5, 8</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 5, 6, 7, 8</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> 10 ≥ 6 y 9; 6 ≥ 2 y 5; 9 ≥ 8. En a) la posición 4 (9) es hija de la 2 (8) y es mayor. En c) la raíz es la menor.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">3. Hay que ordenar 10 millones de registros y no se puede arriesgar un peor caso cuadrático ni usar memoria extra. ¿Cuál?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Heapsort</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) QuickSort</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) MergeSort</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Burbuja</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> QuickSort tiene peor caso O(n²); MergeSort necesita un vector auxiliar; burbuja es O(n²). Heapsort es O(n log n) siempre y ordena en el lugar.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F de ordenamiento, mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="ordenamiento"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

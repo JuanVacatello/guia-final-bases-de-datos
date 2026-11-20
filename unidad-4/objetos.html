@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constraints, triggers, vistas y SP</title>
+<meta name="description" content="Unidad 4: objetos de base de datos (constraints, triggers, vistas, stored procedures, funciones, snapshots) e integridad, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="objetos">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 4: Bases de datos</a></p>
+<h1>Constraints, triggers, vistas y SP</h1>
+<p>Los objetos de base de datos y para qué sirve cada uno. Es la <strong>fuente de V/F más grande</strong> de la unidad 4 y la base de los <strong>prácticos de implementar reglas</strong> (tipo C), que casi siempre se resuelven con un trigger.</p>
+
+<div class="datos-tema" data-estadisticas="objetos" data-teoria="integridad:vista|triggers|seguridad-objetos|sp-vs-funcion|integridad-2-objetos|vista-snapshot|constraints" data-tipos="C" data-rotulo-practica="prácticos de implementar reglas"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#plantillas">Plantillas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li><strong>Constraints</strong> (PK, FK, UNIQUE, CHECK, DEFAULT, NOT NULL): reglas declarativas que el motor verifica solo. Primera opción para la integridad. <strong>UNIQUE admite un NULL</strong> en SQL Server; CHECK mira <strong>solo la fila</strong>.</li>
+    <li><strong>Trigger</strong>: código que se dispara con INSERT, UPDATE o DELETE, <strong>en la misma transacción</strong>. <strong>AFTER</strong> (valida y hace ROLLBACK; puede haber varios por evento) o <strong>INSTEAD OF</strong> (reemplaza la operación; <strong>uno solo</strong> por evento). Usa las tablas <code>inserted</code> y <code>deleted</code> y <strong>se dispara una vez por sentencia</strong>, no por fila.</li>
+    <li><strong>Vista</strong>: una consulta guardada con nombre. Sirve para <strong>seguridad</strong> y para simplificar; no guarda datos. Se puede insertar por ella si es simple o con un INSTEAD OF. <strong>Snapshot</strong>: copia guardada de los datos en un momento.</li>
+    <li><strong>Stored procedure</strong>: puede modificar datos y manejar transacciones; se ejecuta con EXEC. <strong>Función</strong>: devuelve un valor o una tabla, se usa dentro de un SELECT y <strong>no puede modificar tablas</strong>.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>AFTER contra INSTEAD OF: cuándo corre cada uno</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 270" role="img" aria-labelledby="tr-t tr-d">
+  <title id="tr-t">Momento de ejecución de los triggers AFTER e INSTEAD OF</title>
+  <desc id="tr-d">Fila de arriba, AFTER: la sentencia DELETE se ejecuta, se verifican las constraints, las filas ya se borraron, y recién ahí corre el trigger, que puede confirmar o hacer ROLLBACK. Si una constraint falla, el trigger AFTER nunca se ejecuta. Fila de abajo, INSTEAD OF: la sentencia no se ejecuta; en su lugar corre el trigger, que decide qué hacer (por ejemplo borrar primero los hijos y después la fila); las constraints se verifican sobre lo que hace el trigger.</desc>
+  <defs><marker id="po" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="65">AFTER</text>
+  <rect class="dg-carril" x="100" y="10" width="790" height="100" rx="10"/>
+  <rect class="dg-caja" x="116" y="40" width="150" height="40" rx="20"/><text class="dg-codigo" x="191" y="65" text-anchor="middle">DELETE …</text>
+  <rect class="dg-caja" x="300" y="40" width="160" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="380" y="57" text-anchor="middle">constraints (FK,</text><text class="dg-texto dg-texto--chico" x="380" y="72" text-anchor="middle">CHECK…) se verifican</text>
+  <rect class="dg-caja dg-caja--ambar" x="494" y="40" width="160" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="574" y="57" text-anchor="middle">las filas ya cambiaron</text><text class="dg-texto dg-texto--chico" x="574" y="72" text-anchor="middle">(sin confirmar)</text>
+  <rect class="dg-caja dg-caja--azul" x="688" y="40" width="190" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="783" y="57" text-anchor="middle">trigger AFTER: valida</text><text class="dg-texto dg-texto--chico" x="783" y="72" text-anchor="middle">y si falla → ROLLBACK</text>
+  <line class="dg-linea" x1="268" y1="60" x2="298" y2="60" marker-end="url(#po)"/>
+  <line class="dg-linea" x1="462" y1="60" x2="492" y2="60" marker-end="url(#po)"/>
+  <line class="dg-linea" x1="656" y1="60" x2="686" y2="60" marker-end="url(#po)"/>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="380" y="100" text-anchor="middle">si una FK falla, el AFTER ni corre</text>
+
+  <text class="dg-texto dg-texto--titulo" x="20" y="196">INSTEAD</text>
+  <text class="dg-texto dg-texto--titulo" x="20" y="214">OF</text>
+  <rect class="dg-carril" x="100" y="150" width="790" height="100" rx="10"/>
+  <rect class="dg-caja" x="116" y="180" width="150" height="40" rx="20"/><text class="dg-codigo" x="191" y="205" text-anchor="middle">DELETE …</text>
+  <rect class="dg-caja dg-caja--mal" x="300" y="180" width="160" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="380" y="197" text-anchor="middle">la sentencia NO</text><text class="dg-texto dg-texto--chico" x="380" y="212" text-anchor="middle">se ejecuta</text>
+  <rect class="dg-caja dg-caja--violeta" x="494" y="180" width="384" height="40" rx="8"/><text class="dg-texto dg-texto--chico" x="686" y="197" text-anchor="middle">el trigger hace lo que haga falta, por ejemplo:</text><text class="dg-codigo" x="686" y="213" text-anchor="middle">DELETE hijos; DELETE padre</text>
+  <line class="dg-linea" x1="268" y1="200" x2="298" y2="200" marker-end="url(#po)"/>
+  <line class="dg-linea" x1="462" y1="200" x2="492" y2="200" marker-end="url(#po)"/>
+  <text class="dg-texto dg-texto--chico dg-texto--verde" x="686" y="240" text-anchor="middle">uno solo por tabla y evento · lo que hace adentro no lo vuelve a disparar</text>
+</svg>
+</div>
+<figcaption>Para <strong>borrar un padre que tiene hijos con FK</strong> (práctico 30/07/2024), un AFTER no sirve: la FK falla antes. Hace falta <strong>INSTEAD OF DELETE</strong>.</figcaption>
+</figure>
+
+<h3>Qué hay en <code>inserted</code> y <code>deleted</code></h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 190" role="img" aria-labelledby="id-t id-d">
+  <title id="id-t">Contenido de las tablas inserted y deleted según la sentencia</title>
+  <desc id="id-d">Con INSERT, inserted tiene las filas nuevas y deleted está vacía. Con DELETE, inserted está vacía y deleted tiene las filas borradas. Con UPDATE, deleted tiene las filas con los valores viejos e inserted con los nuevos. Pueden ser muchas filas.</desc>
+  <text class="dg-texto dg-texto--titulo" x="170" y="28" text-anchor="middle">inserted</text>
+  <text class="dg-texto dg-texto--titulo" x="330" y="28" text-anchor="middle">deleted</text>
+  <text class="dg-texto dg-texto--titulo" x="20" y="72">INSERT</text>
+  <rect class="dg-caja dg-caja--bien" x="100" y="48" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico" x="170" y="71" text-anchor="middle">filas nuevas</text>
+  <rect class="dg-caja" x="260" y="48" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico dg-texto--2" x="330" y="71" text-anchor="middle">vacía</text>
+  <text class="dg-texto dg-texto--titulo" x="20" y="118">DELETE</text>
+  <rect class="dg-caja" x="100" y="94" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico dg-texto--2" x="170" y="117" text-anchor="middle">vacía</text>
+  <rect class="dg-caja dg-caja--mal" x="260" y="94" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico" x="330" y="117" text-anchor="middle">filas borradas</text>
+  <text class="dg-texto dg-texto--titulo" x="20" y="164">UPDATE</text>
+  <rect class="dg-caja dg-caja--bien" x="100" y="140" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico" x="170" y="163" text-anchor="middle">valores nuevos</text>
+  <rect class="dg-caja dg-caja--mal" x="260" y="140" width="140" height="36" rx="6"/><text class="dg-texto dg-texto--chico" x="330" y="163" text-anchor="middle">valores viejos</text>
+  <rect class="dg-caja dg-caja--ambar" x="460" y="48" width="420" height="128" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="480" y="76">⚠️ Pueden tener muchas filas</text>
+  <text class="dg-texto dg-texto--chico" x="480" y="100">Un <tspan font-weight="700">DELETE FROM Provincia WHERE idpais = 54</tspan> borra</text>
+  <text class="dg-texto dg-texto--chico" x="480" y="118">20 provincias y el trigger corre <tspan font-weight="700">una sola vez</tspan>.</text>
+  <text class="dg-texto dg-texto--chico" x="480" y="142">Nunca <tspan font-family="IBM Plex Mono, monospace">SELECT @id = id FROM deleted</tspan>:</text>
+  <text class="dg-texto dg-texto--chico" x="480" y="160">usá IN, EXISTS o JOIN contra la tabla entera.</text>
+</svg>
+</div>
+<figcaption>El error más común de los prácticos: escribir el trigger <strong>como si cambiara una sola fila</strong>. Los correctores lo marcan.</figcaption>
+</figure>
+
+<h3>¿Qué objeto uso para esta regla?</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="qo-t qo-d">
+  <title id="qo-t">Cómo elegir el objeto para implementar una regla</title>
+  <desc id="qo-d">Si la regla mira solo la fila (por ejemplo, campeón distinto de subcampeón), CHECK. Si es unicidad o existencia en otra tabla y se puede cambiar la estructura, UNIQUE o FOREIGN KEY. Si mira otras filas u otras tablas, o el enunciado dice que no se puede alterar la estructura, trigger AFTER con ROLLBACK. Si hay que cambiar lo que hace la operación (borrar un padre con hijos, descartar un insert), trigger INSTEAD OF.</desc>
+  <rect class="dg-caja dg-caja--azul" x="20" y="20" width="250" height="56" rx="10"/><text class="dg-texto dg-texto--chico" x="145" y="44" text-anchor="middle">¿Mira solo la fila que cambia?</text><text class="dg-texto dg-texto--chico dg-texto--2" x="145" y="62" text-anchor="middle">campeón ≠ subcampeón, cantidad ≥ 0</text>
+  <rect class="dg-caja dg-caja--bien" x="320" y="20" width="160" height="56" rx="10"/><text class="dg-texto dg-texto--titulo" x="400" y="54" text-anchor="middle">CHECK</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="90" width="250" height="56" rx="10"/><text class="dg-texto dg-texto--chico" x="145" y="114" text-anchor="middle">¿Es unicidad o «tiene que existir»</text><text class="dg-texto dg-texto--chico" x="145" y="132" text-anchor="middle">y se puede tocar la estructura?</text>
+  <rect class="dg-caja dg-caja--bien" x="320" y="90" width="160" height="56" rx="10"/><text class="dg-texto dg-texto--titulo" x="400" y="124" text-anchor="middle">UNIQUE / FK</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="160" width="250" height="56" rx="10"/><text class="dg-texto dg-texto--chico" x="145" y="184" text-anchor="middle">¿Mira otras filas u otras tablas,</text><text class="dg-texto dg-texto--chico" x="145" y="202" text-anchor="middle">o «sin alterar la estructura»?</text>
+  <rect class="dg-caja dg-caja--violeta" x="320" y="160" width="160" height="56" rx="10"/><text class="dg-texto dg-texto--titulo" x="400" y="186" text-anchor="middle">Trigger AFTER</text><text class="dg-texto dg-texto--chico" x="400" y="204" text-anchor="middle">+ ROLLBACK</text>
+  <line class="dg-linea" x1="272" y1="48" x2="318" y2="48"/><line class="dg-linea" x1="272" y1="118" x2="318" y2="118"/><line class="dg-linea" x1="272" y1="188" x2="318" y2="188"/>
+  <rect class="dg-caja dg-caja--ambar" x="540" y="20" width="340" height="196" rx="12"/>
+  <text class="dg-texto dg-texto--titulo" x="560" y="50">Trigger INSTEAD OF</text>
+  <text class="dg-texto dg-texto--chico" x="560" y="76">cuando hay que <tspan font-weight="700">cambiar lo que hace</tspan> la operación:</text>
+  <text class="dg-texto dg-texto--chico" x="560" y="100">· borrar un padre con hijos (12/03/2018, 30/07/2024)</text>
+  <text class="dg-texto dg-texto--chico" x="560" y="122">· descartar o transformar filas al insertar (23/07/2024)</text>
+  <text class="dg-texto dg-texto--chico" x="560" y="144">· insertar a través de una vista con join</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="560" y="176">ojo: si ya hay un INSTEAD OF para ese evento,</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="560" y="194">no podés crear otro → AFTER (12/12/2023)</text>
+</svg>
+</div>
+<figcaption>Y si la regla es «que funcione con la sentencia DELETE/INSERT», <strong>un SP no alcanza</strong>: la cátedra lo marcó en 2024.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Las constraints (pregunta del 29/07/2025)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Constraint</th><th scope="col">Garantiza</th><th scope="col">Integridad</th><th scope="col">Detalle que preguntan</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">PRIMARY KEY</th><td>Identificación única de cada fila</td><td>De entidad</td><td>Una por tabla; no admite NULL</td></tr>
+    <tr><th scope="row">FOREIGN KEY</th><td>Que el valor exista en la tabla referenciada</td><td>Referencial</td><td>Referencia una PK o UNIQUE; puede haber dos FK a la misma tabla</td></tr>
+    <tr><th scope="row">UNIQUE</th><td>Que no se repitan valores</td><td>De entidad (claves alternas)</td><td>En SQL Server admite <strong>un solo NULL</strong></td></tr>
+    <tr><th scope="row">CHECK</th><td>Una condición sobre la fila</td><td>De dominio / semántica</td><td>No mira otras tablas; si la condición da NULL, pasa</td></tr>
+    <tr><th scope="row">DEFAULT</th><td>Un valor cuando no se informa</td><td>De dominio</td><td>No impide cargar otro valor</td></tr>
+    <tr><th scope="row">NOT NULL</th><td>Que el valor sea obligatorio</td><td>De dominio</td><td>Se pone antes de crear la PK sobre la columna</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>AFTER contra INSTEAD OF</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">AFTER (o FOR)</th><th scope="col">INSTEAD OF</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Cuándo corre</th><td>Después de la sentencia y de las constraints</td><td>En lugar de la sentencia</td></tr>
+    <tr><th scope="row">Cuántos por tabla y evento</th><td class="celda-bien">Varios</td><td class="celda-mal">Uno solo</td></tr>
+    <tr><th scope="row">Sobre vistas</th><td>No</td><td>Sí</td></tr>
+    <tr><th scope="row">Uso típico</th><td>Validar reglas y deshacer (ROLLBACK)</td><td>Cambiar la operación: borrar hijos, filtrar filas</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Stored procedure contra función (25/09/2019)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Stored procedure</th><th scope="col">Función</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Cómo se llama</th><td><code>EXEC sp …</code></td><td>Dentro de una expresión: <code>SELECT dbo.f(x)</code></td></tr>
+    <tr><th scope="row">Devuelve</th><td>Conjuntos de resultados, parámetros OUTPUT y un código entero</td><td>Un valor escalar o una tabla (siempre devuelve)</td></tr>
+    <tr><th scope="row">INSERT / UPDATE / DELETE sobre tablas</th><td class="celda-bien">Sí</td><td class="celda-mal">No (solo sobre variables tabla propias)</td></tr>
+    <tr><th scope="row">Transacciones y TRY/CATCH</th><td class="celda-bien">Sí</td><td class="celda-mal">No</td></tr>
+    <tr><th scope="row">Uso en SELECT, WHERE, JOIN</th><td class="celda-mal">No</td><td class="celda-bien">Sí</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Vista contra snapshot (salió 2 veces)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Vista</th><th scope="col">Snapshot (vista materializada)</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Qué guarda</th><td>Solo la consulta</td><td>Los datos resultantes, copiados</td></tr>
+    <tr><th scope="row">Actualización</th><td>Siempre al día: se ejecuta al consultarla</td><td>Foto de un momento; se refresca cada tanto</td></tr>
+    <tr><th scope="row">Espacio y velocidad</th><td>No ocupa; cada consulta recalcula</td><td>Ocupa espacio; lectura rápida</td></tr>
+    <tr><th scope="row">Uso</th><td>Seguridad, simplificar, independencia lógica</td><td>Reportes pesados, réplicas, datos históricos</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="plantillas" aria-labelledby="t-plantillas">
+<h2 id="t-plantillas">Plantillas de T-SQL para el práctico</h2>
+<p>Las dos que más se usan. Todas en <a href="../practica/sql.html">Práctica SQL</a> y en <code>practica.sql</code>.</p>
+
+<h3>Trigger AFTER que valida una regla (multifila)</h3>
+<p>Final 22/12/2022: campeón ≠ subcampeón y al menos 4 años entre mundiales.</p>
+<div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_mundial_reglas ON MundialFutbol
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  -- regla 1: mira solo la fila (también se puede con CHECK)
+  IF EXISTS (SELECT 1 FROM inserted WHERE PaisCampeon = PaisSubCampeon)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50001, 'El campeón y el subcampeón no pueden ser el mismo país.', 1;
+  END
+
+  -- regla 2: mira otras filas de la tabla
+  IF EXISTS (SELECT 1
+               FROM inserted i
+               JOIN MundialFutbol m
+                 ON m.IdMundial &lt;&gt; i.IdMundial
+                AND ABS(m.Anio - i.Anio) &lt; 4)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50002, 'Entre dos mundiales tiene que haber al menos 4 años.', 1;
+  END
+END;</code></pre></div>
+
+<h3>Trigger INSTEAD OF DELETE (multifila)</h3>
+<p>Final 30/07/2024 (respuesta de la cátedra): poder borrar una provincia con un DELETE, aunque tenga ciudades.</p>
+<div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_provincia_borrar ON Provincia
+INSTEAD OF DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  -- primero los hijos de TODAS las provincias que se quieren borrar
+  DELETE FROM Ciudad
+   WHERE idpcia IN (SELECT idpcia FROM deleted);
+  -- después las provincias (esto no vuelve a disparar el trigger)
+  DELETE FROM Provincia
+   WHERE idpcia IN (SELECT idpcia FROM deleted);
+END;</code></pre></div>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los marcados <span class="sello sello--polemica">⚠️ polémica</span> tienen fuentes que se contradicen: está la explicación.</p>
+<ul class="trampas" data-trampas="objetos"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Desarrolle dos objetos de BD que aseguren la integridad de los datos <small>3 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p><strong>1. Constraints.</strong> Son reglas declarativas que el motor verifica en cada INSERT y UPDATE, sin programar nada. PRIMARY KEY asegura la integridad de entidad (cada fila única y sin NULL); FOREIGN KEY, la referencial (el valor referenciado tiene que existir, y no deja borrar un padre con hijos); UNIQUE evita repetidos en claves alternas; CHECK valida una condición sobre la fila (por ejemplo, <code>cantidad &gt;= 0</code>); NOT NULL y DEFAULT completan la integridad de dominio. Son la primera opción: simples y eficientes. Su límite es que solo miran la fila o una referencia puntual.</p>
+    <p><strong>2. Triggers.</strong> Son bloques de código asociados a una tabla que se disparan con INSERT, UPDATE o DELETE, dentro de la misma transacción. Con las tablas <code>inserted</code> y <code>deleted</code> pueden validar reglas que involucran varias filas o tablas (por ejemplo, que una materia no esté en dos laboratorios el mismo día) y hacer ROLLBACK si se violan. Los AFTER validan después de la operación; los INSTEAD OF la reemplazan (por ejemplo, para borrar primero los hijos). Hay que escribirlos para varias filas.</p>
+    <p>(La cátedra también aceptó stored procedures, si toda modificación pasa por ellos, y vistas WITH CHECK OPTION.)</p>
+  </div>
+  <p class="modelo__salio">Salió el 04/12/2019, el 27/09/2023 y el 30/07/2024.</p>
+</details>
+
+<details class="modelo">
+  <summary>Concepto de constraint y tres ejemplos <small>29/07/2025</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Una <strong>constraint</strong> es una restricción declarada sobre una tabla o columna que el motor hace cumplir automáticamente: rechaza cualquier INSERT, UPDATE o DELETE que la viole. Implementa las reglas de integridad sin programar.</p>
+    <ul>
+      <li><strong>PRIMARY KEY:</strong> la columna (o columnas) que identifica cada fila; no admite repetidos ni NULL. Ej.: <code>CONSTRAINT pk_pais PRIMARY KEY (idpais)</code>.</li>
+      <li><strong>FOREIGN KEY:</strong> el valor tiene que existir como clave en otra tabla. Ej.: <code>FOREIGN KEY (idpais) REFERENCES Pais(idpais)</code> impide cargar una provincia de un país inexistente o borrar un país con provincias.</li>
+      <li><strong>CHECK:</strong> condición que debe cumplir cada fila. Ej.: <code>CHECK (habitantes &gt; 0)</code>.</li>
+    </ul>
+    <p>Otras: UNIQUE (sin repetidos, admite un NULL en SQL Server), DEFAULT y NOT NULL.</p>
+  </div>
+  <p class="modelo__salio">Salió el 29/07/2025.</p>
+</details>
+
+<details class="modelo">
+  <summary>Triggers: concepto, funcionalidad y usos <small>26/02/2019</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Un <strong>trigger</strong> es un procedimiento asociado a una tabla (o vista) que se ejecuta automáticamente ante un evento: INSERT, UPDATE o DELETE. Corre <strong>dentro de la misma transacción</strong> que la sentencia que lo disparó, así que si hace ROLLBACK se deshace todo.</p>
+    <p>En SQL Server se dispara <strong>una vez por sentencia</strong> y accede a las filas afectadas mediante las tablas virtuales <code>inserted</code> (filas nuevas) y <code>deleted</code> (filas viejas). Puede ser <strong>AFTER</strong>, que corre después de la operación y de las constraints (puede haber varios por evento), o <strong>INSTEAD OF</strong>, que la reemplaza (uno por evento; también sobre vistas).</p>
+    <p>Usos: reglas de integridad que una constraint no puede expresar (varias filas o tablas), emular una FK sin cambiar la estructura, auditoría (registrar quién cambió qué), mantener datos derivados (totales) e impedir operaciones (por ejemplo, borrar de una tabla de auditoría).</p>
+  </div>
+  <p class="modelo__salio">Salió el 26/02/2019.</p>
+</details>
+
+<details class="modelo">
+  <summary>Diferencias entre un stored procedure y una función <small>25/09/2019</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Los dos son código T-SQL guardado en la base, compilado y con parámetros. Diferencias:</p>
+    <ul>
+      <li>La <strong>función</strong> siempre devuelve un valor (escalar) o una tabla, y se usa dentro de una expresión: en el SELECT, WHERE o FROM. El <strong>SP</strong> se ejecuta con EXEC; puede devolver conjuntos de resultados, parámetros OUTPUT y un código de retorno.</li>
+      <li>La función <strong>no puede modificar tablas</strong> (INSERT, UPDATE, DELETE), ni manejar transacciones, ni usar TRY/CATCH: no puede tener efectos laterales. El SP puede hacer todo eso.</li>
+      <li>Una función puede llamarse desde un SP; un SP no puede llamarse desde una función.</li>
+    </ul>
+    <p>Por eso para cálculos reutilizables se usa una función, y para procesos que cambian datos, un SP (el práctico del 04/12/2019 era justamente una función que hacía UPDATE: incorrecto).</p>
+  </div>
+  <p class="modelo__salio">Salió el 25/09/2019.</p>
+</details>
+
+<details class="modelo">
+  <summary>Explique el objeto vista y su relación con la seguridad e integridad <small>21/02/2018</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Una <strong>vista</strong> es una consulta SELECT guardada con nombre, que se usa como si fuera una tabla. No almacena datos: cada vez que se la consulta, el motor ejecuta su consulta, así que siempre muestra datos actuales.</p>
+    <p><strong>Usos:</strong> simplificar consultas complejas (joins, agregados) para los usuarios; dar independencia lógica, porque si cambia la estructura se ajusta la vista y no los programas; y <strong>seguridad</strong>: se da permiso sobre la vista y no sobre las tablas, así el usuario ve solo las filas y columnas permitidas (por ejemplo, empleados sin el sueldo).</p>
+    <p><strong>Integridad:</strong> con <code>WITH CHECK OPTION</code>, la vista rechaza los INSERT y UPDATE hechos a través de ella que no cumplan su WHERE. Se puede insertar en una vista si es simple (una tabla, sin agregados ni DISTINCT) o mediante un trigger INSTEAD OF.</p>
+  </div>
+  <p class="modelo__salio">Salió el 21/02/2018. «Dos objetos para seguridad» (vistas y SP) salió el 25/09/2019.</p>
+</details>
+
+<details class="modelo">
+  <summary>Compare una vista y un snapshot <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>La <strong>vista</strong> guarda solo la definición de una consulta: no ocupa espacio con datos y, como se ejecuta cada vez que se la usa, siempre muestra la información al día. El costo es que una consulta pesada se recalcula en cada uso.</p>
+    <p>El <strong>snapshot</strong> (vista materializada) guarda físicamente el resultado de la consulta en un momento dado: es una foto de los datos. Ocupa espacio y puede quedar desactualizado, por lo que se refresca periódicamente o a pedido, pero leerlo es rápido porque no recalcula nada.</p>
+    <p>La vista sirve para seguridad, simplificación e independencia lógica sobre datos operativos. El snapshot sirve para reportes y consultas pesadas, réplicas en otros servidores y conservar el estado de los datos a una fecha (por ejemplo, al cierre del mes). En SQL Server, lo más parecido son las vistas indexadas y los database snapshots.</p>
+  </div>
+  <p class="modelo__salio">Salió el 22/12/2022 y el 27/02/2024.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="c" open>
+  <summary class="ejercicio__titulo">1. Una tabla ya tiene un trigger INSTEAD OF INSERT que no se puede tocar. Hay que validar algo más al insertar. ¿Qué hacés?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Otro INSTEAD OF INSERT</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Un CHECK que consulte otra tabla</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Un trigger AFTER INSERT con ROLLBACK</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> Es el práctico del 12/12/2023: solo puede haber un INSTEAD OF por evento, pero AFTER puede haber varios.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Final 12/12/2023: valores no nulos de <code>valor</code> únicos. ¿Por qué no alcanza con UNIQUE?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Porque UNIQUE no admite NULL</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Porque en SQL Server UNIQUE admite un solo NULL, y la regla permite varios</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Porque UNIQUE solo va sobre la PK</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> Con dos filas en NULL, UNIQUE falla aunque la regla se cumpla. Solución del examen: trigger AFTER INSERT, UPDATE con <code>GROUP BY valor HAVING COUNT(*) &gt; 1</code> sobre los no nulos. (Fuera del examen, también sirve un índice único filtrado: <code>CREATE UNIQUE INDEX ux_valor ON Numeros(valor) WHERE valor IS NOT NULL</code>.)</div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3. Escribí el código: final 03/12/2024, «una materia no puede estar en el mismo día en laboratorios diferentes», sin alterar la estructura</summary>
+  <p>Tabla <code>Horario(labo_id, dia_id, turno, materia_id)</code>. Escribilo en papel antes de mirar.</p>
+  <details class="solucion">
+    <summary>Ver una solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_horario_un_labo_por_dia ON Horario
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT 1
+               FROM inserted i
+               JOIN Horario h
+                 ON h.materia_id = i.materia_id
+                AND h.dia_id     = i.dia_id
+                AND h.labo_id   &lt;&gt; i.labo_id)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50003, 'La materia ya está asignada ese día en otro laboratorio.', 1;
+  END
+END;</code></pre></div>
+    <p>Se compara contra <strong>toda la tabla</strong> (que en un AFTER ya incluye las filas nuevas): así detecta tanto un choque con filas viejas como dos filas nuevas que chocan entre sí. «Sin alterar la estructura» = nada de agregar constraints: trigger.</p>
+  </details>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">4. Escribí el código: final 12/12/2023, claves consecutivas desde 1 en Numeros(clave PK, valor)</summary>
+  <p>Ya existe un INSTEAD OF INSERT que no se puede modificar y una constraint que impide claves no positivas.</p>
+  <details class="solucion">
+    <summary>Ver una solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_numeros_consecutivos ON Numeros
+AFTER INSERT
+AS
+BEGIN
+  SET NOCOUNT ON;
+  -- claves positivas y sin repetir (PK): 1..n sin huecos  &lt;=&gt;  MAX = COUNT
+  IF (SELECT MAX(clave) FROM Numeros) &lt;&gt; (SELECT COUNT(*) FROM Numeros)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50004, 'Las claves tienen que ser consecutivas desde 1.', 1;
+  END
+END;</code></pre></div>
+    <p>¿Por qué AFTER? Porque ya hay un INSTEAD OF INSERT y no puede haber dos. ¿Por qué alcanza MAX = COUNT? Si hay n claves positivas distintas y la mayor es n, tienen que ser exactamente 1, 2, …, n.</p>
+  </details>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F de objetos de BD, mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="objetos"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

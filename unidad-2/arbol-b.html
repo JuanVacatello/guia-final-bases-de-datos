@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árbol B y B+</title>
+<meta name="description" content="Unidad 2: árbol B y B+, split, fusión, factor de carga y diferencias con el árbol binario de búsqueda, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="arbol-b">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 2: Manipulación de datos</a></p>
+<h1>Árbol B y B+</h1>
+<p>El árbol que usan los índices de las bases de datos. Se pregunta solo o <strong>comparado con hashing</strong> (eso está en <a href="hashing.html">Hashing e índices</a>) y con el ABB.</p>
+
+<div class="datos-tema" data-estadisticas="arbol-b" data-teoria="arboles:arbolb-vs-abb|split-fusion"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Un <strong>árbol B de orden n</strong> es un árbol de búsqueda n-ario pensado para <strong>disco</strong>: cada nodo es una <strong>página</strong> con muchas claves, así se leen pocas páginas por búsqueda.</li>
+    <li>Siempre <strong>balanceado</strong>: todas las hojas al mismo nivel; cada nodo (salvo la raíz) está <strong>al menos a la mitad</strong>. Búsqueda O(log n) garantizada.</li>
+    <li><strong>Split</strong>: si un nodo se llena, se parte en dos y la clave del medio sube al padre. Es la única forma de crecer, y crece <strong>hacia arriba</strong>. <strong>Fusión</strong>: si al borrar un nodo queda por debajo de la mitad, se une con un hermano; es la única forma de bajar de altura.</li>
+    <li><strong>B+</strong>: los datos están <strong>solo en las hojas</strong>, que están <strong>encadenadas</strong>; los nodos internos son solo índice. Ideal para rangos y recorridos en orden.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Split: insertar 25 en una hoja llena (máximo 4 claves por nodo)</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="sp-t sp-d">
+  <title id="sp-t">Split de un nodo de árbol B</title>
+  <desc id="sp-d">Paso 1: el nodo tiene 10, 20, 30 y 40, que es el máximo. Paso 2: al insertar 25 queda 10, 20, 25, 30, 40: desborda. Paso 3: se parte en dos nodos, 10 y 20 por un lado y 30 y 40 por el otro, y la clave del medio, 25, sube a un nodo padre nuevo. El árbol creció un nivel hacia arriba.</desc>
+  <defs><marker id="pb" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="28">1. Nodo lleno</text>
+  <rect class="dg-caja dg-caja--azul" x="20" y="90" width="200" height="40" rx="6"/>
+  <text class="dg-codigo" x="45" y="116" text-anchor="middle">10</text><text class="dg-codigo" x="95" y="116" text-anchor="middle">20</text><text class="dg-codigo" x="145" y="116" text-anchor="middle">30</text><text class="dg-codigo" x="195" y="116" text-anchor="middle">40</text>
+  <line class="dg-linea dg-linea--fina" x1="70" y1="90" x2="70" y2="130"/><line class="dg-linea dg-linea--fina" x1="120" y1="90" x2="120" y2="130"/><line class="dg-linea dg-linea--fina" x1="170" y1="90" x2="170" y2="130"/>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="120" y="160" text-anchor="middle">llega el 25</text>
+  <line class="dg-linea" x1="232" y1="110" x2="270" y2="110" marker-end="url(#pb)"/>
+
+  <text class="dg-texto dg-texto--titulo" x="290" y="28">2. Desborda</text>
+  <rect class="dg-caja dg-caja--mal" x="285" y="90" width="250" height="40" rx="6"/>
+  <text class="dg-codigo" x="310" y="116" text-anchor="middle">10</text><text class="dg-codigo" x="360" y="116" text-anchor="middle">20</text>
+  <text class="dg-codigo dg-texto--rojo" x="410" y="116" text-anchor="middle" font-weight="700">25</text>
+  <text class="dg-codigo" x="460" y="116" text-anchor="middle">30</text><text class="dg-codigo" x="510" y="116" text-anchor="middle">40</text>
+  <line class="dg-linea dg-linea--fina" x1="335" y1="90" x2="335" y2="130"/><line class="dg-linea dg-linea--fina" x1="385" y1="90" x2="385" y2="130"/><line class="dg-linea dg-linea--fina" x1="435" y1="90" x2="435" y2="130"/><line class="dg-linea dg-linea--fina" x1="485" y1="90" x2="485" y2="130"/>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="410" y="160" text-anchor="middle">5 claves: no entra, el del medio es 25</text>
+  <line class="dg-linea" x1="546" y1="110" x2="584" y2="110" marker-end="url(#pb)"/>
+
+  <text class="dg-texto dg-texto--titulo" x="600" y="28">3. Se parte y 25 sube</text>
+  <rect class="dg-caja dg-caja--bien" x="710" y="50" width="56" height="36" rx="6"/><text class="dg-codigo" x="738" y="74" text-anchor="middle">25</text>
+  <line class="dg-linea" x1="722" y1="86" x2="666" y2="130"/><line class="dg-linea" x1="754" y1="86" x2="810" y2="130"/>
+  <rect class="dg-caja dg-caja--azul" x="610" y="130" width="110" height="36" rx="6"/><text class="dg-codigo" x="637" y="154" text-anchor="middle">10</text><text class="dg-codigo" x="692" y="154" text-anchor="middle">20</text><line class="dg-linea dg-linea--fina" x1="665" y1="130" x2="665" y2="166"/>
+  <rect class="dg-caja dg-caja--azul" x="756" y="130" width="110" height="36" rx="6"/><text class="dg-codigo" x="783" y="154" text-anchor="middle">30</text><text class="dg-codigo" x="838" y="154" text-anchor="middle">40</text><line class="dg-linea dg-linea--fina" x1="811" y1="130" x2="811" y2="166"/>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="738" y="196" text-anchor="middle">dos nodos a la mitad + un nivel nuevo arriba</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="738" y="214" text-anchor="middle">(si el padre también se llena, el split sigue subiendo)</text>
+</svg>
+</div>
+<figcaption>El árbol B <strong>crece desde las hojas hacia la raíz</strong>. Por eso todas las hojas quedan siempre al mismo nivel: está balanceado sin hacer nada extra.</figcaption>
+</figure>
+
+<h3>Fusión: borrar 40 del árbol anterior (mínimo 2 claves por nodo)</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 200" role="img" aria-labelledby="fu-t fu-d">
+  <title id="fu-t">Fusión de nodos de árbol B</title>
+  <desc id="fu-d">Paso 1: raíz 25 con hijos 10, 20 y 30, 40. Paso 2: se borra 40 y el nodo derecho queda solo con 30, por debajo del mínimo; el hermano izquierdo tiene el mínimo y no puede prestar. Paso 3: se fusionan los dos hijos con la clave 25 del padre en un solo nodo 10, 20, 25, 30; la raíz desaparece y el árbol baja un nivel.</desc>
+  <defs><marker id="pf" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">1. Antes</text>
+  <rect class="dg-caja" x="108" y="40" width="56" height="34" rx="6"/><text class="dg-codigo" x="136" y="62" text-anchor="middle">25</text>
+  <line class="dg-linea" x1="122" y1="74" x2="76" y2="110"/><line class="dg-linea" x1="150" y1="74" x2="196" y2="110"/>
+  <rect class="dg-caja" x="20" y="110" width="100" height="34" rx="6"/><text class="dg-codigo" x="70" y="132" text-anchor="middle">10 │ 20</text>
+  <rect class="dg-caja" x="150" y="110" width="100" height="34" rx="6"/><text class="dg-codigo" x="200" y="132" text-anchor="middle">30 │ <tspan class="dg-texto--rojo">40</tspan></text>
+  <line class="dg-linea" x1="266" y1="100" x2="304" y2="100" marker-end="url(#pf)"/>
+
+  <text class="dg-texto dg-texto--titulo" x="320" y="24">2. Queda corto</text>
+  <rect class="dg-caja" x="408" y="40" width="56" height="34" rx="6"/><text class="dg-codigo" x="436" y="62" text-anchor="middle">25</text>
+  <line class="dg-linea" x1="422" y1="74" x2="376" y2="110"/><line class="dg-linea" x1="450" y1="74" x2="496" y2="110"/>
+  <rect class="dg-caja" x="320" y="110" width="100" height="34" rx="6"/><text class="dg-codigo" x="370" y="132" text-anchor="middle">10 │ 20</text>
+  <rect class="dg-caja dg-caja--mal" x="460" y="110" width="70" height="34" rx="6"/><text class="dg-codigo" x="495" y="132" text-anchor="middle">30</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="430" y="172" text-anchor="middle">1 clave &lt; mínimo; el hermano no puede prestar</text>
+  <line class="dg-linea" x1="566" y1="100" x2="604" y2="100" marker-end="url(#pf)"/>
+
+  <text class="dg-texto dg-texto--titulo" x="630" y="24">3. Se fusionan</text>
+  <rect class="dg-caja dg-caja--bien" x="640" y="80" width="220" height="40" rx="6"/>
+  <text class="dg-codigo" x="750" y="105" text-anchor="middle">10 │ 20 │ 25 │ 30</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="750" y="150" text-anchor="middle">la clave del padre baja; la raíz vacía desaparece</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="750" y="168" text-anchor="middle">el árbol pierde un nivel</text>
+</svg>
+</div>
+<figcaption>Antes de fusionar se intenta <strong>redistribuir</strong>: si el hermano tiene claves de sobra, presta una (pasando por el padre). Si no puede, se <strong>fusionan</strong>.</figcaption>
+</figure>
+
+<h3>Árbol B contra B+</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="bp-t bp-d">
+  <title id="bp-t">Las mismas claves en un árbol B y en un B+</title>
+  <desc id="bp-d">Árbol B: raíz 30 con hijos 10, 20 y 40, 50; cada clave aparece una vez, también en la raíz. Árbol B+: raíz 30 con hojas 10, 20 y 30, 40, 50; la clave 30 se repite en la hoja porque los datos están solo en las hojas, y las hojas están unidas por un puntero para recorrer en orden.</desc>
+  <defs><marker id="pp" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--azul" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="26">Árbol B</text>
+  <rect class="dg-caja dg-caja--violeta" x="190" y="46" width="60" height="34" rx="6"/><text class="dg-codigo" x="220" y="68" text-anchor="middle">30 ●</text>
+  <line class="dg-linea" x1="204" y1="80" x2="140" y2="120"/><line class="dg-linea" x1="236" y1="80" x2="300" y2="120"/>
+  <rect class="dg-caja" x="80" y="120" width="120" height="34" rx="6"/><text class="dg-codigo" x="140" y="142" text-anchor="middle">10 ● │ 20 ●</text>
+  <rect class="dg-caja" x="240" y="120" width="120" height="34" rx="6"/><text class="dg-codigo" x="300" y="142" text-anchor="middle">40 ● │ 50 ●</text>
+  <text class="dg-texto dg-texto--chico" x="220" y="186" text-anchor="middle">● = puntero al dato: hay datos en todos los niveles</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="220" y="206" text-anchor="middle">cada clave aparece una sola vez</text>
+
+  <line class="dg-guia" x1="450" y1="20" x2="450" y2="220"/>
+
+  <text class="dg-texto dg-texto--titulo" x="470" y="26">Árbol B+</text>
+  <rect class="dg-caja dg-caja--violeta" x="650" y="46" width="60" height="34" rx="6"/><text class="dg-codigo" x="680" y="68" text-anchor="middle">30</text>
+  <line class="dg-linea" x1="664" y1="80" x2="590" y2="120"/><line class="dg-linea" x1="696" y1="80" x2="780" y2="120"/>
+  <rect class="dg-caja dg-caja--bien" x="520" y="120" width="140" height="34" rx="6"/><text class="dg-codigo" x="590" y="142" text-anchor="middle">10 ● │ 20 ●</text>
+  <rect class="dg-caja dg-caja--bien" x="700" y="120" width="180" height="34" rx="6"/><text class="dg-codigo" x="790" y="142" text-anchor="middle">30 ● │ 40 ● │ 50 ●</text>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="662" y1="137" x2="698" y2="137" marker-end="url(#pp)"/>
+  <text class="dg-texto dg-texto--chico" x="690" y="186" text-anchor="middle">internos = solo índice; datos solo en las hojas</text>
+  <text class="dg-texto dg-texto--chico dg-texto--azul" x="690" y="206" text-anchor="middle">hojas encadenadas: un rango se lee de corrido</text>
+</svg>
+</div>
+<figcaption>Para buscar <code>BETWEEN 20 AND 45</code> el B+ baja una vez hasta el 20 y después <strong>sigue por las hojas encadenadas</strong>. Por eso los motores (SQL Server incluido) usan B+ para sus índices.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Árbol B contra ABB balanceado (pregunta repetida)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">ABB balanceado (AVL)</th><th scope="col">Árbol B</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Hijos por nodo</th><td>2</td><td>Hasta n (cientos)</td></tr>
+    <tr><th scope="row">Claves por nodo</th><td>1</td><td>Hasta n − 1</td></tr>
+    <tr><th scope="row">Dónde vive</th><td>Memoria principal</td><td>Disco: un nodo = una página</td></tr>
+    <tr><th scope="row">Altura con 1 millón de claves</th><td>~20 niveles (log₂)</td><td>3 o 4 niveles (log₍ₙ/₂₎)</td></tr>
+    <tr><th scope="row">Cómo se mantiene balanceado</th><td>Rotaciones</td><td>Split y fusión (crece hacia arriba)</td></tr>
+    <tr><th scope="row">Uso típico</th><td>Estructuras en memoria</td><td>Índices de bases de datos, file systems</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>B contra B+</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Árbol B</th><th scope="col">Árbol B+</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Dónde están los datos</th><td>En todos los nodos</td><td>Solo en las hojas</td></tr>
+    <tr><th scope="row">Claves repetidas en internos</th><td>No</td><td>Sí (como separadores)</td></tr>
+    <tr><th scope="row">Hojas encadenadas</th><td class="celda-mal">No</td><td class="celda-bien">Sí</td></tr>
+    <tr><th scope="row">Búsqueda puntual</th><td>Puede terminar antes de las hojas</td><td>Siempre llega a una hoja (costo parejo)</td></tr>
+    <tr><th scope="row">Rangos y ORDER BY</th><td>Hay que subir y bajar</td><td class="celda-bien">Recorre las hojas en orden</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Por qué una clave numérica corta es más rápida (03/12/2024)</h3>
+<ol class="pasos">
+  <li><strong>Entran más claves por página</strong> (una página de SQL Server tiene 8 KB).</li>
+  <li>Más claves por nodo = <strong>más hijos por nodo</strong> = <strong>menos niveles</strong>.</li>
+  <li>Menos niveles = <strong>menos lecturas a disco</strong> por búsqueda, y más índice entra en memoria.</li>
+  <li>Comparar enteros es más barato que comparar strings (largo variable, intercalación).</li>
+</ol>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los de «hashing contra árbol B» están en <a href="hashing.html#trampas">Hashing</a>.</p>
+<ul class="trampas" data-trampas="arbol-b"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Diferencias entre un árbol B y un ABB balanceado (máx. 10 renglones) <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El <strong>ABB balanceado</strong> (AVL) es binario: cada nodo tiene una clave y dos hijos, y se mantiene balanceado con rotaciones. Su altura es log₂ n: con un millón de claves, unos 20 niveles. Está pensado para memoria principal, donde recorrer nodos es barato.</p>
+    <p>El <strong>árbol B</strong> es n-ario: cada nodo es una página de disco con hasta n − 1 claves y n hijos, y salvo la raíz está siempre al menos a la mitad. Todas las hojas están al mismo nivel; se balancea con split (crece hacia la raíz) y fusión. Su altura es log de base n/2: con un millón de claves, 3 o 4 niveles, es decir, 3 o 4 lecturas a disco.</p>
+    <p>Por eso el árbol B se usa para <strong>índices sobre grandes volúmenes en disco</strong> y el ABB para estructuras en memoria.</p>
+  </div>
+  <p class="modelo__salio">Salió el 28/02/2023 y el 01/08/2023.</p>
+</details>
+
+<details class="modelo">
+  <summary>Explique el concepto de split y fusión en un árbol B <small>23/05/2023</small></summary>
+  <div class="modelo__cuerpo">
+    <p>En un árbol B de orden n cada nodo admite como máximo n − 1 claves y, salvo la raíz, como mínimo la mitad. Split y fusión son las operaciones que mantienen esas reglas y el balanceo.</p>
+    <p><strong>Split</strong> (al insertar): si la clave nueva no entra porque el nodo está lleno, el nodo se parte en dos con la mitad de las claves cada uno, y la clave del medio <strong>sube al padre</strong>. Si el padre también se llena, se parte también; si se parte la raíz, se crea una raíz nueva y el árbol crece un nivel. Es la única forma de crecer, y lo hace desde las hojas hacia arriba: por eso todas las hojas quedan siempre al mismo nivel.</p>
+    <p><strong>Fusión</strong> (al borrar): si un nodo queda por debajo del mínimo, primero se intenta redistribuir con un hermano que tenga claves de sobra. Si no se puede, el nodo se <strong>une con su hermano</strong> y la clave separadora del padre baja al nodo unido. Si la raíz queda vacía, desaparece y el árbol baja un nivel.</p>
+    <p>El <strong>factor de carga</strong> deja lugar libre en los nodos para reducir la cantidad de splits.</p>
+  </div>
+  <p class="modelo__salio">Salió el 23/05/2023.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="b" open>
+  <summary class="ejercicio__titulo">1. Un índice B+ con 200 hijos por nodo guarda 1.000.000 de claves. ¿Cuántas páginas lee, como mucho, una búsqueda?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 20</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 3 o 4</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 200</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) 1</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> 200² = 40.000 y 200³ = 8.000.000: con 3 niveles llenos alcanza; si los nodos están a la mitad (100 hijos), 100³ = 1.000.000: 3 o 4. Un ABB necesitaría unos 20.</div>
+</details>
+
+<details class="ejercicio" data-correcta="c">
+  <summary class="ejercicio__titulo">2. ¿Cuál es la única forma en que un árbol B aumenta su altura?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Agregando una hoja nueva debajo de la hoja llena</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Rotando como un AVL</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Con un split que llega a la raíz</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Con una fusión</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> Lo dice el libro de la cátedra: crece «desde los maximals en dirección a la raíz». La fusión hace lo contrario: es la única forma de bajar de altura.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">3. Una tabla de clientes se consulta casi siempre con <code>WHERE fecha_alta BETWEEN …</code>. ¿Qué índice conviene?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Árbol B+ sobre fecha_alta</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Hashing sobre fecha_alta</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Ninguno: los rangos siempre recorren la tabla</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> Baja una vez hasta la primera fecha y lee las hojas encadenadas en orden. El hashing dispersa las fechas: no sirve para rangos.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F de árbol B, mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="arbol-b"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

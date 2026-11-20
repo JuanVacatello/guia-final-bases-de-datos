@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finales resueltos</title>
+<meta name="description" content="Los ejercicios prácticos de los finales de Bases de Datos (UTN FRBA) de 2023 a 2025, con la solución oculta y explicada.">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="finales">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html">Practicar</a></p>
+<h1>Finales resueltos 2023–2025</h1>
+<p>Los <strong>prácticos (3a y 3b)</strong> de los 22 finales de 2023 a 2025. Leé el enunciado, resolvelo en papel y recién después abrí la solución. Los V/F y la teoría de cada final están en las páginas de cada tema y en el <a href="banco-vf.html">banco de V/F</a>.</p>
+<p class="aviso">Los enunciados están resumidos de las fotos y transcripciones (a veces faltaba una parte; se aclara). El código está en <a href="../practica.sql" download><strong>practica.sql</strong></a> con las tablas y datos de prueba. Tipos: <strong>A</strong> ¿qué devuelve? · <strong>B</strong> escribir la consulta · <strong>C</strong> implementar una regla · <strong>D</strong> concurrencia.</p>
+
+<nav class="indice-pagina" aria-label="Años">
+  <a href="#a2023">2023</a>
+  <a href="#a2024">2024</a>
+  <a href="#a2025">2025</a>
+  <a href="#modelos">Modelos de tablas</a>
+</nav>
+
+<section id="modelos" aria-labelledby="t-modelos">
+<h2 id="t-modelos">Los modelos que se repiten</h2>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Modelo</th><th scope="col">Tablas</th><th scope="col">Veces</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">País → Provincia → Ciudad</th><td><code>Pais(idpais, detalle)</code>, <code>Provincia(idpcia, idpais, detalle, habitantes)</code>, <code>Ciudad(idciudad, idpcia, detalle)</code></td><td>la más usada</td></tr>
+    <tr><th scope="row">Persona</th><td><code>Persona(id, fecha_nacimiento, apellido, nombre, su_padre_es)</code>: FK a sí misma</td><td>2019, 2024 ×4</td></tr>
+    <tr><th scope="row">Números / Tablita</th><td><code>Numeros(clave PK, valor)</code>, <code>TablitaFinal(numero UNIQUE)</code></td><td>2022–2025</td></tr>
+    <tr><th scope="row">Producto / Stock / Depósito</th><td><code>Stock(id_producto, id_deposito, cantidad)</code> (en los enunciados: stoc_producto, stoc_deposito, stoc_cantidad)</td><td>2019–2023</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- =================================== 2023 =================================== -->
+<section id="a2023" aria-labelledby="t-2023">
+<h2 id="t-2023">2023</h2>
+
+<h3 id="f-2023-02-22">22/02/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Script sobre TABLITAFINAL(numero UNIQUE)</summary>
+  <p>Tabla vacía, sin triggers. Indicar errores y contenido final:</p>
+  <div class="codigo"><pre><code class="sql">INSERT INTO tablitafinal VALUES (1);
+INSERT INTO tablitafinal VALUES (3);
+INSERT INTO tablitafinal VALUES (NULL);
+UPDATE tablitafinal SET numero = ISNULL(numero, 5) + 1
+ WHERE 1 = 1 OR numero IS NOT NULL AND numero &gt; 0;
+INSERT INTO tablitafinal VALUES (NULL);
+COMMIT;</code></pre></div>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Contenido final: NULL, 2, 4, 6. Único error: el COMMIT</strong> (no hay BEGIN TRANSACTION abierto; cada sentencia ya se confirmó sola).</p>
+    <p>AND se evalúa antes que OR: <code>1=1 OR (…)</code> es siempre verdadero y el UPDATE toca las 3 filas: 1→2, 3→4, NULL→ISNULL(NULL, 5) + 1 = 6. Como ya no queda ningún NULL, el último INSERT NULL entra (UNIQUE admite uno).</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo D · SERIALIZABLE y UPDATE sobre «product»</summary>
+  <p>Igual al del 10/03/2021: A y B en SERIALIZABLE con bloqueo de tabla compartido; los dos leen el detalle del producto 1 y después hacen <code>UPDATE product SET detalle = 'X'</code> (o 'Y'). Opciones: deadlock, queda X, queda Y, termina primero A o B, ninguna.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Ninguna de las anteriores</strong>, siguiendo la clave oficial del mismo ejercicio en 2021. La tabla se llama <strong>producto</strong> y el UPDATE apunta a <strong>product</strong>: falla en los dos procesos, no hay deadlock y el detalle no cambia.</p>
+    <p class="polemica">⚠️ El alumno de 2023 respondió «deadlock» (sin nota visible). Si la tabla estuviera bien escrita, sí sería deadlock. Leé los nombres letra por letra.</p>
+  </details>
+</details>
+
+<h3 id="f-2023-02-28">28/02/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo D · El SP descuenta_stock</summary>
+  <div class="codigo"><pre><code class="sql">CREATE PROCEDURE descuenta_stock (@prod_id INT, @id_dep INT, @cant INT)
+AS
+BEGIN TRANSACTION
+  IF EXISTS (SELECT 1 FROM stock WHERE id_producto = @prod_id
+              AND id_deposito = @id_dep AND cantidad &gt;= @cant)
+  BEGIN
+    UPDATE stock SET cantidad = cantidad - @cant
+     WHERE id_producto = @prod_id AND id_deposito = @id_dep
+    COMMIT
+  END
+  ELSE
+    ROLLBACK</code></pre></div>
+  <p>El nivel de aislamiento se define en cada ejecución. 1) siempre funciona bien; 2) puede dejar stock negativo; 3) con algún nivel puede dar interbloqueo; 4) todas.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>2 y 3.</strong> Con READ COMMITTED el SELECT del IF suelta el bloqueo apenas lee: dos ejecuciones validan el mismo stock y las dos descuentan (negativo). Con REPEATABLE READ o SERIALIZABLE las dos retienen su bloqueo compartido y después piden exclusivo: deadlock.</p>
+    <p>Corrección: validar y descontar en el mismo UPDATE (<code>AND cantidad &gt;= @cant</code>) y mirar <code>@@ROWCOUNT</code>. Está en <a href="sql.html#plantillas">las plantillas</a>.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · No puede haber dos veces el mismo depósito para el mismo producto (los datos NO están bien)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Como los datos ya tienen duplicados, una UNIQUE no se puede crear directamente. Dos pasos:</p>
+    <ol>
+      <li><strong>Consolidar</strong> en una transacción: sumar las cantidades de cada par repetido, borrar las filas repetidas e insertar una por par.</li>
+      <li><strong>Impedir que vuelva a pasar:</strong> <code>ALTER TABLE Stock ADD CONSTRAINT uq_stock UNIQUE (id_producto, id_deposito)</code> (o un trigger AFTER INSERT, UPDATE con <code>GROUP BY … HAVING COUNT(*) &gt; 1</code>).</li>
+    </ol>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE PROCEDURE sp_consolidar_stock
+AS
+BEGIN
+  SET NOCOUNT ON;
+  BEGIN TRY
+    BEGIN TRANSACTION;
+    SELECT id_producto, id_deposito, SUM(cantidad) AS cantidad
+      INTO #consolidado
+      FROM Stock WITH (TABLOCKX)
+     GROUP BY id_producto, id_deposito
+    HAVING COUNT(*) &gt; 1;
+
+    DELETE s
+      FROM Stock s
+      JOIN #consolidado c ON c.id_producto = s.id_producto
+                         AND c.id_deposito = s.id_deposito;
+
+    INSERT INTO Stock (id_producto, id_deposito, cantidad)
+    SELECT id_producto, id_deposito, cantidad FROM #consolidado;
+    COMMIT TRANSACTION;
+  END TRY
+  BEGIN CATCH
+    IF @@TRANCOUNT &gt; 0 ROLLBACK TRANSACTION;
+    THROW;
+  END CATCH
+END;
+GO
+EXEC sp_consolidar_stock;
+ALTER TABLE Stock ADD CONSTRAINT uq_stock_producto_deposito UNIQUE (id_producto, id_deposito);</code></pre></div>
+  </details>
+</details>
+
+<h3 id="f-2023-03-07">07/03/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · TOP 5 menores y mayores con un valor duplicado</summary>
+  <p>Secuencias: al menos 20 filas, clave sin nulos y con <strong>un solo valor duplicado</strong>. ¿Da error? Si no, ¿cuántas filas como mínimo y como máximo?</p>
+  <div class="codigo"><pre><code class="sql">SELECT clave FROM Secuencias
+ WHERE clave IN (SELECT TOP 5 clave FROM Secuencias ORDER BY clave)
+    OR clave IN (SELECT TOP 5 clave FROM Secuencias ORDER BY clave DESC)
+ ORDER BY 1</code></pre></div>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>No da error. Mínimo 10, máximo 11.</strong> Cada TOP 5 trae 5 claves y el IN compara contra la tabla entera: si el valor duplicado es uno de esos 10, entran sus dos copias (11 filas). Si no, 10. Con 20 filas o más, los dos TOP 5 no se pisan.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Borrar los 2 registros duplicados con una sola sentencia DML</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">DELETE FROM Secuencias
+ WHERE clave IN (SELECT clave FROM Secuencias GROUP BY clave HAVING COUNT(*) &gt; 1);</code></pre></div>
+    <p>Borra las dos copias (el enunciado pide «los 2 registros»).</p>
+  </details>
+</details>
+
+<h3 id="f-2023-05-23">23/05/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3.1 · Tipo A/B · T1 −&lt; T2 &gt;− T3 (T2 es la tabla intermedia, PK (t1_id, t3_id))</summary>
+  <div class="codigo"><pre><code class="sql">SELECT T1.id,
+       (SELECT COUNT(DISTINCT T2.t3_id) FROM T2 WHERE T2.t1_id = T1.id)
+  FROM T1</code></pre></div>
+  <p>a) ¿Qué devuelve? b) Reescribila sin subconsultas. c) ¿Qué cambia si se saca el DISTINCT?</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>a)</strong> Cada id de T1 con la cantidad de T3 distintos relacionados (0 si no tiene ninguno).</p>
+    <div class="codigo"><pre><code class="sql">-- b)
+SELECT T1.id, COUNT(T2.t3_id)
+  FROM T1
+  LEFT JOIN T2 ON T2.t1_id = T1.id
+ GROUP BY T1.id;</code></pre></div>
+    <p><strong>b)</strong> LEFT JOIN para no perder los T1 sin relación, y <code>COUNT(T2.t3_id)</code> (no <code>COUNT(*)</code>) para que cuenten 0. <strong>c)</strong> Nada: (t1_id, t3_id) es la PK de T2, no puede haber repetidos.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3.2 · Tipo A · Encontrar los errores de una consulta (T1 con más de un millón de filas)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Los cuatro errores plantados: <code>SUM</code> sobre una columna CHAR; <code>ORDER BY</code> dentro de una subconsulta sin TOP; <code>HAVING</code> escrito después del <code>ORDER BY</code> (el orden es GROUP BY → HAVING → ORDER BY); una columna (T1.t1_col2) en el SELECT que no está en el GROUP BY ni agregada.</p>
+  </details>
+</details>
+
+<h3 id="f-2023-07-25">25/07/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo B · Primer hueco de clave en Numeros(clave PK, valor)</summary>
+  <p>clave &gt; 0 garantizado y la tabla no está vacía. Consulta ANSI que devuelva el primer número libre, o el siguiente al máximo si no hay huecos.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT CASE
+         WHEN NOT EXISTS (SELECT 1 FROM Numeros WHERE clave = 1) THEN 1
+         ELSE (SELECT MIN(n.clave) + 1
+                 FROM Numeros n
+                WHERE NOT EXISTS (SELECT 1 FROM Numeros m WHERE m.clave = n.clave + 1))
+       END AS primer_libre;</code></pre></div>
+    <p>La clave cuyo siguiente no existe marca el comienzo de un hueco; la menor de ellas + 1 es el primero libre. Si no hay huecos, esa clave es el máximo. El caso que fallaba en las resoluciones de alumnos: que <strong>falte el 1</strong>.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Insertar un registro con esa clave y valor NULL. ¿Puede fallar?</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">INSERT INTO Numeros (clave, valor)
+SELECT CASE
+         WHEN NOT EXISTS (SELECT 1 FROM Numeros WHERE clave = 1) THEN 1
+         ELSE (SELECT MIN(n.clave) + 1 FROM Numeros n
+                WHERE NOT EXISTS (SELECT 1 FROM Numeros m WHERE m.clave = n.clave + 1))
+       END,
+       NULL;</code></pre></div>
+    <p><strong>Sí puede fallar:</strong> dos ejecuciones concurrentes calculan el mismo hueco y la segunda viola la PK.</p>
+  </details>
+</details>
+
+<h3 id="f-2023-08-01">01/08/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo D · El mismo descuenta_stock ejecutado N veces en paralelo (EXEC descuenta_stock 1, 1, 100)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Con READ COMMITTED: todas validan antes de que alguna descuente y el stock puede quedar negativo. Con REPEATABLE READ o SERIALIZABLE: deadlocks, y las víctimas terminan con error. Ver <a href="#f-2023-02-28">28/02/2023</a> (el alumno sacó 1/2: hay que nombrar los dos problemas y por qué pasan).</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · N registros de stock para el mismo par: dejar 1 con la suma y evitar que vuelva a pasar</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Es el mismo del <a href="#f-2023-02-28">28/02/2023</a>: SP que consolida dentro de una transacción + UNIQUE (id_producto, id_deposito). El alumno sacó 0,5/2 (consolidó, pero no impidió que volviera a pasar o no lo hizo atómico).</p>
+  </details>
+</details>
+
+<h3 id="f-2023-09-27">27/09/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo D · sp_increment_parametro con muchos usuarios en SERIALIZABLE</summary>
+  <p><code>PARAMETROS(clave PK, valor VARCHAR NULL)</code>. El SP hace: BEGIN TRAN; <code>SELECT @valor = valor …</code>; <code>UPDATE … SET valor = @valor + 1</code>; COMMIT.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Deadlocks:</strong> todos leen la misma fila con bloqueo compartido retenido (SERIALIZABLE) y después piden exclusivo. El motor elige víctimas; esas invocaciones terminan con error y su incremento se pierde. Además, <strong>valor es VARCHAR</strong>: <code>@valor + 1</code> fuerza una conversión a número que falla si el valor no es numérico (y si es NULL, queda NULL).</p>
+    <p>Arreglo: <code>UPDATE Parametros SET valor = CAST(valor AS INT) + 1 WHERE clave = @clave</code>, una sola sentencia.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo A · <code>SELECT MIN(f1.clave), MAX(f2.clave) FROM parametros f1, parametros f2 WHERE f1.clave &gt; f2.clave</code></summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>La segunda clave más chica y la segunda más grande.</strong> f1 nunca puede ser el mínimo (tiene que ser mayor que algún f2) y f2 nunca puede ser el máximo.</p>
+  </details>
+</details>
+
+<h3 id="f-2023-12-05">05/12/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Juego de cartas: qué devuelve una consulta con CASE y TOP 1</summary>
+  <p>Juego(jugador, jugada, carta), 2 jugadores; gana la carta mayor y en empate gana el 1; empieza el 1 y después el ganador de la mano anterior. La consulta ordena por jugada y por un CASE con <code>SELECT TOP 1 … ORDER BY carta DESC</code> de la jugada anterior.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Devuelve las jugadas en orden y, dentro de cada una, primero al que ganó la mano anterior. <strong>Falla en los empates:</strong> el <code>TOP 1 … ORDER BY carta DESC</code> entre dos cartas iguales puede devolver cualquiera de los dos jugadores; no garantiza al 1. Habría que ordenar por <code>carta DESC, jugador</code>.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Mayor carta de cada jugador; primero el de la mayor (empate: jugador 1). Sin subconsultas en el FROM, cursores ni vistas</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT jugador, MAX(carta) AS mayor_carta
+  FROM Juego
+ GROUP BY jugador
+ ORDER BY MAX(carta) DESC, jugador;</code></pre></div>
+  </details>
+</details>
+
+<h3 id="f-2023-12-12">12/12/2023</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo C · Claves consecutivas desde 1 (ya hay un INSTEAD OF que no se puede tocar)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_numeros_consecutivos ON Numeros
+AFTER INSERT
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF (SELECT MAX(clave) FROM Numeros) &lt;&gt; (SELECT COUNT(*) FROM Numeros)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50004, 'Las claves tienen que ser consecutivas desde 1.', 1;
+  END
+END;</code></pre></div>
+    <p>AFTER porque no puede haber dos INSTEAD OF INSERT. Con claves positivas (constraint) y únicas (PK), «MAX = COUNT» equivale a «1..n sin huecos».</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · Valores no nulos de valor únicos. ¿Por qué no con UNIQUE?</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_numeros_valor_unico ON Numeros
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT valor FROM Numeros
+              WHERE valor IS NOT NULL
+              GROUP BY valor
+             HAVING COUNT(*) &gt; 1)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50005, 'Los valores no nulos no se pueden repetir.', 1;
+  END
+END;</code></pre></div>
+    <p>UNIQUE no sirve porque en SQL Server admite <strong>un solo NULL</strong>, y la regla permite muchos.</p>
+  </details>
+</details>
+</section>
+
+<!-- =================================== 2024 =================================== -->
+<section id="a2024" aria-labelledby="t-2024">
+<h2 id="t-2024">2024</h2>
+
+<h3 id="f-2024-02-20">20/02/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a y 3b · Tipo A · Alojamientos y feriados de 2012 con RIGHT y LEFT JOIN</summary>
+  <p>N = cantidad de feriados de 2012.</p>
+  <div class="codigo"><pre><code class="sql">-- 3a
+SELECT COUNT(*), FechaCheckOut
+  FROM Alojamientos RIGHT JOIN Feriados ON FechaCheckOut = Fecha AND anio = 2012
+ GROUP BY FechaCheckOut ORDER BY 2;
+-- 3b
+SELECT COUNT(*), Fecha
+  FROM Alojamientos LEFT JOIN Feriados ON FechaCheckOut = Fecha AND anio = 2012
+ GROUP BY Fecha ORDER BY 2;</code></pre></div>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Las dos: como máximo N + 1 filas.</strong> 3a: hasta N fechas de checkout que coinciden con un feriado de 2012, más <strong>un grupo NULL</strong> con todos los feriados sin checkout (incluidos los de otros años, que el RIGHT JOIN conserva). 3b: hasta N fechas de feriado más un grupo NULL con los alojamientos que no salieron un feriado.</p>
+    <p class="polemica">⚠️ La resolución del alumno dice «máximo N»: se olvida del grupo NULL.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-02-27">27/02/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · <code>SELECT 1 FROM PAIS P JOIN PROVINCIA PR … JOIN CIUDAD C … GROUP BY p.idpcia</code></summary>
+  <p>Opciones: 1 fila / 1 por provincia / error de ejecución / error de compilación.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Error de compilación</strong>: el alias p es PAIS, que no tiene la columna idpcia (Invalid column name). Se detecta antes de ejecutar.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Para cada país, el total de sus provincias y de sus ciudades</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT pa.idpais, pa.detalle,
+       COUNT(DISTINCT pr.idpcia) AS provincias,
+       COUNT(c.idciudad)         AS ciudades
+  FROM Pais pa
+  LEFT JOIN Provincia pr ON pr.idpais = pa.idpais
+  LEFT JOIN Ciudad c     ON c.idpcia  = pr.idpcia
+ GROUP BY pa.idpais, pa.detalle;</code></pre></div>
+    <p>DISTINCT en provincias porque el join con ciudades las repite. LEFT JOIN en los dos para que aparezcan los países con 0.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-03-05">05/03/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Numeros(numero PK) con N filas: <code>SELECT 1 FROM Numeros t1, Numeros t2 WHERE t1.numero &lt; t2.numero GROUP BY t1.numero, t2.numero</code></summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>La suma de i, de 1 a N − 1</strong> = N(N − 1)/2: una fila por cada par distinto con el primero menor.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Reescribir <code>SELECT MIN(t1.numero), MAX(t2.numero) FROM Numeros t1, Numeros t2 WHERE t1.numero &gt; t2.numero</code> con una sola tabla en el FROM</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT MIN(numero) AS valor1,
+       (SELECT MAX(numero) FROM Numeros
+         WHERE numero &lt; (SELECT MAX(numero) FROM Numeros)) AS valor2
+  FROM Numeros
+ WHERE numero &gt; (SELECT MIN(numero) FROM Numeros);</code></pre></div>
+    <p>Primero hay que entender que la original devuelve el segundo menor y el segundo mayor.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-04">04/2024 (especial) y 18/10/2024 <small>(mismo práctico)</small></h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo B · Persona(id, fecha_nacimiento, apellido, nombre, su_padre_es): personas con su abuelo paterno</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT h.nombre, h.apellido,
+       a.nombre AS abuelo_nombre, a.apellido AS abuelo_apellido
+  FROM Persona h
+  JOIN Persona p ON h.su_padre_es = p.id
+  JOIN Persona a ON p.su_padre_es = a.id;</code></pre></div>
+    <p>Doble self-join: hijo → padre → abuelo. 2/2 en la foto del examen.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Los padres y cuántos hijos tiene cada uno</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT p.id, p.nombre, p.apellido, COUNT(*) AS cantidad_hijos
+  FROM Persona p
+  JOIN Persona h ON h.su_padre_es = p.id
+ GROUP BY p.id, p.nombre, p.apellido;</code></pre></div>
+    <p>La foto muestra 1/2: lo más probable, agrupar solo por nombre y apellido (dos padres homónimos se mezclan). <strong>Agrupá por id.</strong></p>
+  </details>
+</details>
+
+<h3 id="f-2024-07-23">23/07/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo B · Por usuario: nombre, alta, estado, cantidad de perfiles, perfil con más logins fallidos y fallidos totales (sin subselects en el FROM)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Columnas supuestas (el enunciado está en una foto): Usuario(usua_id, usua_nombre, usua_fecha_alta, usua_estado) → Estado(esta_id, esta_detalle); Usuario_Perfil(usua_id, perf_id); Login(logi_usuario, logi_perfil, logi_exitoso).</p>
+    <div class="codigo"><pre><code class="sql">SELECT u.usua_nombre, u.usua_fecha_alta, e.esta_detalle,
+       COUNT(up.perf_id) AS cantidad_perfiles,
+       (SELECT TOP 1 l.logi_perfil
+          FROM Login l
+         WHERE l.logi_usuario = u.usua_id AND l.logi_exitoso = 0
+         GROUP BY l.logi_perfil
+         ORDER BY COUNT(*) DESC, l.logi_perfil) AS perfil_mas_fallidos,
+       (SELECT COUNT(*)
+          FROM Login l
+         WHERE l.logi_usuario = u.usua_id AND l.logi_exitoso = 0) AS fallidos
+  FROM Usuario u
+  JOIN Estado e ON e.esta_id = u.usua_estado
+  LEFT JOIN Usuario_Perfil up ON up.usua_id = u.usua_id
+ GROUP BY u.usua_id, u.usua_nombre, u.usua_fecha_alta, e.esta_detalle;</code></pre></div>
+    <p>El desempate «menor código» va en el ORDER BY del TOP 1. El alumno sacó 1/2.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · 3 logins fallidos en el día bloquean la cuenta; la password genérica reactiva. Considerar concurrencia</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Trigger <strong>INSTEAD OF INSERT</strong> en Login (hay que poder <em>no grabar</em> fallidos), con un cursor sobre <code>inserted</code> porque cada fila se decide según el estado del usuario, y lectura del usuario con <code>UPDLOCK, HOLDLOCK</code> para que dos logins simultáneos se pongan en fila. Código completo en <a href="../practica.sql" download>practica.sql</a> (tr_login_reglas). El alumno sacó 2/2 con este enfoque.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-07-30">30/07/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo C · Crear los objetos para poder borrar una Provincia con un DELETE</summary>
+  <details class="solucion"><summary>Ver la solución (respuesta de la cátedra)</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_provincia_borrar ON Provincia
+INSTEAD OF DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DELETE FROM Ciudad    WHERE idpcia IN (SELECT idpcia FROM deleted);
+  DELETE FROM Provincia WHERE idpcia IN (SELECT idpcia FROM deleted);
+END;</code></pre></div>
+    <p>Tiene que soportar varias filas. Con un SP no vale: «tiene que funcionar con DELETE». Un AFTER no sirve: la FK de Ciudad falla antes de que corra.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo D · El mismo país 1000 en dos procesos (A con un INSERT de provincia con 4 valores para 3 columnas)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>E) Ninguna</strong> (oficial). Resuelto paso a paso en <a href="../unidad-4/transacciones.html#ejercita">Transacciones, ejercicio 3</a>.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-12-03">03/12/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Ocupación del laboratorio 401: dia LEFT JOIN horario … JOIN materia, con ISNULL(…, 'LIBRE')</summary>
+  <p>a) no compila b) error de ejecución c) se ejecuta pero no retorna lo pedido d) retorna lo solicitado.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>c).</strong> El <code>JOIN materia</code> (INNER) después del LEFT JOIN anula el LEFT: los días con un turno libre desaparecen y nunca se muestra «LIBRE». Corrección: todos los joins con LEFT.</p>
+    <div class="codigo"><pre><code class="sql">SELECT d.dia_nombre,
+       ISNULL(m1.detalle, 'LIBRE') AS turno_manana,
+       ISNULL(m2.detalle, 'LIBRE') AS turno_tarde
+  FROM Dia d
+  LEFT JOIN Horario h1 ON h1.dia_id = d.dia_id AND h1.labo_id = 401 AND h1.turno = 0
+  LEFT JOIN Materia m1 ON m1.materia_id = h1.materia_id
+  LEFT JOIN Horario h2 ON h2.dia_id = d.dia_id AND h2.labo_id = 401 AND h2.turno = 1
+  LEFT JOIN Materia m2 ON m2.materia_id = h2.materia_id;</code></pre></div>
+    <p class="polemica">⚠️ En la foto, el alumno marcó d).</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · Una materia no puede estar el mismo día en laboratorios diferentes (sin alterar la estructura)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Trigger AFTER INSERT, UPDATE en Horario que busca la misma materia, el mismo día y otro laboratorio. Código y explicación en <a href="../unidad-4/objetos.html#ejercita">Objetos, ejercicio 3</a>.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-12-10">10/12/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · <code>SELECT a.nombre, b.nombre, c.nombre FROM persona c LEFT JOIN persona b ON c.su_padre_es = b.id LEFT JOIN persona a ON b.su_padre_es = a.id</code></summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Todas las personas (c)</strong> con el nombre de su padre (b) y de su abuelo paterno (a); NULL cuando no los tienen. Las columnas quedan en orden abuelo, padre, persona.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo C · Que nadie termine siendo ancestro de sí mismo</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_persona_sin_ciclos ON Persona
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DECLARE @ciclos INT;
+
+  WITH ancestros (origen, id, nivel) AS (
+    SELECT i.id, i.su_padre_es, 1
+      FROM inserted i
+     WHERE i.su_padre_es IS NOT NULL
+    UNION ALL
+    SELECT a.origen, p.su_padre_es, a.nivel + 1
+      FROM ancestros a
+      JOIN Persona p ON p.id = a.id
+     WHERE p.su_padre_es IS NOT NULL
+       AND a.id &lt;&gt; a.origen     -- si ya volvió al origen, no sigue
+       AND a.nivel &lt; 1000       -- tope de seguridad
+  )
+  SELECT @ciclos = COUNT(*)
+    FROM ancestros
+   WHERE id = origen
+  OPTION (MAXRECURSION 0);
+
+  IF @ciclos &gt; 0
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50007, 'Una persona no puede ser ancestro de sí misma.', 1;
+  END
+END;</code></pre></div>
+    <p>Desde cada fila nueva o modificada se sube por <code>su_padre_es</code>; si algún ancestro es la misma persona, hay un ciclo. Hace falta recursión porque la profundidad es desconocida. El CTE no puede ir dentro de un IF: se guarda el resultado en una variable.</p>
+  </details>
+</details>
+
+<h3 id="f-2024-12-17">17/12/2024</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo B · Los 5 primeros países del alfabeto y los 5 últimos (más de 100 países)</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT idpais, detalle
+  FROM Pais
+ WHERE idpais IN (SELECT TOP 5 idpais FROM Pais ORDER BY detalle)
+    OR idpais IN (SELECT TOP 5 idpais FROM Pais ORDER BY detalle DESC)
+ ORDER BY detalle;</code></pre></div>
+    <p>2/2 en la foto. También vale un UNION ALL de dos tablas derivadas con TOP.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo A · <code>SELECT pa.IDPAIS, SUM(pro.HABITANTES), COUNT(*) FROM pais pa INNER JOIN provincias pro ON pa.IDPAIS = pro.IDPAIS GROUP BY pa.IDPAIS</code></summary>
+  <p>Elegir entre 4 descripciones del resultado (A a D).</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>D: una fila por país con al menos una provincia; los habitantes del país (suma de sus provincias) y la cantidad de provincias.</strong> El INNER JOIN deja afuera a los países sin provincias. El alumno que marcó D sacó 2/2; el mismo ejercicio salió en 2022.</p>
+  </details>
+</details>
+</section>
+
+<!-- =================================== 2025 =================================== -->
+<section id="a2025" aria-labelledby="t-2025">
+<h2 id="t-2025">2025</h2>
+
+<h3 id="f-2025-02-11">11/02/2025</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Producto cartesiano contra una tabla vacía</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Conjunto vacío</strong>: n × 0 = 0 filas, sin importar el GROUP BY o el COUNT (según el alumno, idéntico a los de 2019).</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo B · Empleado(empl_id, empl_descr, empl_jefe): vista con jefe, cada empleado a cargo y cantidad, solo jefes con más de 5</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">CREATE VIEW vw_jefes_con_mas_de_5 AS
+SELECT j.empl_id    AS jefe_codigo,
+       j.empl_descr AS jefe_nombre,
+       e.empl_id    AS empleado_codigo,
+       e.empl_descr AS empleado_nombre,
+       (SELECT COUNT(*) FROM Empleado x WHERE x.empl_jefe = j.empl_id) AS cantidad_a_cargo
+  FROM Empleado j
+  JOIN Empleado e ON e.empl_jefe = j.empl_id
+ WHERE (SELECT COUNT(*) FROM Empleado x WHERE x.empl_jefe = j.empl_id) &gt; 5;</code></pre></div>
+    <p class="polemica">⚠️ La solución del foro pone <code>COUNT(*)</code> junto a columnas sin GROUP BY: en SQL Server no compila. La cantidad va en una subconsulta correlacionada. Alias en todas las columnas: lo pedía el enunciado.</p>
+  </details>
+</details>
+
+<h3 id="f-2025-02-18">18/02/2025</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo A · Script con UPDATE … WHERE 1=1 OR numero IS NOT NULL AND numero &gt; 0</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p>Igual al del <a href="#f-2023-02-22">22/02/2023</a>: queda <strong>2, 4, 6, NULL</strong>; el WHERE es siempre verdadero porque AND va antes que OR. Si el script termina con COMMIT sin BEGIN TRANSACTION, ese COMMIT da error.</p>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo A · MAX de las dos copias con t1.numero &gt; t2.numero, sin GROUP BY</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>El mayor y el segundo mayor.</strong> No hace falta GROUP BY porque el SELECT solo tiene agregados.</p>
+  </details>
+</details>
+
+<h3 id="f-2025-07-29">29/07/2025</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3a · Tipo B · Los países que no tienen ciudades cargadas</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT p.idpais, p.detalle
+  FROM Pais p
+ WHERE NOT EXISTS (SELECT 1
+                     FROM Provincia pr
+                     JOIN Ciudad c ON c.idpcia = pr.idpcia
+                    WHERE pr.idpais = p.idpais);</code></pre></div>
+  </details>
+</details>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3b · Tipo A · Pais LEFT JOIN Provincia … JOIN Ciudad …: elegir entre 4 opciones</summary>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Ninguna de las 4</strong>, según el alumno: el JOIN con Ciudad anula el LEFT JOIN y se pierden los países sin provincias o sin ciudades. Es la trampa del <a href="#f-2024-12-03">03/12/2024</a>.</p>
+  </details>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

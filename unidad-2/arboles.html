@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árboles binarios y barridos</title>
+<meta name="description" content="Unidad 2: árboles, árbol binario de búsqueda, completo, lleno, balanceado, AVL, barridos, representación estática y transformada de Knuth, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="arboles">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 2: Manipulación de datos</a></p>
+<h1>Árboles binarios y barridos</h1>
+<p>Árbol, ABB, barridos y el vocabulario de la cátedra. Casi no sale como teoría, pero es <strong>la fuente de V/F más grande</strong> junto con Huffman: la mitad se resuelve sabiendo qué es «completo».</p>
+
+<div class="datos-tema" data-estadisticas="arboles" data-teoria="arboles:arbol-estatico"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#laboratorio">Armá un ABB</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Un <strong>árbol</strong> es un grafo unívoco y conectado: cada nodo tiene <strong>un solo padre</strong>, salvo la raíz. Con n nodos tiene <strong>n − 1 arcos</strong>. Para el libro, «árbol» y «árbol principal derecho» son sinónimos.</li>
+    <li>Palabras de la cátedra: <strong>completo</strong> = cada nodo tiene 0 o n hijos (binario: 0 o 2 → cantidad de nodos <strong>impar</strong>). <strong>Lleno</strong> = completo y todas las hojas a la misma profundidad. <strong>Balanceado</strong> = en cada nodo, la cantidad de nodos de los subárboles difiere en ≤ 1. <strong>AVL</strong> = lo mismo con las alturas.</li>
+    <li><strong>ABB</strong>: a la izquierda los menores, a la derecha los mayores. Su barrido <strong>simétrico</strong> da los datos ordenados. Si las claves llegan ordenadas, degenera en una lista.</li>
+    <li>Barridos: <strong>preorden</strong> (raíz, izq, der), <strong>simétrico</strong> (izq, raíz, der: solo binarios), <strong>postorden</strong> (izq, der, raíz). Un n-ario se pasa a binario con la <strong>transformada de Knuth</strong>.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Completo, lleno, balanceado: no son lo mismo</h3>
+<p>Las definiciones del libro de la cátedra. Las de internet son otras: si te tomás la de internet, perdés el punto.</p>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 290" role="img" aria-labelledby="ti-t ti-d">
+  <title id="ti-t">Cuatro árboles binarios y sus propiedades</title>
+  <desc id="ti-d">Completo: raíz con un hijo izquierdo que tiene dos hijos y un hijo derecho hoja; es completo y AVL, pero no lleno ni balanceado por cantidad de nodos. Lleno: 7 nodos en 3 niveles; cumple todo. Balanceado: raíz con dos hijos y el izquierdo con un hijo; balanceado y AVL, pero no completo. Degenerado: una cadena de tres nodos hacia la derecha; no cumple ninguna.</desc>
+  <g>
+    <rect class="dg-carril" x="5" y="5" width="212" height="280" rx="10"/>
+    <text class="dg-texto dg-texto--titulo" x="20" y="30">Completo</text>
+    <line class="dg-linea" x1="111" y1="62" x2="66" y2="112"/><line class="dg-linea" x1="111" y1="62" x2="156" y2="112"/>
+    <line class="dg-linea" x1="66" y1="122" x2="36" y2="172"/><line class="dg-linea" x1="66" y1="122" x2="96" y2="172"/>
+    <circle class="dg-caja dg-caja--azul" cx="111" cy="58" r="13"/><circle class="dg-caja dg-caja--azul" cx="66" cy="118" r="13"/><circle class="dg-caja dg-caja--azul" cx="156" cy="118" r="13"/>
+    <circle class="dg-caja dg-caja--azul" cx="36" cy="178" r="13"/><circle class="dg-caja dg-caja--azul" cx="96" cy="178" r="13"/>
+    <text class="dg-texto dg-texto--chico" x="20" y="222">✓ completo (0 o 2 hijos)</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="240">✗ lleno ✗ balanceado (3 vs 1)</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="258">✓ AVL (alturas 2 vs 1)</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="20" y="276">5 nodos: impar</text>
+  </g>
+  <g transform="translate(228,0)">
+    <rect class="dg-carril" x="5" y="5" width="212" height="280" rx="10"/>
+    <text class="dg-texto dg-texto--titulo" x="20" y="30">Lleno</text>
+    <line class="dg-linea" x1="111" y1="62" x2="66" y2="112"/><line class="dg-linea" x1="111" y1="62" x2="156" y2="112"/>
+    <line class="dg-linea" x1="66" y1="122" x2="41" y2="172"/><line class="dg-linea" x1="66" y1="122" x2="91" y2="172"/>
+    <line class="dg-linea" x1="156" y1="122" x2="131" y2="172"/><line class="dg-linea" x1="156" y1="122" x2="181" y2="172"/>
+    <circle class="dg-caja dg-caja--bien" cx="111" cy="58" r="13"/><circle class="dg-caja dg-caja--bien" cx="66" cy="118" r="13"/><circle class="dg-caja dg-caja--bien" cx="156" cy="118" r="13"/>
+    <circle class="dg-caja dg-caja--bien" cx="41" cy="178" r="13"/><circle class="dg-caja dg-caja--bien" cx="91" cy="178" r="13"/><circle class="dg-caja dg-caja--bien" cx="131" cy="178" r="13"/><circle class="dg-caja dg-caja--bien" cx="181" cy="178" r="13"/>
+    <text class="dg-texto dg-texto--chico" x="20" y="222">✓ completo ✓ lleno</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="240">✓ balanceado ✓ AVL</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="20" y="258">hojas a la misma profundidad</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="20" y="276">2^h − 1 nodos (h = niveles)</text>
+  </g>
+  <g transform="translate(456,0)">
+    <rect class="dg-carril" x="5" y="5" width="212" height="280" rx="10"/>
+    <text class="dg-texto dg-texto--titulo" x="20" y="30">Balanceado</text>
+    <line class="dg-linea" x1="111" y1="62" x2="66" y2="112"/><line class="dg-linea" x1="111" y1="62" x2="156" y2="112"/>
+    <line class="dg-linea" x1="66" y1="122" x2="41" y2="172"/>
+    <circle class="dg-caja dg-caja--azul" cx="111" cy="58" r="13"/><circle class="dg-caja dg-caja--azul" cx="66" cy="118" r="13"/><circle class="dg-caja dg-caja--azul" cx="156" cy="118" r="13"/>
+    <circle class="dg-caja dg-caja--azul" cx="41" cy="178" r="13"/>
+    <text class="dg-texto dg-texto--chico" x="20" y="222">✗ completo (un nodo con 1 hijo)</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="240">✗ lleno</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="258">✓ balanceado (2 vs 1) ✓ AVL</text>
+  </g>
+  <g transform="translate(684,0)">
+    <rect class="dg-carril" x="5" y="5" width="212" height="280" rx="10"/>
+    <text class="dg-texto dg-texto--titulo" x="20" y="30">Degenerado</text>
+    <line class="dg-linea" x1="56" y1="62" x2="101" y2="112"/><line class="dg-linea" x1="101" y1="122" x2="146" y2="172"/>
+    <circle class="dg-caja dg-caja--mal" cx="56" cy="58" r="13"/><circle class="dg-caja dg-caja--mal" cx="101" cy="118" r="13"/><circle class="dg-caja dg-caja--mal" cx="146" cy="178" r="13"/>
+    <text class="dg-texto dg-texto--chico" x="20" y="222">✗ completo ✗ lleno</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="240">✗ balanceado ✗ AVL</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="20" y="258">ABB con claves que llegan</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="20" y="276">ordenadas: es una lista</text>
+  </g>
+</svg>
+</div>
+<figcaption><strong>Completo ≠ lleno.</strong> Completo solo pide 0 o 2 hijos; las hojas pueden estar a distinta altura. Lleno = completo + hojas al mismo nivel. Por eso «binario completo → cantidad de nodos impar» es <strong>V</strong> (oficial 02/08/2021).</figcaption>
+</figure>
+
+<h3>Los tres barridos sobre un árbol de expresión</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="ba-t ba-d">
+  <title id="ba-t">Barridos del árbol de la expresión (2 * 3) + 6</title>
+  <desc id="ba-d">La raíz es el operador más, con hijo izquierdo el operador por (con hijos 2 y 3) e hijo derecho 6. Preorden: más, por, 2, 3, 6. Simétrico: 2, por, 3, más, 6. Postorden: 2, 3, por, 6, más.</desc>
+  <line class="dg-linea" x1="160" y1="44" x2="100" y2="104"/><line class="dg-linea" x1="160" y1="44" x2="220" y2="104"/>
+  <line class="dg-linea" x1="100" y1="114" x2="60" y2="174"/><line class="dg-linea" x1="100" y1="114" x2="140" y2="174"/>
+  <circle class="dg-caja dg-caja--violeta" cx="160" cy="40" r="20"/><text class="dg-texto dg-texto--titulo" x="160" y="46" text-anchor="middle">+</text>
+  <circle class="dg-caja dg-caja--violeta" cx="100" cy="110" r="20"/><text class="dg-texto dg-texto--titulo" x="100" y="116" text-anchor="middle">*</text>
+  <circle class="dg-caja dg-caja--azul" cx="220" cy="110" r="20"/><text class="dg-texto dg-texto--titulo" x="220" y="116" text-anchor="middle">6</text>
+  <circle class="dg-caja dg-caja--azul" cx="60" cy="180" r="20"/><text class="dg-texto dg-texto--titulo" x="60" y="186" text-anchor="middle">2</text>
+  <circle class="dg-caja dg-caja--azul" cx="140" cy="180" r="20"/><text class="dg-texto dg-texto--titulo" x="140" y="186" text-anchor="middle">3</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="160" y="222" text-anchor="middle">5 nodos: 2 operadores + 3 operandos (impar)</text>
+
+  <rect class="dg-carril" x="320" y="24" width="570" height="52" rx="8"/>
+  <text class="dg-texto dg-texto--titulo" x="336" y="48">Preorden</text><text class="dg-texto dg-texto--2 dg-texto--chico" x="336" y="66">raíz, izq, der</text>
+  <text class="dg-codigo" x="520" y="56" style="font-size:20px">+  *  2  3  6</text><text class="dg-texto dg-texto--chico" x="740" y="56">notación prefija</text>
+  <rect class="dg-carril" x="320" y="88" width="570" height="52" rx="8"/>
+  <text class="dg-texto dg-texto--titulo" x="336" y="112">Simétrico</text><text class="dg-texto dg-texto--2 dg-texto--chico" x="336" y="130">izq, raíz, der</text>
+  <text class="dg-codigo" x="520" y="120" style="font-size:20px">2  *  3  +  6</text><text class="dg-texto dg-texto--chico" x="740" y="120">infija (en un ABB: ordenado)</text>
+  <rect class="dg-carril" x="320" y="152" width="570" height="52" rx="8"/>
+  <text class="dg-texto dg-texto--titulo" x="336" y="176">Postorden</text><text class="dg-texto dg-texto--2 dg-texto--chico" x="336" y="194">izq, der, raíz</text>
+  <text class="dg-codigo" x="520" y="184" style="font-size:20px">2  3  *  6  +</text><text class="dg-texto dg-texto--chico" x="740" y="184">postfija (la raíz va última)</text>
+</svg>
+</div>
+<figcaption>Truco: en el <strong>preorden la raíz va primera</strong> y en el <strong>postorden va última</strong>. Con eso se reconstruye un ABB a partir de un solo barrido (ejercicio 1 de abajo).</figcaption>
+</figure>
+
+<div class="rejilla">
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 250" role="img" aria-labelledby="ve-t ve-d">
+  <title id="ve-t">Árbol binario guardado en un vector</title>
+  <desc id="ve-d">Árbol con nodos A en la posición 1, B en 2, C en 3, D en 4, E en 6 y F en 7; la posición 5 queda vacía. El vector tiene 7 lugares: A, B, C, D, vacío, E, F. Los hijos de la posición i están en 2i y 2i más 1; el padre en i dividido 2.</desc>
+  <line class="dg-linea" x1="160" y1="40" x2="96" y2="88"/><line class="dg-linea" x1="160" y1="40" x2="224" y2="88"/>
+  <line class="dg-linea" x1="96" y1="100" x2="64" y2="140"/>
+  <line class="dg-linea" x1="224" y1="100" x2="192" y2="140"/><line class="dg-linea" x1="224" y1="100" x2="256" y2="140"/>
+  <circle class="dg-caja dg-caja--azul" cx="160" cy="34" r="16"/><text class="dg-texto" x="160" y="39" text-anchor="middle">A</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="182" y="26">1</text>
+  <circle class="dg-caja dg-caja--azul" cx="96" cy="96" r="16"/><text class="dg-texto" x="96" y="101" text-anchor="middle">B</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="70" y="88">2</text>
+  <circle class="dg-caja dg-caja--azul" cx="224" cy="96" r="16"/><text class="dg-texto" x="224" y="101" text-anchor="middle">C</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="246" y="88">3</text>
+  <circle class="dg-caja dg-caja--azul" cx="64" cy="148" r="16"/><text class="dg-texto" x="64" y="153" text-anchor="middle">D</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="38" y="140">4</text>
+  <circle class="dg-caja dg-caja--azul" cx="192" cy="148" r="16"/><text class="dg-texto" x="192" y="153" text-anchor="middle">E</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="166" y="140">6</text>
+  <circle class="dg-caja dg-caja--azul" cx="256" cy="148" r="16"/><text class="dg-texto" x="256" y="153" text-anchor="middle">F</text><text class="dg-texto dg-texto--chico dg-texto--rojo" x="280" y="140">7</text>
+  <g transform="translate(20,186)">
+    <rect class="dg-caja" x="0" y="0" width="40" height="30"/><text class="dg-codigo" x="20" y="20" text-anchor="middle">A</text>
+    <rect class="dg-caja" x="40" y="0" width="40" height="30"/><text class="dg-codigo" x="60" y="20" text-anchor="middle">B</text>
+    <rect class="dg-caja" x="80" y="0" width="40" height="30"/><text class="dg-codigo" x="100" y="20" text-anchor="middle">C</text>
+    <rect class="dg-caja" x="120" y="0" width="40" height="30"/><text class="dg-codigo" x="140" y="20" text-anchor="middle">D</text>
+    <rect class="dg-caja dg-caja--mal" x="160" y="0" width="40" height="30"/><text class="dg-codigo" x="180" y="20" text-anchor="middle">·</text>
+    <rect class="dg-caja" x="200" y="0" width="40" height="30"/><text class="dg-codigo" x="220" y="20" text-anchor="middle">E</text>
+    <rect class="dg-caja" x="240" y="0" width="40" height="30"/><text class="dg-codigo" x="260" y="20" text-anchor="middle">F</text>
+    <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="48" text-anchor="middle">1</text><text class="dg-texto dg-texto--chico dg-texto--2" x="60" y="48" text-anchor="middle">2</text><text class="dg-texto dg-texto--chico dg-texto--2" x="100" y="48" text-anchor="middle">3</text><text class="dg-texto dg-texto--chico dg-texto--2" x="140" y="48" text-anchor="middle">4</text><text class="dg-texto dg-texto--chico dg-texto--2" x="180" y="48" text-anchor="middle">5</text><text class="dg-texto dg-texto--chico dg-texto--2" x="220" y="48" text-anchor="middle">6</text><text class="dg-texto dg-texto--chico dg-texto--2" x="260" y="48" text-anchor="middle">7</text>
+  </g>
+</svg>
+</div>
+<figcaption><strong>Representación estática:</strong> hijos de i en <strong>2i</strong> y <strong>2i + 1</strong>, padre en <strong>i / 2</strong>. Sin punteros, pero los huecos (la posición 5) desperdician lugar: conviene si el árbol está lleno y no cambia.</figcaption>
+</figure>
+
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 250" role="img" aria-labelledby="kn-t kn-d">
+  <title id="kn-t">Transformada de Knuth</title>
+  <desc id="kn-d">A la izquierda un árbol n-ario: A con hijos B, C y D; B con hijos E y F. A la derecha el binario equivalente: cada nodo apunta a la izquierda a su primer hijo y a la derecha a su siguiente hermano. A a B; B a la izquierda E y a la derecha C; C a la derecha D; E a la derecha F.</desc>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="70" y="18" text-anchor="middle">n-ario</text>
+  <line class="dg-linea" x1="70" y1="44" x2="26" y2="96"/><line class="dg-linea" x1="70" y1="44" x2="70" y2="96"/><line class="dg-linea" x1="70" y1="44" x2="114" y2="96"/>
+  <line class="dg-linea" x1="26" y1="110" x2="12" y2="160"/><line class="dg-linea" x1="26" y1="110" x2="46" y2="160"/>
+  <circle class="dg-caja dg-caja--violeta" cx="70" cy="38" r="14"/><text class="dg-texto" x="70" y="43" text-anchor="middle">A</text>
+  <circle class="dg-caja dg-caja--violeta" cx="26" cy="104" r="14"/><text class="dg-texto" x="26" y="109" text-anchor="middle">B</text>
+  <circle class="dg-caja dg-caja--violeta" cx="70" cy="104" r="14"/><text class="dg-texto" x="70" y="109" text-anchor="middle">C</text>
+  <circle class="dg-caja dg-caja--violeta" cx="114" cy="104" r="14"/><text class="dg-texto" x="114" y="109" text-anchor="middle">D</text>
+  <circle class="dg-caja dg-caja--violeta" cx="14" cy="168" r="12"/><text class="dg-texto" x="14" y="173" text-anchor="middle">E</text>
+  <circle class="dg-caja dg-caja--violeta" cx="48" cy="168" r="12"/><text class="dg-texto" x="48" y="173" text-anchor="middle">F</text>
+
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="230" y="18" text-anchor="middle">binario (Knuth)</text>
+  <line class="dg-linea" x1="190" y1="50" x2="190" y2="88"/>
+  <line class="dg-linea" x1="190" y1="116" x2="190" y2="154"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="204" y1="102" x2="236" y2="102"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="264" y1="102" x2="290" y2="102"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="204" y1="168" x2="236" y2="168"/>
+  <circle class="dg-caja dg-caja--azul" cx="190" cy="38" r="14"/><text class="dg-texto" x="190" y="43" text-anchor="middle">A</text>
+  <circle class="dg-caja dg-caja--azul" cx="190" cy="102" r="14"/><text class="dg-texto" x="190" y="107" text-anchor="middle">B</text>
+  <circle class="dg-caja dg-caja--azul" cx="250" cy="102" r="14"/><text class="dg-texto" x="250" y="107" text-anchor="middle">C</text>
+  <circle class="dg-caja dg-caja--azul" cx="304" cy="102" r="13"/><text class="dg-texto" x="304" y="107" text-anchor="middle">D</text>
+  <circle class="dg-caja dg-caja--azul" cx="190" cy="168" r="14"/><text class="dg-texto" x="190" y="173" text-anchor="middle">E</text>
+  <circle class="dg-caja dg-caja--azul" cx="250" cy="168" r="14"/><text class="dg-texto" x="250" y="173" text-anchor="middle">F</text>
+  <text class="dg-texto dg-texto--chico" x="150" y="212">│ izq = primer hijo</text>
+  <text class="dg-texto dg-texto--chico dg-texto--azul" x="150" y="232">─ der = siguiente hermano</text>
+</svg>
+</div>
+<figcaption><strong>Knuth</strong> convierte cualquier n-ario en binario con 2 punteros por nodo. Recién así se le puede aplicar el barrido simétrico.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="laboratorio" aria-labelledby="t-lab">
+<h2 id="t-lab">Armá un ABB y miralo</h2>
+<div class="lab" data-lab="abb">
+  <p class="lab__titulo"><strong>Laboratorio: árbol binario de búsqueda</strong></p>
+  <p>Escribí claves en el orden en que llegan. Probá <code>1 2 3 4 5</code> para ver cómo degenera, o <code>10 9 15 12 16</code> (el del final del 17/12/2024).</p>
+  <div class="lab__controles">
+    <label>Claves, en orden de llegada<input type="text" value="50 30 70 20 40 60 80 35" aria-label="Claves del árbol"></label>
+    <button class="quiz__boton" type="button">Armar el árbol</button>
+  </div>
+  <div class="lab__salida" aria-live="polite"></div>
+</div>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Las definiciones (libro de la cátedra)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Término</th><th scope="col">Definición</th><th scope="col">Consecuencia que preguntan</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Árbol n-ario</th><td>Cada nodo tiene a lo sumo n hijos</td><td>Binario = 2, ternario = 3</td></tr>
+    <tr><th scope="row">Completo</th><td>Todo nodo que no es hoja tiene exactamente n hijos</td><td>Binario completo → nodos <strong>impares</strong> (2·internos + 1)</td></tr>
+    <tr><th scope="row">Lleno</th><td>Completo y todas las hojas a la misma profundidad</td><td>Binario lleno con h niveles: 2^h − 1 nodos</td></tr>
+    <tr><th scope="row">Balanceado</th><td>En cada nodo, la cantidad de nodos de sus subárboles difiere en ≤ 1</td><td>Tiene que valer en <strong>todos</strong> los nodos, no solo en la raíz</td></tr>
+    <tr><th scope="row">AVL</th><td>En cada nodo, la altura de sus subárboles difiere en ≤ 1</td><td>Búsqueda siempre O(log n)</td></tr>
+    <tr><th scope="row">ABB</th><td>Izquierda menores, derecha mayores, en cada nodo</td><td>Simétrico = ordenado; peor caso O(n)</td></tr>
+    <tr><th scope="row">Heap</th><td>Binario completo por niveles; cada padre ≥ sus hijos</td><td>Es binario, no n-ario (V/F oficial 22/06/2021)</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="aviso aviso--ambar"><strong>⚠️ Cuidado con internet:</strong> ahí «completo» suele ser «todos los niveles llenos salvo el último, alineado a la izquierda». La cátedra usa la del libro: el final del 23/07/2024 preguntó justo eso y la respuesta es F.</p>
+
+<h3>Estático contra dinámico (pregunta del 17/12/2024)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Estático (vector)</th><th scope="col">Dinámico (nodos con punteros)</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Cómo</th><td>Posición i; hijos en 2i y 2i + 1; padre en i/2</td><td>Cada nodo: dato + puntero izq + puntero der (+ padre, opcional)</td></tr>
+    <tr><th scope="row">Espacio</th><td>Huecos si el árbol no está lleno</td><td>Exacto, más 2 punteros por nodo</td></tr>
+    <tr><th scope="row">Altas y bajas</th><td class="celda-mal">Caras: puede haber que mover elementos</td><td class="celda-bien">Baratas: cambiar punteros</td></tr>
+    <tr><th scope="row">Conviene</th><td>Árboles llenos y estáticos (Heapsort)</td><td>Árboles que crecen (ABB, índices)</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los de Huffman y árbol B están en sus páginas.</p>
+<ul class="trampas" data-trampas="arboles"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Explique un método estático de implementación de árboles binarios <small>17/12/2024</small></summary>
+  <div class="modelo__cuerpo">
+    <p>La representación <strong>estática o secuencial</strong> guarda el árbol en un <strong>vector</strong> y usa la posición para representar los arcos, sin punteros. La raíz va en la posición 1 y, para el nodo de la posición i, su hijo izquierdo va en <strong>2i</strong>, el derecho en <strong>2i + 1</strong> y su padre en <strong>i / 2</strong> (división entera). Así, se recorre el árbol solo con cuentas sobre los índices.</p>
+    <p><strong>Ventajas:</strong> no gasta espacio en punteros, el acceso es directo y rápido. <strong>Desventajas:</strong> si al árbol le faltan nodos, quedan posiciones vacías (en árboles profundos y desbalanceados el desperdicio es enorme), y el tamaño es fijo: agregar niveles obliga a redimensionar.</p>
+    <p>Por eso conviene para árboles <strong>llenos o casi llenos y estáticos</strong>. El ejemplo típico es el heap de Heapsort. Para un árbol n-ario, primero se lo pasa a binario con la transformada de Knuth.</p>
+  </div>
+  <p class="modelo__salio">Salió el 17/12/2024.</p>
+</details>
+
+<details class="modelo">
+  <summary>Árbol binario de búsqueda: qué es, cómo se busca y su complejidad <small>de práctica</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Un <strong>ABB</strong> es un árbol binario donde, para cada nodo, todas las claves de su subárbol izquierdo son menores y todas las del derecho son mayores. Para buscar k se compara con la raíz: si es igual, se encontró; si es menor, se sigue por la izquierda; si es mayor, por la derecha; si se llega a un hijo vacío, no está. Cada comparación baja un nivel: buscar cuesta <strong>como máximo la cantidad de niveles</strong>.</p>
+    <p>Si el árbol está balanceado, la altura es log₂ n y la búsqueda es <strong>O(log n)</strong>. Pero la forma depende del orden de llegada: si las claves llegan ordenadas, el árbol degenera en una lista y la búsqueda es <strong>O(n)</strong>. Los AVL se rebalancean con rotaciones para evitarlo.</p>
+    <p>El barrido simétrico de un ABB devuelve las claves ordenadas.</p>
+  </div>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="c" open>
+  <summary class="ejercicio__titulo">1. Final 17/12/2024: el postorden de un ABB es 9, 12, 16, 15, 10. ¿Cuál es el preorden?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 10, 9, 12, 15, 16</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 9, 10, 12, 15, 16</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 10, 9, 15, 12, 16</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) 10, 15, 16, 12, 9</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> La raíz es el último del postorden: 10. Los menores (9) van a la izquierda; los mayores (12, 16, 15) a la derecha, y de ellos el último, 15, es la raíz del subárbol, con 12 y 16 como hijos. Preorden: 10, 9, 15, 12, 16. La a) es la que daba el V/F: por eso era F. Comprobalo en el laboratorio con <code>10 9 15 12 16</code>.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Un árbol binario completo (definición de la cátedra) tiene 6 hojas. ¿Cuántos nodos tiene?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 12</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 11</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 7</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) No se puede saber</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> En un binario completo, internos = hojas − 1. Total: 2·6 − 1 = 11. La misma cuenta da los nodos de un árbol de Huffman.</div>
+</details>
+
+<details class="ejercicio" data-correcta="d">
+  <summary class="ejercicio__titulo">3. Insertás en un ABB vacío las claves 1, 2, 3, …, 100 en ese orden. ¿Cuántas lecturas hace, como máximo, buscar una clave que no está?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 7 (log₂ 100)</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 50</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 1</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) 100</button></li>
+  </ul>
+  <div class="explicacion"><strong>d.</strong> Cada clave nueva es mayor que todas: el árbol es una cadena de 100 niveles. Buscar 101 recorre los 100. Es el «degenerado» del diagrama.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">4. En la representación secuencial, un nodo está en la posición 6. ¿Dónde están su padre y sus hijos?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Padre en 3; hijos en 12 y 13</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Padre en 5; hijos en 7 y 8</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Padre en 2; hijos en 11 y 12</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> Padre: 6 / 2 = 3. Hijos: 2·6 = 12 y 2·6 + 1 = 13.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">5. ¿Se le puede hacer un barrido simétrico al árbol {(c,a), (c,b), (c,d), (c,e)}?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Sí: a, b, c, d, e</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) No directamente: c tiene 4 hijos; hay que pasarlo a binario con Knuth</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Sí: c, a, b, d, e</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> El simétrico pone la raíz «entre» el hijo izquierdo y el derecho: solo existe en binarios. Preorden y postorden sí valen para cualquier grado.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F de árboles (sin Huffman ni árbol B), mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="arboles"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/interactivos.js"></script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Práctica SQL y plantillas</title>
+<meta name="description" content="Trampas típicas de los prácticos, plantillas de T-SQL (triggers, stored procedures, cursores, CTE recursiva) y método para resolver cada tipo de ejercicio del final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="practica-sql">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html">Practicar</a></p>
+<h1>Práctica SQL y plantillas</h1>
+<p>Todo lo que hace falta para los <strong>4 puntos de práctica</strong>: cómo leer cada tipo de ejercicio, las trampas que planta la cátedra y las plantillas de T-SQL para escribir en papel. Recordá: <strong>al menos un práctico tiene que estar completo</strong> para aprobar.</p>
+<p class="aviso">Todo el código de esta página y de <a href="finales.html">Finales resueltos</a> está en <a href="../practica.sql" download><strong>practica.sql</strong></a>, con las tablas de los finales y datos de prueba, listo para correr en SQL Server.</p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#metodo">Método por tipo</a>
+  <a href="#trampas">🟥 Las trampas</a>
+  <a href="#plantillas">Plantillas</a>
+  <a href="#papel">En el papel</a>
+</nav>
+
+<section id="metodo" aria-labelledby="t-metodo">
+<h2 id="t-metodo">Método para cada tipo de práctico</h2>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Tipo</th><th scope="col">Cómo lo reconocés</th><th scope="col">Qué hacer</th><th scope="col">Dónde practicar</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">A. ¿Qué devuelve?</th><td>Una consulta o un script y opciones</td><td>Revisar la lista de trampas de abajo, una por una, <strong>antes</strong> de pensar el resultado. Armá 3 filas de ejemplo y ejecutá a mano.</td><td><a href="../unidad-4/sql.html#ejercita">SQL</a>, <a href="finales.html">finales</a></td></tr>
+    <tr><th scope="row">B. Escribir la consulta</th><td>«Realizar una consulta que…»</td><td>Partir el pedido: qué filas (FROM/JOIN), cuáles quedan (WHERE), por qué agrupo, qué muestro. ¿Los que «no tienen»? LEFT JOIN o NOT EXISTS.</td><td><a href="finales.html">finales</a></td></tr>
+    <tr><th scope="row">C. Implementar una regla</th><td>«Implementar / codificar la restricción…», «n aplicaciones»</td><td>Elegir el objeto (CHECK, FK, trigger AFTER o INSTEAD OF), cubrir <strong>todos los eventos y tablas</strong> que pueden romper la regla y escribirlo <strong>multifila</strong>.</td><td><a href="../unidad-4/objetos.html#ejercita">Objetos</a></td></tr>
+    <tr><th scope="row">D. Concurrencia</th><td>Tabla con tiempos T1…Tn y procesos A y B</td><td>El método de 6 pasos: nivel de cada uno, bloqueo que pide cada sentencia, cuánto dura, quién espera, errores plantados, qué queda.</td><td><a href="../unidad-4/transacciones.html#ejercita">Transacciones</a></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Regla C: ¿qué eventos pueden romper la regla?</h3>
+<p>El error más común en los tipo C es validar solo el INSERT. Antes de escribir, completá esta tabla mental. Ejemplo: «una provincia sin ciudades tiene habitantes NULL; con ciudades, mayor a 0» (21/02/2018).</p>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Tabla</th><th scope="col">INSERT</th><th scope="col">UPDATE</th><th scope="col">DELETE</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Provincia</th><td class="celda-mal">sí: puede cargar habitantes</td><td class="celda-mal">sí: puede cambiar habitantes</td><td class="celda-bien">no</td></tr>
+    <tr><th scope="row">Ciudad</th><td class="celda-mal">sí: la provincia pasa a tener ciudades</td><td class="celda-mal">sí: puede cambiar de provincia</td><td class="celda-mal">sí: puede quedar sin ciudades</td></tr>
+  </tbody>
+</table>
+</div>
+<p>→ Trigger AFTER INSERT, UPDATE en Provincia y AFTER INSERT, UPDATE, DELETE en Ciudad, que validen las provincias afectadas (de <code>inserted</code> y <code>deleted</code>).</p>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Las trampas que planta la cátedra</h2>
+<p><strong>«Sabiendo que no hay errores de sintaxis» no quiere decir que no haya errores.</strong> Ordenadas por cuántas veces aparecieron.</p>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Trampa</th><th scope="col">Ejemplo mínimo</th><th scope="col">Qué pasa</th><th scope="col">Salió</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Producto cartesiano con tabla vacía</th><td><code>FROM a, b</code> con b vacía</td><td>0 filas, aunque haya GROUP BY o COUNT</td><td>2019 ×2, 2025</td></tr>
+    <tr><th scope="row">Self-join con «&gt;»</th><td><code>MAX(t2.x) … WHERE t1.x &gt; t2.x</code></td><td>t2 nunca es el máximo: da el segundo</td><td>2022, 2023, 2024, 2025</td></tr>
+    <tr><th scope="row">LEFT JOIN anulado</th><td><code>a LEFT JOIN b … JOIN c ON c.k = b.k</code></td><td>Se pierden las filas de a sin b: es un INNER</td><td>2024, 2025</td></tr>
+    <tr><th scope="row">AND antes que OR</th><td><code>WHERE 1=1 OR x AND y</code></td><td>Siempre verdadero: afecta todas las filas</td><td>2023, 2025</td></tr>
+    <tr><th scope="row">COMMIT sin BEGIN</th><td>script con autocommit y <code>COMMIT</code> al final</td><td>Error 3902 en el COMMIT; lo anterior ya quedó</td><td>2023, 2025</td></tr>
+    <tr><th scope="row">NULL en cuentas</th><td><code>MAX(col) + 1</code> con tabla vacía</td><td>NULL + 1 = NULL: falla un NOT NULL</td><td>2022</td></tr>
+    <tr><th scope="row">Más valores que columnas</th><td><code>INSERT INTO t (a, b, c) VALUES (1, 2, 3, 4)</code></td><td>Error: esa sentencia no se ejecuta, el resto sí</td><td>2024 (oficial)</td></tr>
+    <tr><th scope="row">Nombre mal escrito</th><td><code>UPDATE product …</code> (la tabla es producto)</td><td>Error: no hay deadlock ni cambio</td><td>2021 (oficial), 2023</td></tr>
+    <tr><th scope="row">Columna que no existe en esa tabla</th><td><code>GROUP BY p.idpcia</code> con p = País</td><td>Error de compilación (invalid column name)</td><td>2024</td></tr>
+    <tr><th scope="row">Grupo NULL de un OUTER JOIN</th><td><code>RIGHT JOIN … GROUP BY col_izq</code></td><td>Un grupo extra con NULL: «N + 1» filas</td><td>2024</td></tr>
+    <tr><th scope="row">COUNT(col) vs COUNT(*)</th><td>columna con NULL</td><td>COUNT(col) no cuenta los NULL</td><td>2023</td></tr>
+    <tr><th scope="row">ORDER BY en subconsulta sin TOP</th><td><code>(SELECT x FROM t ORDER BY x)</code></td><td>Error en SQL Server</td><td>2023</td></tr>
+    <tr><th scope="row">Columna fuera del GROUP BY</th><td><code>SELECT a, b, COUNT(*) … GROUP BY a</code></td><td>Error: b no está agrupada ni agregada</td><td>2023, 2025</td></tr>
+    <tr><th scope="row">TOP 1 con empates</th><td><code>TOP 1 … ORDER BY carta DESC</code> con dos iguales</td><td>Elige cualquiera de los empatados</td><td>2023</td></tr>
+    <tr><th scope="row">Función que modifica</th><td><code>CREATE FUNCTION … UPDATE …</code></td><td>No se puede: tiene que ser un SP</td><td>2019</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="plantillas" aria-labelledby="t-plantillas">
+<h2 id="t-plantillas">Plantillas de T-SQL</h2>
+<p>Escribilas a mano un par de veces: en el examen no hay computadora. Todas son para <strong>SQL Server</strong>; aclarálo en la hoja («Motor: SQL Server»).</p>
+
+<details class="ejercicio" open>
+  <summary class="ejercicio__titulo">1. Trigger AFTER que valida y deshace (multifila)</summary>
+  <p>Para reglas que miran otras filas u otras tablas. Siempre <code>EXISTS</code> contra <code>inserted</code>, nunca una variable.</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_tabla_regla ON Tabla
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT 1
+               FROM inserted i
+               JOIN Tabla t ON /* la condición que rompe la regla */ t.id &lt;&gt; i.id)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50001, 'Explicación de la regla violada.', 1;
+  END
+END;</code></pre></div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">2. Emular una FK con triggers (sin tocar la estructura)</summary>
+  <p>Finales 26/02/2019 y 26/02/2020. Hacen falta <strong>dos</strong> triggers: en el hijo (que exista el padre) y en el padre (que no queden huérfanos).</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+-- en el hijo: el padre tiene que existir
+CREATE TRIGGER tr_t2_existe_padre ON T2
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT 1 FROM inserted i
+              WHERE i.id_t1 IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM T1 WHERE T1.id = i.id_t1))
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50010, 'El registro referenciado de T1 no existe.', 1;
+  END
+END;
+GO
+-- en el padre: no dejar hijos huérfanos
+CREATE TRIGGER tr_t1_sin_huerfanos ON T1
+AFTER DELETE, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT 1 FROM T2
+              WHERE T2.id_t1 IN (SELECT id FROM deleted)
+                AND NOT EXISTS (SELECT 1 FROM T1 WHERE T1.id = T2.id_t1))
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50011, 'Hay registros de T2 que apuntan a ese T1.', 1;
+  END
+END;</code></pre></div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">3. Trigger INSTEAD OF DELETE (borrar padre con hijos)</summary>
+  <p>Finales 12/03/2018 y 30/07/2024 (respuesta oficial). Con un SP no vale: tiene que funcionar con la sentencia DELETE.</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_provincia_borrar ON Provincia
+INSTEAD OF DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DELETE FROM Ciudad    WHERE idpcia IN (SELECT idpcia FROM deleted);
+  DELETE FROM Provincia WHERE idpcia IN (SELECT idpcia FROM deleted);
+END;</code></pre></div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">4. Stored procedure con transacción y TRY/CATCH</summary>
+  <p>Finales 28/02/2023 y 01/08/2023. Validar y modificar <strong>en la misma sentencia</strong>: es lo que evita el stock negativo sin deadlocks.</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE PROCEDURE sp_descontar_stock
+  @prod_id CHAR(8), @depo_id INT, @cant INT
+AS
+BEGIN
+  SET NOCOUNT ON;
+  BEGIN TRY
+    BEGIN TRANSACTION;
+    UPDATE Stock
+       SET cantidad = cantidad - @cant
+     WHERE id_producto = @prod_id
+       AND id_deposito = @depo_id
+       AND cantidad &gt;= @cant;
+    IF @@ROWCOUNT = 0
+      THROW 50003, 'No hay stock suficiente en ese depósito.', 1;
+    COMMIT TRANSACTION;
+  END TRY
+  BEGIN CATCH
+    IF @@TRANCOUNT &gt; 0 ROLLBACK TRANSACTION;
+    THROW;
+  END CATCH
+END;</code></pre></div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">5. Cursor (cuando hay que decidir fila por fila)</summary>
+  <p>Final 23/07/2024: en un INSTEAD OF INSERT, cada login se procesa según el estado del usuario. Usalo solo si no sale con una sentencia.</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+DECLARE @id INT, @cant INT;
+DECLARE c CURSOR LOCAL FAST_FORWARD FOR
+  SELECT id, cantidad FROM inserted;
+OPEN c;
+FETCH NEXT FROM c INTO @id, @cant;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+  -- lógica para una fila
+  FETCH NEXT FROM c INTO @id, @cant;
+END
+CLOSE c;
+DEALLOCATE c;</code></pre></div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">6. CTE recursiva (jerarquías de profundidad desconocida)</summary>
+  <p>Finales 02/08/2021 (entrenadores: «No resuelve la recursividad», 1/5 al que no la usó) y 10/12/2024 (ciclos padre-hijo).</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+-- todos los descendientes de la persona @id, con su nivel
+WITH descendientes (id, nombre, nivel) AS (
+  SELECT id, nombre, 1                         -- ancla: los hijos directos
+    FROM Persona
+   WHERE su_padre_es = @id
+  UNION ALL
+  SELECT p.id, p.nombre, d.nivel + 1           -- recursión: hijos de los anteriores
+    FROM Persona p
+    JOIN descendientes d ON p.su_padre_es = d.id
+)
+SELECT COUNT(*) AS cantidad, MAX(nivel) AS profundidad
+  FROM descendientes;</code></pre></div>
+  <p>Ojo: un CTE tiene que ir seguido directamente de SELECT, INSERT, UPDATE o DELETE (no de un IF). Para usarlo en un IF, guardá el resultado en una variable. Ejemplo completo en el trigger anticiclos de <a href="finales.html#f-2024-12-10">Finales resueltos</a>.</p>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">7. Vista (con alias y WITH CHECK OPTION)</summary>
+  <p>Final 11/02/2025: «crear una vista … con alias en cada columna». La cátedra aceptó la vista WITH CHECK OPTION como objeto de integridad.</p>
+  <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE VIEW vw_stock_positivo AS
+SELECT id_producto AS producto,
+       id_deposito AS deposito,
+       cantidad    AS cantidad
+  FROM Stock
+ WHERE cantidad &gt;= 0
+WITH CHECK OPTION;</code></pre></div>
+</details>
+</section>
+
+<section id="papel" aria-labelledby="t-papel">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-papel">🟩 Antes de entregar un práctico escrito</h2>
+<ol class="pasos">
+  <li><strong>Escribí el motor</strong> arriba: «Motor: SQL Server (T-SQL)».</li>
+  <li><strong>Multifila:</strong> ningún <code>SELECT @x = … FROM inserted</code>. Siempre EXISTS, IN o JOIN.</li>
+  <li><strong>Todos los eventos:</strong> ¿qué INSERT, UPDATE o DELETE, en qué tablas, pueden romper la regla?</li>
+  <li><strong>«Se cumple hoy»</strong> = no hace falta arreglar datos. <strong>«Los datos NO están correctos»</strong> = primero corregir (como en los duplicados de 2023) y después la regla.</li>
+  <li><strong>Concurrencia:</strong> si lee y después escribe, ¿qué pasa si dos lo ejecutan a la vez? Validá y modificá en la misma sentencia.</li>
+  <li><strong>GROUP BY:</strong> todo lo del SELECT que no es agregado tiene que estar agrupado (y agrupá por id, no solo por nombre).</li>
+  <li><strong>Los que no tienen:</strong> LEFT JOIN con <code>ISNULL</code> para mostrar 0 o un texto, o NOT EXISTS.</li>
+</ol>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

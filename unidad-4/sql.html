@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL: joins, NULL y plan</title>
+<meta name="description" content="Unidad 4: tipos de JOIN, NULL, precedencia de operadores, subconsultas, GROUP BY y plan de ejecución en SQL Server, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="sql">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 4: Bases de datos</a></p>
+<h1>SQL: joins, NULL y plan de ejecución</h1>
+<p>Lo que necesitás para los dos prácticos más frecuentes: <strong>«¿qué devuelve esta consulta?»</strong> (tipo A) y <strong>«escribí la consulta»</strong> (tipo B). En teoría salen los <strong>tipos de join</strong> y el <strong>plan de ejecución</strong>.</p>
+
+<div class="datos-tema" data-estadisticas="sql" data-teoria="relacional:join|plan-ejecucion" data-tipos="AB" data-rotulo-practica="prácticos de consultas"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li><strong>JOIN</strong>: INNER (solo las que coinciden), LEFT/RIGHT (todas las de un lado + NULL), FULL (todas de los dos lados), CROSS (producto cartesiano: todas con todas). <strong>Cartesiano con una tabla vacía = vacío.</strong></li>
+    <li><strong>NULL</strong> no es igual a nada, ni a otro NULL: <code>= NULL</code> nunca da verdadero (se usa <code>IS NULL</code>). <code>COUNT(col)</code>, <code>SUM</code>, <code>MAX</code> ignoran los NULL; <code>COUNT(*)</code> cuenta filas.</li>
+    <li><strong>Precedencia: NOT, después AND, después OR.</strong> <code>1=1 OR a AND b</code> es siempre verdadero. Y un <strong>JOIN o WHERE sobre la tabla de la derecha anula un LEFT JOIN</strong>.</li>
+    <li>El <strong>plan de ejecución</strong> muestra cómo el motor resuelve la consulta (scan o seek, tipo de join, costos): sirve para encontrar el cuello de botella y decidir índices.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Los cinco joins con las mismas dos tablas</h3>
+<p><strong>Empleado</strong>: Ana (depto 10), Beto (10), Caro (sin depto, NULL). <strong>Depto</strong>: 10 Ventas, 20 Compras, 30 Sistemas.</p>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 300" role="img" aria-labelledby="jo-t jo-d">
+  <title id="jo-t">Resultado de cada tipo de join</title>
+  <desc id="jo-d">INNER JOIN: Ana Ventas y Beto Ventas, 2 filas. LEFT JOIN desde Empleado: además Caro con NULL, 3 filas. RIGHT JOIN: Ana Ventas, Beto Ventas, NULL Compras y NULL Sistemas, 4 filas. FULL JOIN: las 5 filas anteriores sin repetir. CROSS JOIN: 3 por 3, 9 filas.</desc>
+  <g font-family="IBM Plex Mono, monospace">
+    <text class="dg-texto dg-texto--titulo" x="20" y="24">INNER</text><text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="40">2 filas</text>
+    <rect class="dg-caja dg-caja--bien" x="20" y="50" width="150" height="26"/><text class="dg-codigo" x="30" y="68">Ana  │ Ventas</text>
+    <rect class="dg-caja dg-caja--bien" x="20" y="76" width="150" height="26"/><text class="dg-codigo" x="30" y="94">Beto │ Ventas</text>
+
+    <text class="dg-texto dg-texto--titulo" x="200" y="24">LEFT</text><text class="dg-texto dg-texto--chico dg-texto--2" x="200" y="40">3 filas</text>
+    <rect class="dg-caja dg-caja--bien" x="200" y="50" width="150" height="26"/><text class="dg-codigo" x="210" y="68">Ana  │ Ventas</text>
+    <rect class="dg-caja dg-caja--bien" x="200" y="76" width="150" height="26"/><text class="dg-codigo" x="210" y="94">Beto │ Ventas</text>
+    <rect class="dg-caja dg-caja--ambar" x="200" y="102" width="150" height="26"/><text class="dg-codigo" x="210" y="120">Caro │ NULL</text>
+
+    <text class="dg-texto dg-texto--titulo" x="380" y="24">RIGHT</text><text class="dg-texto dg-texto--chico dg-texto--2" x="380" y="40">4 filas</text>
+    <rect class="dg-caja dg-caja--bien" x="380" y="50" width="150" height="26"/><text class="dg-codigo" x="390" y="68">Ana  │ Ventas</text>
+    <rect class="dg-caja dg-caja--bien" x="380" y="76" width="150" height="26"/><text class="dg-codigo" x="390" y="94">Beto │ Ventas</text>
+    <rect class="dg-caja dg-caja--ambar" x="380" y="102" width="150" height="26"/><text class="dg-codigo" x="390" y="120">NULL │ Compras</text>
+    <rect class="dg-caja dg-caja--ambar" x="380" y="128" width="150" height="26"/><text class="dg-codigo" x="390" y="146">NULL │ Sistemas</text>
+
+    <text class="dg-texto dg-texto--titulo" x="560" y="24">FULL</text><text class="dg-texto dg-texto--chico dg-texto--2" x="560" y="40">5 filas</text>
+    <rect class="dg-caja dg-caja--bien" x="560" y="50" width="150" height="26"/><text class="dg-codigo" x="570" y="68">Ana  │ Ventas</text>
+    <rect class="dg-caja dg-caja--bien" x="560" y="76" width="150" height="26"/><text class="dg-codigo" x="570" y="94">Beto │ Ventas</text>
+    <rect class="dg-caja dg-caja--ambar" x="560" y="102" width="150" height="26"/><text class="dg-codigo" x="570" y="120">Caro │ NULL</text>
+    <rect class="dg-caja dg-caja--ambar" x="560" y="128" width="150" height="26"/><text class="dg-codigo" x="570" y="146">NULL │ Compras</text>
+    <rect class="dg-caja dg-caja--ambar" x="560" y="154" width="150" height="26"/><text class="dg-codigo" x="570" y="172">NULL │ Sistemas</text>
+
+    <text class="dg-texto dg-texto--titulo" x="740" y="24">CROSS</text><text class="dg-texto dg-texto--chico dg-texto--2" x="740" y="40">3 × 3 = 9 filas</text>
+    <rect class="dg-caja dg-caja--azul" x="740" y="50" width="150" height="234"/>
+    <text class="dg-codigo" x="750" y="70">Ana  │ Ventas</text><text class="dg-codigo" x="750" y="94">Ana  │ Compras</text><text class="dg-codigo" x="750" y="118">Ana  │ Sistemas</text>
+    <text class="dg-codigo" x="750" y="146">Beto │ Ventas</text><text class="dg-codigo" x="750" y="170">Beto │ Compras</text><text class="dg-codigo" x="750" y="194">Beto │ Sistemas</text>
+    <text class="dg-codigo" x="750" y="222">Caro │ Ventas</text><text class="dg-codigo" x="750" y="246">Caro │ Compras</text><text class="dg-codigo" x="750" y="270">Caro │ Sistemas</text>
+  </g>
+  <rect class="dg-caja dg-caja--bien" x="20" y="214" width="16" height="14"/><text class="dg-texto dg-texto--chico" x="44" y="226">coinciden por depto</text>
+  <rect class="dg-caja dg-caja--ambar" x="20" y="238" width="16" height="14"/><text class="dg-texto dg-texto--chico" x="44" y="250">agregada por el OUTER, con NULL del otro lado</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="20" y="282">Si Depto estuviera vacía: INNER y CROSS → 0 filas; LEFT → 3 filas con NULL.</text>
+</svg>
+</div>
+<figcaption>Un <strong>self-join</strong> es cualquiera de estos con la misma tabla dos veces y dos alias: Persona hijo JOIN Persona padre ON hijo.su_padre_es = padre.id.</figcaption>
+</figure>
+
+<h3>En qué orden se evalúa un SELECT</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 140" role="img" aria-labelledby="or-t or-d">
+  <title id="or-t">Orden lógico de evaluación de un SELECT</title>
+  <desc id="or-d">Primero FROM y JOIN, después WHERE, GROUP BY, HAVING, SELECT y por último ORDER BY y TOP. Por eso un alias del SELECT no se puede usar en el WHERE pero sí en el ORDER BY, y el WHERE no puede tener funciones de agregado.</desc>
+  <defs><marker id="ps" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="dg-caja dg-caja--azul" x="10" y="20" width="120" height="44" rx="8"/><text class="dg-codigo" x="70" y="40" text-anchor="middle">1 FROM</text><text class="dg-texto dg-texto--chico" x="70" y="56" text-anchor="middle">y los JOIN</text>
+  <rect class="dg-caja dg-caja--azul" x="160" y="20" width="110" height="44" rx="8"/><text class="dg-codigo" x="215" y="40" text-anchor="middle">2 WHERE</text><text class="dg-texto dg-texto--chico" x="215" y="56" text-anchor="middle">filtra filas</text>
+  <rect class="dg-caja dg-caja--azul" x="300" y="20" width="130" height="44" rx="8"/><text class="dg-codigo" x="365" y="40" text-anchor="middle">3 GROUP BY</text><text class="dg-texto dg-texto--chico" x="365" y="56" text-anchor="middle">arma grupos</text>
+  <rect class="dg-caja dg-caja--azul" x="460" y="20" width="120" height="44" rx="8"/><text class="dg-codigo" x="520" y="40" text-anchor="middle">4 HAVING</text><text class="dg-texto dg-texto--chico" x="520" y="56" text-anchor="middle">filtra grupos</text>
+  <rect class="dg-caja dg-caja--azul" x="610" y="20" width="120" height="44" rx="8"/><text class="dg-codigo" x="670" y="40" text-anchor="middle">5 SELECT</text><text class="dg-texto dg-texto--chico" x="670" y="56" text-anchor="middle">columnas, alias</text>
+  <rect class="dg-caja dg-caja--azul" x="760" y="20" width="130" height="44" rx="8"/><text class="dg-codigo" x="825" y="40" text-anchor="middle">6 ORDER BY</text><text class="dg-texto dg-texto--chico" x="825" y="56" text-anchor="middle">y después TOP</text>
+  <line class="dg-linea" x1="132" y1="42" x2="158" y2="42" marker-end="url(#ps)"/><line class="dg-linea" x1="272" y1="42" x2="298" y2="42" marker-end="url(#ps)"/>
+  <line class="dg-linea" x1="432" y1="42" x2="458" y2="42" marker-end="url(#ps)"/><line class="dg-linea" x1="582" y1="42" x2="608" y2="42" marker-end="url(#ps)"/>
+  <line class="dg-linea" x1="732" y1="42" x2="758" y2="42" marker-end="url(#ps)"/>
+  <text class="dg-texto dg-texto--chico" x="10" y="96">· El WHERE no ve los alias del SELECT ni puede usar COUNT/SUM: para eso está HAVING.</text>
+  <text class="dg-texto dg-texto--chico" x="10" y="116">· Con GROUP BY, el SELECT solo puede tener columnas agrupadas o agregados. Si solo hay agregados, no hace falta GROUP BY.</text>
+  <text class="dg-texto dg-texto--chico" x="10" y="136">· ORDER BY dentro de una subconsulta solo vale con TOP (error que plantó la cátedra el 23/05/2023).</text>
+</svg>
+</div>
+</figure>
+
+<h3>La trampa del LEFT JOIN anulado (03/12/2024 y 29/07/2025)</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 220" role="img" aria-labelledby="la-t la-d">
+  <title id="la-t">Un JOIN posterior anula el LEFT JOIN</title>
+  <desc id="la-d">Pais LEFT JOIN Provincia conserva a Chile, que no tiene provincias, con NULL. Después, JOIN Ciudad ON Ciudad.idpcia = Provincia.idpcia compara NULL con un valor: nunca es verdadero, y la fila de Chile desaparece. Resultado: igual que si todo fuera INNER JOIN. Solución: que el segundo también sea LEFT JOIN.</desc>
+  <defs><marker id="pn" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">1. Pais LEFT JOIN Provincia</text>
+  <g font-family="IBM Plex Mono, monospace">
+    <rect class="dg-caja dg-caja--bien" x="20" y="38" width="250" height="28"/><text class="dg-codigo" x="30" y="57">Argentina │ Buenos Aires</text>
+    <rect class="dg-caja dg-caja--bien" x="20" y="66" width="250" height="28"/><text class="dg-codigo" x="30" y="85">Argentina │ Córdoba</text>
+    <rect class="dg-caja dg-caja--ambar" x="20" y="94" width="250" height="28"/><text class="dg-codigo" x="30" y="113">Chile     │ NULL</text>
+  </g>
+  <line class="dg-linea" x1="282" y1="80" x2="330" y2="80" marker-end="url(#pn)"/>
+  <text class="dg-texto dg-texto--titulo" x="340" y="24">2. … JOIN Ciudad ON c.idpcia = pr.idpcia</text>
+  <g font-family="IBM Plex Mono, monospace">
+    <rect class="dg-caja dg-caja--bien" x="340" y="38" width="250" height="28"/><text class="dg-codigo" x="350" y="57">Argentina │ BA │ La Plata</text>
+    <rect class="dg-caja dg-caja--bien" x="340" y="66" width="250" height="28"/><text class="dg-codigo" x="350" y="85">Argentina │ CBA │ Río IV</text>
+    <rect class="dg-caja dg-caja--mal" x="340" y="94" width="250" height="28"/><text class="dg-codigo dg-texto--rojo" x="350" y="113">Chile │ NULL = ? → se pierde</text>
+  </g>
+  <rect class="dg-caja dg-caja--violeta" x="630" y="34" width="250" height="110" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="645" y="58">Arreglo</text>
+  <text class="dg-texto dg-texto--chico" x="645" y="82">todo lo que cuelga de la tabla</text>
+  <text class="dg-texto dg-texto--chico" x="645" y="100">opcional también tiene que ser</text>
+  <text class="dg-codigo" x="645" y="124">LEFT JOIN Ciudad …</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="20" y="166">Lo mismo pasa con un WHERE sobre la tabla de la derecha: WHERE pr.habitantes &gt; 0 elimina las filas con NULL.</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="20" y="188">Si la condición es sobre la tabla opcional y querés conservar las filas, ponela en el ON del LEFT JOIN.</text>
+</svg>
+</div>
+<figcaption>En el examen la consulta «compila y corre», pero <strong>no devuelve lo pedido</strong>: nunca muestra «LIBRE» ni los países sin ciudades. Es la opción «se ejecuta pero no retorna lo solicitado».</figcaption>
+</figure>
+
+<h3>AND se evalúa antes que OR (22/02/2023 y 18/02/2025)</h3>
+<figure>
+<div class="figura figura--chica" style="max-width:none">
+<svg viewBox="0 0 640 170" role="img" aria-labelledby="pe-t pe-d" style="max-width:640px">
+  <title id="pe-t">Cómo agrupa SQL una condición con AND y OR</title>
+  <desc id="pe-d">La condición 1 = 1 OR numero IS NOT NULL AND numero mayor que 0 se agrupa como 1 = 1 OR (numero IS NOT NULL AND numero mayor que 0). Como 1 = 1 es siempre verdadero, el OR es verdadero para todas las filas, incluidas las que tienen NULL.</desc>
+  <text class="dg-codigo" x="320" y="30" text-anchor="middle" style="font-size:15px">WHERE 1=1 OR numero IS NOT NULL AND numero &gt; 0</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="320" y="54" text-anchor="middle">SQL lo lee así:</text>
+  <rect class="dg-caja dg-caja--bien" x="40" y="70" width="110" height="40" rx="8"/><text class="dg-codigo" x="95" y="95" text-anchor="middle">1=1</text>
+  <text class="dg-texto dg-texto--titulo" x="180" y="96" text-anchor="middle">OR</text>
+  <rect class="dg-caja dg-caja--azul" x="210" y="70" width="390" height="40" rx="8"/><text class="dg-codigo" x="405" y="95" text-anchor="middle">( numero IS NOT NULL AND numero &gt; 0 )</text>
+  <text class="dg-texto dg-texto--chico dg-texto--verde" x="95" y="134" text-anchor="middle">siempre verdadero</text>
+  <text class="dg-texto dg-texto--chico dg-texto--rojo" x="320" y="160" text-anchor="middle">→ el UPDATE afecta TODAS las filas, también las que tienen NULL</text>
+</svg>
+</div>
+<figcaption>Orden: <strong>NOT &gt; AND &gt; OR</strong>. Si querés otra cosa, paréntesis.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>NULL en cada lugar</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Expresión</th><th scope="col">Resultado</th><th scope="col">Por qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>NULL = NULL</code>, <code>col = NULL</code></td><td>desconocido (la fila no pasa)</td><td>Se compara con <code>IS NULL</code></td></tr>
+    <tr><td><code>NULL + 1</code>, <code>'a' + NULL</code></td><td>NULL</td><td>Cualquier operación con NULL da NULL (09/09/2022: <code>MAX(col1) + 1</code> en tabla vacía)</td></tr>
+    <tr><td><code>COUNT(*)</code> / <code>COUNT(col)</code></td><td>cuenta filas / cuenta no nulos</td><td>Por eso pueden diferir (V/F 22/02/2023)</td></tr>
+    <tr><td><code>SUM</code>, <code>AVG</code>, <code>MAX</code>, <code>MIN</code></td><td>ignoran los NULL</td><td>Sobre un conjunto vacío devuelven NULL; <code>COUNT</code> devuelve 0</td></tr>
+    <tr><td><code>x NOT IN (1, 2, NULL)</code></td><td>nunca verdadero</td><td>Usá NOT EXISTS si la subconsulta puede traer NULL</td></tr>
+    <tr><td><code>GROUP BY col</code></td><td>los NULL forman un grupo</td><td>El grupo «N + 1» del RIGHT JOIN del 20/02/2024</td></tr>
+    <tr><td><code>CHECK (col &gt; 0)</code> con col NULL</td><td>pasa</td><td>CHECK solo rechaza si da falso</td></tr>
+    <tr><td><code>ISNULL(col, 0)</code>, <code>COALESCE(a, b, 0)</code></td><td>reemplazan el NULL</td><td>Para mostrar 0 o «sin compuesto»</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Subconsultas</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Tipo</th><th scope="col">Debe devolver</th><th scope="col">Ejemplo</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Escalar (en SELECT o con =, &lt;, &gt;)</th><td>1 columna y a lo sumo 1 fila (0 filas → NULL)</td><td><code>WHERE hab = (SELECT MAX(hab) FROM …)</code></td></tr>
+    <tr><th scope="row">Con IN / ANY / ALL</th><td>1 columna, muchas filas</td><td><code>WHERE id IN (SELECT TOP 5 id … ORDER BY detalle)</code></td></tr>
+    <tr><th scope="row">Con EXISTS</th><td>Cualquier cantidad de columnas; importa si hay filas</td><td><code>WHERE NOT EXISTS (SELECT 1 FROM Ciudad c …)</code></td></tr>
+    <tr><th scope="row">Correlacionada</th><td>Usa columnas de la consulta de afuera: se evalúa por cada fila</td><td><code>(SELECT COUNT(*) FROM T2 WHERE T2.t1_id = T1.id)</code></td></tr>
+    <tr><th scope="row">En el FROM (derivada)</th><td>Una tabla, con alias obligatorio</td><td><code>FROM (SELECT …) AS x</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Lo que muestra el plan de ejecución</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Operador</th><th scope="col">Significa</th><th scope="col">Si lo ves…</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Table Scan / Clustered Index Scan</th><td>Lee toda la tabla</td><td>En una tabla grande con WHERE selectivo: falta un índice</td></tr>
+    <tr><th scope="row">Index Seek</th><td>Baja por el índice directo a las filas</td><td>Bien</td></tr>
+    <tr><th scope="row">Key Lookup</th><td>Por cada fila del índice, va a buscar el resto a la tabla</td><td>Muchos: agregar columnas al índice (que lo «cubra»)</td></tr>
+    <tr><th scope="row">Nested Loops / Hash Match / Merge Join</th><td>Cómo combina dos tablas</td><td>Nested para pocas filas; Hash para muchas sin orden; Merge si ya vienen ordenadas</td></tr>
+    <tr><th scope="row">Sort</th><td>Ordena (ORDER BY, GROUP BY, DISTINCT)</td><td>Costoso: un índice en ese orden lo evita</td></tr>
+  </tbody>
+</table>
+</div>
+<p>En SQL Server: <kbd>Ctrl</kbd> + <kbd>L</kbd> (plan estimado), <kbd>Ctrl</kbd> + <kbd>M</kbd> (plan real) o <code>SET SHOWPLAN_ALL ON</code>.</p>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<ul class="trampas" data-trampas="sql"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Desarrolle el concepto de join, enumere y explique los tipos, con ejemplos <small>3 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Un <strong>join</strong> combina filas de dos tablas en una sola fila de resultado según una condición, normalmente la igualdad entre una FK y una PK. En álgebra relacional es un producto cartesiano seguido de una selección. Con Empleado(nombre, depto) y Depto(id, nombre):</p>
+    <ul>
+      <li><strong>INNER JOIN:</strong> solo las combinaciones que cumplen la condición. <code>Empleado e JOIN Depto d ON e.depto = d.id</code>: los empleados que tienen departamento.</li>
+      <li><strong>LEFT (OUTER) JOIN:</strong> todas las filas de la izquierda; si no hay pareja, las columnas de la derecha quedan en NULL. Todos los empleados, con o sin departamento.</li>
+      <li><strong>RIGHT (OUTER) JOIN:</strong> lo mismo con la tabla de la derecha: todos los departamentos, aunque no tengan empleados.</li>
+      <li><strong>FULL (OUTER) JOIN:</strong> todas las filas de las dos tablas, emparejadas cuando se puede.</li>
+      <li><strong>CROSS JOIN:</strong> producto cartesiano, todas con todas (n × m filas); si una tabla está vacía, el resultado es vacío.</li>
+      <li><strong>Self-join:</strong> una tabla consigo misma con dos alias. <code>Persona h JOIN Persona p ON h.su_padre_es = p.id</code>: cada persona con su padre.</li>
+    </ul>
+  </div>
+  <p class="modelo__salio">Salió el 22/02/2023, el 04/2024 (especial) y el 18/02/2025.</p>
+</details>
+
+<details class="modelo">
+  <summary>Explique la utilidad de obtener el plan de ejecución de un SELECT <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El <strong>plan de ejecución</strong> es la secuencia de operaciones que el <strong>optimizador</strong> eligió para resolver una consulta: en qué orden accede a las tablas, si usa un índice (seek) o recorre toda la tabla (scan), qué algoritmo de join aplica (nested loops, hash, merge), si ordena, y el costo estimado y la cantidad de filas de cada paso. En SQL Server se ve con Ctrl+L (estimado), Ctrl+M (real) o SET SHOWPLAN_ALL ON.</p>
+    <p><strong>Utilidad:</strong> permite ver cómo procesa el motor la consulta por dentro y encontrar el <strong>cuello de botella</strong>: un table scan sobre una tabla grande, un sort costoso o muchas búsquedas por clave. Con eso se decide <strong>qué índices crear</strong> o modificar, cómo reescribir la consulta (por ejemplo, sacar una función aplicada a una columna, que impide usar su índice) y si las estadísticas están desactualizadas (filas estimadas muy distintas de las reales).</p>
+    <p>Sirve también para comparar dos versiones de una consulta y quedarse con la de menor costo.</p>
+  </div>
+  <p class="modelo__salio">Salió el 26/02/2020 y el 11/02/2025.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+<p>Prácticos tipo A reales. Los resueltos completos de 2023 a 2025 están en <a href="../practica/finales.html">Finales resueltos</a>.</p>
+
+<details class="ejercicio" data-correcta="d" open>
+  <summary class="ejercicio__titulo">1. Finales 2019 y 2025: PRODUCTOS tiene 15000 filas y DEPOSITO está vacía</summary>
+  <div class="codigo"><pre><code class="sql">SELECT p.prod_codigo, COUNT(*)
+  FROM PRODUCTOS p, DEPOSITO d
+ GROUP BY p.prod_codigo
+HAVING COUNT(*) &gt; 0</code></pre></div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 15000 filas con COUNT = 1</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 15000 filas con COUNT = 0</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Error: no hay condición de join</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Conjunto vacío</button></li>
+  </ul>
+  <div class="explicacion"><strong>d.</strong> 15000 × 0 = 0 filas. Sin filas no hay grupos, así que tampoco hay un COUNT = 0. El HAVING es una distracción.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Finales 2022, 2024 y 2025: TABLITA(numero UNIQUE), más de 10 filas</summary>
+  <div class="codigo"><pre><code class="sql">SELECT MAX(t1.numero), MAX(t2.numero)
+  FROM tablita t1, tablita t2
+ WHERE t1.numero &gt; t2.numero</code></pre></div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Error: falta GROUP BY</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) El mayor y el segundo mayor</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) El mayor dos veces</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> t1 puede ser cualquiera salvo el menor: su máximo es el mayor. t2 tiene que ser menor que algún t1: nunca puede ser el máximo, así que su máximo es el segundo. Solo hay agregados en el SELECT: no hace falta GROUP BY. Con MIN(t1) y MAX(t2) da el segundo menor y el segundo mayor (27/09/2023).</div>
+</details>
+
+<details class="ejercicio" data-correcta="c">
+  <summary class="ejercicio__titulo">3. Final 22/02/2023 (y 18/02/2025): TABLITAFINAL(numero UNIQUE) vacía, sin triggers</summary>
+  <div class="codigo"><pre><code class="sql">INSERT INTO tablitafinal VALUES (1);
+INSERT INTO tablitafinal VALUES (3);
+INSERT INTO tablitafinal VALUES (NULL);
+UPDATE tablitafinal SET numero = ISNULL(numero, 5) + 1
+ WHERE 1 = 1 OR numero IS NOT NULL AND numero &gt; 0;
+INSERT INTO tablitafinal VALUES (NULL);
+COMMIT;</code></pre></div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Falla el UPDATE por UNIQUE; queda 1, 3, NULL, NULL</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Todo bien; queda 2, 4, NULL, NULL</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Solo falla el COMMIT (no hay BEGIN TRAN); queda 2, 4, 6, NULL</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Falla el segundo INSERT NULL por UNIQUE</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> AND antes que OR: el WHERE es siempre verdadero, el UPDATE toca las 3 filas: 1→2, 3→4, NULL→ISNULL(NULL,5)+1 = 6. Ya no queda ningún NULL, así que el nuevo INSERT NULL entra (UNIQUE admite uno). Cada sentencia se confirmó sola (autocommit): el COMMIT final da error porque no hay transacción abierta, pero no deshace nada.</div>
+</details>
+
+<details class="ejercicio" data-correcta="e">
+  <summary class="ejercicio__titulo">4. Final 05/03/2024: Numeros(numero PK) con N filas (N &gt; 4). ¿Cuántas filas devuelve?</summary>
+  <div class="codigo"><pre><code class="sql">SELECT 1
+  FROM Numeros t1, Numeros t2
+ WHERE t1.numero &lt; t2.numero
+ GROUP BY t1.numero, t2.numero</code></pre></div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 1</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) N</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) N − 1</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) N²</button></li>
+    <li><button class="opcion" type="button" data-op="e">e) La suma de i, para i de 1 a N − 1</button></li>
+  </ul>
+  <div class="explicacion"><strong>e.</strong> Una fila por cada par con el primero menor: N(N − 1)/2 = 1 + 2 + … + (N − 1). Como los números no se repiten, el GROUP BY no junta nada.</div>
+</details>
+
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">5. Escribí la consulta: final 29/07/2025, los países que no tienen ciudades cargadas</summary>
+  <p>Modelo: Pais(idpais, detalle) → Provincia(idpcia, idpais, detalle, habitantes) → Ciudad(idciudad, idpcia, detalle).</p>
+  <details class="solucion">
+    <summary>Ver una solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT p.idpais, p.detalle
+  FROM Pais p
+ WHERE NOT EXISTS (SELECT 1
+                     FROM Provincia pr
+                     JOIN Ciudad c ON c.idpcia = pr.idpcia
+                    WHERE pr.idpais = p.idpais);</code></pre></div>
+    <p>Incluye a los países sin provincias y a los que tienen provincias sin ciudades. Con <code>NOT IN</code> también sale, pero <code>NOT EXISTS</code> no tiene el problema de los NULL.</p>
+  </details>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="sql"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

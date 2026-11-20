@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modelo relacional e integridad</title>
+<meta name="description" content="Unidad 3: modelo relacional, claves, reglas de integridad (entidad, referencial, dominio, semántica), álgebra relacional y normalización, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="modelo-relacional">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 3: Diseño de datos</a></p>
+<h1>Modelo relacional e integridad</h1>
+<p>Tablas, claves y reglas de integridad. Poca teoría directa, pero es el <strong>vocabulario de toda la unidad 4</strong>: si sabés qué integridad cubre cada constraint, la pregunta de objetos de BD sale sola.</p>
+
+<div class="datos-tema" data-estadisticas="modelo-relacional" data-teoria="relacional:modelo-relacional;integridad:reglas-integridad"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>El <strong>modelo relacional</strong> (Codd, 1970) guarda todo en <strong>relaciones</strong> (tablas): filas (tuplas) con atributos (columnas), cada uno con un <strong>dominio</strong> (valores posibles). Se consulta con <strong>álgebra relacional</strong>, que el motor traduce del SQL.</li>
+    <li>Claves: <strong>candidata</strong> (identifica cada fila, mínima), <strong>primaria</strong> (la candidata elegida), <strong>alternas</strong> (las candidatas no elegidas) y <strong>foránea</strong> (referencia la clave de otra tabla).</li>
+    <li>Reglas de integridad: <strong>de entidad</strong> (la PK no se repite ni es NULL), <strong>referencial</strong> (cada FK apunta a algo que existe, o es NULL), <strong>de dominio</strong> (tipo, NOT NULL, CHECK) y <strong>semántica o de negocio</strong> (reglas propias: triggers).</li>
+    <li>Las restricciones pueden ser <strong>por columna, por tabla o entre tablas</strong> («solo por tabla» es F, oficial dos veces).</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Anatomía de una relación</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 260" role="img" aria-labelledby="an-t an-d">
+  <title id="an-t">Partes de una tabla en el modelo relacional</title>
+  <desc id="an-d">Tabla Provincia con columnas idpcia, idpais, detalle y habitantes y tres filas. La columna idpcia es la clave primaria; idpais es clave foránea a País. Una columna es un atributo con su dominio; una fila es una tupla. El grado es la cantidad de columnas (4) y la cardinalidad la cantidad de filas (3).</desc>
+  <defs><marker id="pm" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="200" y="26">Provincia</text>
+  <g font-family="IBM Plex Mono, monospace">
+    <rect class="dg-caja dg-caja--violeta" x="200" y="40" width="110" height="34"/><text class="dg-codigo" x="255" y="62" text-anchor="middle">idpcia 🔑</text>
+    <rect class="dg-caja dg-caja--azul" x="310" y="40" width="110" height="34"/><text class="dg-codigo" x="365" y="62" text-anchor="middle">idpais ↗</text>
+    <rect class="dg-caja" x="420" y="40" width="130" height="34"/><text class="dg-codigo" x="485" y="62" text-anchor="middle">detalle</text>
+    <rect class="dg-caja" x="550" y="40" width="130" height="34"/><text class="dg-codigo" x="615" y="62" text-anchor="middle">habitantes</text>
+    <rect class="dg-caja" x="200" y="74" width="110" height="32"/><text class="dg-codigo" x="255" y="95" text-anchor="middle">1</text>
+    <rect class="dg-caja" x="310" y="74" width="110" height="32"/><text class="dg-codigo" x="365" y="95" text-anchor="middle">54</text>
+    <rect class="dg-caja" x="420" y="74" width="130" height="32"/><text class="dg-codigo" x="485" y="95" text-anchor="middle">'BS AS'</text>
+    <rect class="dg-caja" x="550" y="74" width="130" height="32"/><text class="dg-codigo" x="615" y="95" text-anchor="middle">17000000</text>
+    <rect class="dg-caja dg-caja--bien" x="200" y="106" width="480" height="32"/>
+    <text class="dg-codigo" x="255" y="127" text-anchor="middle">2</text><text class="dg-codigo" x="365" y="127" text-anchor="middle">54</text><text class="dg-codigo" x="485" y="127" text-anchor="middle">'CORDOBA'</text><text class="dg-codigo" x="615" y="127" text-anchor="middle">3800000</text>
+    <rect class="dg-caja" x="200" y="138" width="110" height="32"/><text class="dg-codigo" x="255" y="159" text-anchor="middle">3</text>
+    <rect class="dg-caja" x="310" y="138" width="110" height="32"/><text class="dg-codigo" x="365" y="159" text-anchor="middle">598</text>
+    <rect class="dg-caja" x="420" y="138" width="130" height="32"/><text class="dg-codigo" x="485" y="159" text-anchor="middle">'ARTIGAS'</text>
+    <rect class="dg-caja" x="550" y="138" width="130" height="32"/><text class="dg-codigo" x="615" y="159" text-anchor="middle">NULL</text>
+  </g>
+  <line class="dg-linea" x1="700" y1="122" x2="690" y2="122" marker-end="url(#pm)"/>
+  <text class="dg-texto dg-texto--chico" x="706" y="118">fila = tupla</text>
+  <text class="dg-texto dg-texto--chico" x="706" y="134">cardinalidad = 3 filas</text>
+  <path class="dg-linea" d="M615,180 L615,200" marker-end="url(#pm)"/>
+  <text class="dg-texto dg-texto--chico" x="560" y="220">columna = atributo, con su dominio</text>
+  <text class="dg-texto dg-texto--chico" x="560" y="236">(entero ≥ 0 o NULL) · grado = 4 columnas</text>
+  <text class="dg-texto dg-texto--chico dg-texto--violeta" x="20" y="62">🔑 PK: única, no NULL</text>
+  <text class="dg-texto dg-texto--chico dg-texto--violeta" x="20" y="80">(integridad de entidad)</text>
+  <text class="dg-texto dg-texto--chico dg-texto--azul" x="20" y="200">↗ FK a País(idpais):</text>
+  <text class="dg-texto dg-texto--chico dg-texto--azul" x="20" y="216">tiene que existir</text>
+  <text class="dg-texto dg-texto--chico dg-texto--azul" x="20" y="232">(integridad referencial)</text>
+  <path class="dg-linea dg-linea--azul" d="M150,206 Q330,210 360,176" marker-end="url(#pm)"/>
+</svg>
+</div>
+<figcaption>Una relación <strong>no tiene filas repetidas</strong> (por eso necesita una clave) y <strong>el orden de filas y columnas no importa</strong>.</figcaption>
+</figure>
+
+<h3>Las claves, de la más amplia a la elegida</h3>
+<figure>
+<div class="figura figura--chica" style="max-width:none">
+<svg viewBox="0 0 640 240" role="img" aria-labelledby="cl-t cl-d" style="max-width:640px">
+  <title id="cl-t">Superclaves, claves candidatas, primaria y alternas</title>
+  <desc id="cl-d">Un óvalo grande de superclaves contiene un óvalo de claves candidatas, que contiene la clave primaria (la elegida) y las claves alternas (las no elegidas). Ejemplo para Alumno: superclave legajo más nombre; candidatas legajo y DNI; primaria legajo; alterna DNI.</desc>
+  <ellipse class="dg-caja" cx="320" cy="120" rx="310" ry="112"/>
+  <text class="dg-texto dg-texto--titulo" x="34" y="100">Superclaves</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="34" y="118">cualquier conjunto</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="34" y="134">que identifica</text>
+  <text class="dg-texto dg-texto--chico dg-texto--2" x="34" y="150">(legajo + nombre)</text>
+  <ellipse class="dg-caja dg-caja--azul" cx="415" cy="125" rx="200" ry="84"/>
+  <text class="dg-texto dg-texto--titulo" x="415" y="80" text-anchor="middle">Candidatas (mínimas)</text>
+  <rect class="dg-caja dg-caja--violeta" x="262" y="98" width="148" height="70" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="336" y="126" text-anchor="middle">Primaria</text>
+  <text class="dg-texto dg-texto--chico" x="336" y="146" text-anchor="middle">la elegida: legajo</text>
+  <rect class="dg-caja dg-caja--ambar" x="420" y="98" width="160" height="70" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="500" y="126" text-anchor="middle">Alternas</text>
+  <text class="dg-texto dg-texto--chico" x="500" y="146" text-anchor="middle">las otras: DNI (UNIQUE)</text>
+</svg>
+</div>
+<figcaption>La <strong>foránea</strong> no está en este dibujo: es de <em>otra</em> tabla y apunta a una primaria (o UNIQUE). «Las alternas son posibles foráneas» es <strong>F</strong>.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Reglas de integridad y con qué se implementan</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Regla</th><th scope="col">Qué exige</th><th scope="col">En SQL Server</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">De entidad</th><td>Cada fila se identifica: PK única y sin NULL</td><td><code>PRIMARY KEY</code></td></tr>
+    <tr><th scope="row">Referencial</th><td>Cada FK vale NULL o un valor que existe en la tabla referenciada</td><td><code>FOREIGN KEY … REFERENCES</code> (o triggers, si no se puede usar FK)</td></tr>
+    <tr><th scope="row">De dominio</th><td>Cada valor pertenece al dominio del atributo</td><td>Tipo de dato, <code>NOT NULL</code>, <code>CHECK</code>, <code>DEFAULT</code></td></tr>
+    <tr><th scope="row">Semántica (de negocio)</th><td>Reglas propias del problema</td><td><code>CHECK</code> si es de una fila; si no, <strong>triggers</strong> o SP</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Del álgebra relacional al SQL</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Operación</th><th scope="col">Qué hace</th><th scope="col">En SQL</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Selección (σ)</th><td>Filtra filas</td><td><code>WHERE</code></td></tr>
+    <tr><th scope="row">Proyección (π)</th><td>Elige columnas</td><td>lista del <code>SELECT</code></td></tr>
+    <tr><th scope="row">Producto cartesiano (×)</th><td>Todas las combinaciones de filas</td><td><code>FROM a, b</code> o <code>CROSS JOIN</code></td></tr>
+    <tr><th scope="row">Join (⋈)</th><td>Producto + selección por una condición</td><td><code>JOIN … ON</code></td></tr>
+    <tr><th scope="row">Unión, diferencia, intersección</th><td>Operaciones de conjuntos</td><td><code>UNION</code>, <code>EXCEPT</code>, <code>INTERSECT</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Normalización en una tabla</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Forma</th><th scope="col">Exige</th><th scope="col">Se viola si…</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">1FN</th><td>Valores atómicos, sin grupos repetitivos</td><td>Una columna «teléfonos» con «4444-1111, 15-2222»</td></tr>
+    <tr><th scope="row">2FN</th><td>1FN + cada atributo depende de <strong>toda</strong> la PK</td><td>En Item(nro_factura, producto, cantidad, <em>descripción del producto</em>): la descripción depende solo de producto</td></tr>
+    <tr><th scope="row">3FN</th><td>2FN + sin dependencias transitivas</td><td>Empleado(legajo, cod_depto, <em>nombre_depto</em>): nombre_depto depende de cod_depto</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="aviso">Normalizar <strong>evita redundancia y anomalías</strong> al modificar, pero <strong>suma joins</strong> al consultar. Por eso los modelos OLAP desnormalizan (estrella). «Normalizar sin importar la performance» es F.</p>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<ul class="trampas" data-trampas="modelo-relacional"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+
+<details class="modelo" open>
+  <summary>Explique el concepto de dominio y las reglas de integridad de entidad, referencial y semántica <small>21/02/2018</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El <strong>dominio</strong> es el conjunto de valores válidos de un atributo: su tipo de dato, su rango y si admite NULL. La integridad de dominio exige que cada valor pertenezca a él; se implementa con el tipo, NOT NULL, CHECK y DEFAULT.</p>
+    <p><strong>Integridad de entidad:</strong> cada fila debe poder identificarse, así que la clave primaria no puede repetirse ni ser NULL. Se implementa con PRIMARY KEY.</p>
+    <p><strong>Integridad referencial:</strong> el valor de una clave foránea debe ser NULL o existir como clave en la tabla referenciada; así no quedan filas «huérfanas». Se implementa con FOREIGN KEY, que rechaza el INSERT o UPDATE de un hijo sin padre y el DELETE de un padre con hijos (o lo propaga con ON DELETE CASCADE). Si no se puede usar la FK, se emula con triggers.</p>
+    <p><strong>Integridad semántica:</strong> reglas propias del negocio (por ejemplo, «el campeón y el subcampeón no pueden ser el mismo» o «una materia no puede estar en dos laboratorios el mismo día»). Si involucra una sola fila, CHECK; si involucra varias filas o tablas, triggers.</p>
+  </div>
+  <p class="modelo__salio">Salió el 21/02/2018.</p>
+</details>
+
+<details class="modelo">
+  <summary>Desarrolle el concepto de modelo relacional <small>2022</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El modelo relacional, propuesto por Codd, representa los datos como un conjunto de <strong>relaciones</strong> (tablas). Cada relación tiene atributos (columnas) definidos sobre un dominio y un conjunto de tuplas (filas) sin repetir y sin orden. Las relaciones entre entidades no son punteros: se expresan con <strong>valores</strong>, a través de claves foráneas que referencian claves primarias.</p>
+    <p>Tiene tres partes: la <strong>estructura</strong> (relaciones, atributos, dominios, claves), la <strong>integridad</strong> (reglas de entidad, referencial, de dominio y semánticas, que el motor hace cumplir con constraints) y la <strong>manipulación</strong>, mediante el álgebra relacional (selección, proyección, producto, join, unión, diferencia), sobre la que se construye SQL.</p>
+    <p>Su principal ventaja es la <strong>independencia de los datos</strong>: el usuario dice qué datos quiere y no cómo encontrarlos; el motor decide el camino (plan de ejecución). Para diseñar se aplica normalización, que evita redundancia y anomalías de actualización.</p>
+  </div>
+  <p class="modelo__salio">Salió en 2022.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="c" open>
+  <summary class="ejercicio__titulo">1. Alumno(legajo, dni, email, nombre). Legajo, DNI y email son únicos. Si la PK es legajo, ¿qué son DNI y email?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Claves foráneas</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Superclaves que no son candidatas</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Claves candidatas alternas (se declaran UNIQUE)</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> Identifican por sí solas cada fila (candidatas) y no fueron elegidas como primaria: alternas.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Intentás <code>DELETE FROM Pais WHERE idpais = 54</code> y hay provincias con idpais = 54 (FK sin CASCADE). ¿Qué pasa?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Se borran el país y sus provincias</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Error: viola la integridad referencial y no se borra nada</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Se borra el país y las provincias quedan con idpais NULL</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> Es la base del práctico del 30/07/2024 (borrar una provincia con ciudades): para poder hacerlo con un DELETE hace falta un trigger INSTEAD OF DELETE que borre primero los hijos. Está en <a href="../unidad-4/objetos.html">Objetos de BD</a>.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">3. Venta(nro, fecha, id_cliente, nombre_cliente). ¿Qué forma normal no cumple?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 3FN: nombre_cliente depende de id_cliente, no de la PK</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 1FN</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Cumple todas</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> nro → id_cliente → nombre_cliente: dependencia transitiva. Se saca a una tabla Cliente.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="modelo-relacional"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

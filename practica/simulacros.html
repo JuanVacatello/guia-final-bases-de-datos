@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulacros</title>
+<meta name="description" content="Tres simulacros del final de Bases de Datos (UTN FRBA) con el formato real (V/F, teoría y práctica), preguntas de finales anteriores y autocorrección.">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="simulacros">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html">Practicar</a></p>
+<h1>Simulacros</h1>
+<p>Tres exámenes con el <strong>formato real</strong> y preguntas que ya se tomaron, mezcladas según lo que más sale. Hacelos con reloj (2 horas), en papel, y recién después corregí acá.</p>
+
+<ol class="pasos">
+  <li><strong>Leé todo</strong> (en el final dan 5 minutos para eso).</li>
+  <li>Empezá por la <strong>práctica</strong>: es lo que define si aprobás.</li>
+  <li>Teoría con estructura: definición, cómo funciona, ejemplo.</li>
+  <li><strong>V/F al final</strong>, y si dudás, en blanco.</li>
+  <li>Corregí: los V/F se corrigen solos; la teoría y la práctica, con la solución y el selector de puntos. Abajo ves la nota y si aprobaste (6 o más <strong>y</strong> un práctico con 2).</li>
+</ol>
+
+<nav class="indice-pagina" aria-label="Simulacros">
+  <a href="#sim1">Simulacro 1</a>
+  <a href="#sim2">Simulacro 2</a>
+  <a href="#sim3">Simulacro 3</a>
+</nav>
+
+<!-- ============================== SIMULACRO 1 ============================== -->
+<section class="simulacro" id="sim1" aria-labelledby="t-sim1">
+<h2 id="t-sim1">Simulacro 1</h2>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="V">
+  <h3>1a. V/F (justificar)</h3>
+  <p>«El nivel de aislamiento REPEATABLE READ acepta lecturas fantasmas.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1a">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era V (respuesta de la cátedra, 30/07/2024). Bloquea las filas que leyó, pero no impide que otra transacción inserte filas nuevas que cumplan el WHERE. Eso solo lo evita SERIALIZABLE.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="F">
+  <h3>1b. V/F (justificar)</h3>
+  <p>«Si el árbol de Huffman posee N niveles, entonces el código de mayor tamaño posee N bits.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1b">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era F (27/09/2023). Tiene N − 1 bits: la raíz es el nivel 1 y no aporta ningún bit.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2a. Teoría (2 puntos)</h3>
+  <p>Compare procesos OLTP y OLAP en cuanto a su utilización y diseño de base de datos.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>OLTP: operación diaria, muchas transacciones cortas, datos actuales, ACID y concurrencia, modelo <strong>normalizado</strong>.</li>
+      <li>OLAP: análisis y decisiones, consultas enormes, datos <strong>históricos</strong>, solo lectura, modelo <strong>estrella</strong> desnormalizado, cubos.</li>
+      <li>Cómo se conectan: ETL hacia un Data Warehouse. Un ejemplo de cada uno.</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-4/olap.html#modelo">OLAP</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2b. Teoría (2 puntos)</h3>
+  <p>Realice una comparación entre hashing y árbol B como método de acceso a datos.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>Hashing: h(k) → posición, O(1) por igualdad, colisiones y cómo se resuelven, tamaño fijo, claves únicas.</li>
+      <li>Árbol B: n-ario balanceado, nodo = página, O(log n), split y fusión, B+ con hojas encadenadas.</li>
+      <li>Conclusión: igualdad sobre clave única → hashing; rangos, orden, duplicados → árbol B+.</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-2/hashing.html#modelo">Hashing</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3a. Práctica (2 puntos)</h3>
+  <p>TABLITAFINAL(numero INT UNIQUE), vacía y sin triggers. Indique si hay errores y el contenido final.</p>
+  <div class="codigo"><pre><code class="sql">INSERT INTO tablitafinal VALUES (1);
+INSERT INTO tablitafinal VALUES (3);
+INSERT INTO tablitafinal VALUES (NULL);
+UPDATE tablitafinal SET numero = ISNULL(numero, 5) + 1
+ WHERE 1 = 1 OR numero IS NOT NULL AND numero &gt; 0;
+INSERT INTO tablitafinal VALUES (NULL);
+COMMIT;</code></pre></div>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>Queda NULL, 2, 4, 6; solo falla el COMMIT</strong> (no hay transacción abierta). AND va antes que OR: el WHERE es siempre verdadero y el NULL pasa a 6, así que el último NULL entra. (22/02/2023 y 18/02/2025.)</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3b. Práctica (2 puntos)</h3>
+  <p>Pais(idpais, detalle), Provincia(idpcia, idpais, detalle, habitantes), Ciudad(idciudad, idpcia, detalle), con sus FK. Cree los objetos necesarios para poder borrar una provincia con un comando DELETE.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_provincia_borrar ON Provincia
+INSTEAD OF DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DELETE FROM Ciudad    WHERE idpcia IN (SELECT idpcia FROM deleted);
+  DELETE FROM Provincia WHERE idpcia IN (SELECT idpcia FROM deleted);
+END;</code></pre></div>
+    <p>Respuesta de la cátedra (30/07/2024). Restá puntos si: usaste un SP (no funciona con DELETE), un AFTER (la FK falla antes) o una variable en vez de IN (no es multifila).</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-resultado" aria-live="polite">
+  <span>Nota: <span class="sim-total">0</span></span>
+  <span class="sim-veredicto"></span>
+  <button class="quiz__boton sim-reiniciar" type="button">Empezar de nuevo</button>
+</div>
+</section>
+
+<!-- ============================== SIMULACRO 2 ============================== -->
+<section class="simulacro" id="sim2" aria-labelledby="t-sim2">
+<h2 id="t-sim2">Simulacro 2</h2>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="F">
+  <h3>1a. V/F (justificar)</h3>
+  <p>«Para una misma tabla y evento, solo puede haber un trigger AFTER.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1a">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era F (oficial, 22/12/2022: el alumno puso V y le restaron). Puede haber varios AFTER por evento; el que es único es INSTEAD OF.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="F">
+  <h3>1b. V/F (justificar)</h3>
+  <p>«Conviene, en términos de velocidad, buscar en una estructura de hash por una clave que buscar en una estructura de árbol B+.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1b">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era F (respuesta de la cátedra, 30/07/2024). «Una clave» no dice que sea única ni que exista: con claves repetidas o muchas colisiones, hashing no conviene. Con «clave única existente» (04/12/2019) era V.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2a. Teoría (2 puntos)</h3>
+  <p>Indique los distintos niveles de aislamiento de un DBMS indicando claramente qué tipos de bloqueos se ejecutan en cada uno.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>Los 4 niveles y las 3 anomalías que evita cada uno (sucia, no repetible, fantasma).</li>
+      <li>Escribir siempre toma bloqueo <strong>exclusivo hasta el final</strong>, en cualquier nivel.</li>
+      <li>Lectura: RU no pide compartido; RC lo suelta al terminar de leer; RR lo mantiene hasta el COMMIT; SERIALIZABLE además bloquea el rango.</li>
+      <li>Más aislamiento = más esperas y deadlocks.</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-4/transacciones.html#modelo">Transacciones</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2b. Teoría (2 puntos)</h3>
+  <p>Desarrolle el concepto de grafos: tipos, usos y representación estática y dinámica.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>G = (P, E): puntos y relación. Modelo de cualquier estructura de datos; usos.</li>
+      <li>Restrictos (biunívocos = listas, unívocos = árboles) e irrestrictos; dirigidos, ponderados, conexos.</li>
+      <li>Estática: vector (restrictos), matriz de adyacencia o incidencia. Dinámica: listas de adyacencia. Cuándo conviene cada una (densos/chicos contra dispersos/grandes).</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-1/grafos.html#modelo">Grafos</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3a. Práctica (2 puntos)</h3>
+  <p>Persona(id, fecha_nacimiento, apellido, nombre, su_padre_es), donde su_padre_es es FK a Persona. Realice una consulta que muestre las personas con su abuelo paterno (nombre y apellido de ambos).</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">SELECT h.nombre, h.apellido,
+       a.nombre AS abuelo_nombre, a.apellido AS abuelo_apellido
+  FROM Persona h
+  JOIN Persona p ON h.su_padre_es = p.id
+  JOIN Persona a ON p.su_padre_es = a.id;</code></pre></div>
+    <p>Salió en 2019, 04/2024 y 18/10/2024.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3b. Práctica (2 puntos)</h3>
+  <p>El SP <code>descuenta_stock</code> hace: BEGIN TRAN; <code>IF EXISTS (SELECT … cantidad &gt;= @cant)</code> → UPDATE que descuenta y COMMIT; si no, ROLLBACK. El nivel de aislamiento se define en cada ejecución. ¿Cuál es correcta? 1) siempre funciona bien; 2) puede dejar stock negativo; 3) con algún nivel puede dar interbloqueo; 4) todas. Justifique.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>2 y 3.</strong> READ COMMITTED: dos ejecuciones validan el mismo stock y las dos descuentan. REPEATABLE READ o SERIALIZABLE: las dos retienen el compartido y piden exclusivo → deadlock. Arreglo: validar y descontar en un solo UPDATE y mirar @@ROWCOUNT. (28/02/2023 y 01/08/2023.)</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-resultado" aria-live="polite">
+  <span>Nota: <span class="sim-total">0</span></span>
+  <span class="sim-veredicto"></span>
+  <button class="quiz__boton sim-reiniciar" type="button">Empezar de nuevo</button>
+</div>
+</section>
+
+<!-- ============================== SIMULACRO 3 ============================== -->
+<section class="simulacro" id="sim3" aria-labelledby="t-sim3">
+<h2 id="t-sim3">Simulacro 3</h2>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="V">
+  <h3>1a. V/F (sin justificar, como en julio de 2025)</h3>
+  <p>«Si un árbol binario es completo, entonces la cantidad de nodos que posee es impar.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1a">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era V (clave oficial, 02/08/2021). Completo para la cátedra = cada nodo con 0 o 2 hijos: n = 2·internos + 1.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--vf sim-vf" data-respuesta="F">
+  <h3>1b. V/F (sin justificar)</h3>
+  <p>«En SQL, una subconsulta en el WHERE siempre debe retornar una columna.»</p>
+  <div class="quiz__botones" role="group" aria-label="Respuesta 1b">
+    <button class="quiz__boton" type="button" data-op="V">V</button><button class="quiz__boton" type="button" data-op="F">F</button><button class="quiz__boton" type="button" data-op="B">En blanco</button>
+  </div>
+  <p class="quiz__resultado"><span class="trampa__por">Era F (11/02/2025). Con EXISTS la subconsulta puede devolver cualquier cantidad de columnas.</span></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2a. Teoría (2 puntos)</h3>
+  <p>Explique y desarrolle 2 objetos de base de datos que puedan ser utilizados para asegurar la integridad de datos.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>Constraints (cuentan como uno): PK, FK, UNIQUE, CHECK, NOT NULL, DEFAULT, con qué integridad cubre cada una.</li>
+      <li>Triggers: AFTER e INSTEAD OF, inserted/deleted, misma transacción, ROLLBACK, multifila; para reglas entre filas o tablas.</li>
+      <li>(También valían SP o vistas WITH CHECK OPTION.)</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-4/objetos.html#modelo">Objetos de BD</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--teoria">
+  <h3>2b. Teoría (2 puntos)</h3>
+  <p>Enumere y explique al menos tres algoritmos de clasificación u ordenamiento que conozca.</p>
+  <details class="solucion"><summary>Qué tenía que tener</summary>
+    <ul>
+      <li>Tres métodos explicados (por ejemplo burbuja, QuickSort, Heapsort) con su idea.</li>
+      <li>La complejidad de cada uno en mejor, promedio y peor caso; cuándo conviene cada uno.</li>
+    </ul>
+    <p>Respuesta completa en <a href="../unidad-2/ordenamiento.html#modelo">Ordenamiento</a>.</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3a. Práctica (2 puntos)</h3>
+  <p>Para ver la ocupación del laboratorio 401 por día y turno se escribió esta consulta. a) no compila; b) da error en ejecución; c) se ejecuta pero no retorna lo pedido; d) retorna lo solicitado. Justifique.</p>
+  <div class="codigo"><pre><code class="sql">SELECT d.dia_nombre,
+       ISNULL(m1.detalle, 'LIBRE'), ISNULL(m2.detalle, 'LIBRE')
+  FROM Dia d
+  LEFT JOIN Horario h1 ON h1.dia_id = d.dia_id AND h1.labo_id = 401 AND h1.turno = 0
+  JOIN Materia m1      ON m1.materia_id = h1.materia_id
+  LEFT JOIN Horario h2 ON h2.dia_id = d.dia_id AND h2.labo_id = 401 AND h2.turno = 1
+  JOIN Materia m2      ON m2.materia_id = h2.materia_id</code></pre></div>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <p><strong>c).</strong> Los JOIN con Materia comparan contra un NULL cuando el turno está libre: esas filas desaparecen y «LIBRE» nunca se muestra. Se arregla con LEFT JOIN en los dos joins con Materia. (03/12/2024; la misma trampa el 29/07/2025.)</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-pregunta sim-pregunta--practica">
+  <h3>3b. Práctica (2 puntos)</h3>
+  <p>MundialFutbol(IdMundial, Anio, PaisCampeon, PaisSubCampeon). Implante la regla: el campeón y el subcampeón no pueden ser el mismo y la diferencia entre dos mundiales no puede ser menor a 4 años. La regla se cumple hoy y acceden n aplicaciones.</p>
+  <details class="solucion"><summary>Ver la solución</summary>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE TRIGGER tr_mundial_reglas ON MundialFutbol
+AFTER INSERT, UPDATE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (SELECT 1 FROM inserted WHERE PaisCampeon = PaisSubCampeon)
+     OR EXISTS (SELECT 1
+                  FROM inserted i
+                  JOIN MundialFutbol m
+                    ON m.IdMundial &lt;&gt; i.IdMundial
+                   AND ABS(m.Anio - i.Anio) &lt; 4)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50001, 'Regla de mundiales violada.', 1;
+  END
+END;</code></pre></div>
+    <p>La primera regla también puede ser un <code>CHECK (PaisCampeon &lt;&gt; PaisSubCampeon)</code>. «n aplicaciones» quiere decir que tiene que estar en la base, no en un programa. (22/12/2022.)</p>
+  </details>
+  <p class="sim-autonota"><label>Mi puntaje: <select class="sim-nota" data-practico="si"><option value="">sin corregir</option><option value="2">2</option><option value="1.5">1,5</option><option value="1">1</option><option value="0.5">0,5</option><option value="0">0</option></select></label></p>
+</div>
+
+<div class="sim-resultado" aria-live="polite">
+  <span>Nota: <span class="sim-total">0</span></span>
+  <span class="sim-veredicto"></span>
+  <button class="quiz__boton sim-reiniciar" type="button">Empezar de nuevo</button>
+</div>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

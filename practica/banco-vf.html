@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco de V/F</title>
+<meta name="description" content="Todos los Verdadero/Falso de los finales de Bases de Datos (UTN FRBA) y de los bancos de alumnos, sin repetir, filtrables por tema, con la regla +1 / −1 / 0 y la justificación.">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="banco-vf">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html">Practicar</a></p>
+<h1>Banco de V/F</h1>
+<p>Todos los Verdadero/Falso de tus archivos, <strong>sin repetir</strong>: los que salieron en finales y los de los bancos de alumnos (Resumen GGDD, Teóricas, banco de Reinosa). Con la regla del final: <strong>bien +1, mal −1, en blanco 0</strong>.</p>
+
+<div class="reglas">
+  <div class="regla"><h3>Si dudás, en blanco</h3><p>Un V/F mal resta lo mismo que uno bien suma. Con 50 % de seguridad, el promedio es 0: no arriesgues.</p></div>
+  <div class="regla"><h3>Ojo con los absolutos</h3><p>«Siempre», «nunca», «todos», «el único»: la mayoría son F. Buscá el contraejemplo.</p></div>
+  <div class="regla"><h3>Leé cada palabra</h3><p>«Una clave» no es «una clave única existente». Esas dos palabras cambiaron la respuesta entre 2019 y 2024.</p></div>
+</div>
+
+<form class="filtros" onsubmit="return false" aria-label="Filtrar el banco">
+  <label>Tema
+    <select id="banco-tema">
+      <option value="todos">Todos los temas</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="banco-finales"> Solo los que salieron en finales</label>
+  <label><input type="checkbox" id="banco-polemicas"> Solo ⚠️ polémicas y ⬜ en blanco</label>
+  <label>Ver como
+    <select id="banco-modo">
+      <option value="quiz">Ejercicio (+1 / −1 / 0)</option>
+      <option value="lista">Lista con respuestas</option>
+    </select>
+  </label>
+  <p class="filtros__resumen" id="banco-resumen" aria-live="polite"></p>
+</form>
+
+<div class="quiz" id="banco"></div>
+
+<h2>De dónde sale cada respuesta</h2>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Marca</th><th scope="col">Significa</th></tr></thead>
+  <tbody>
+    <tr><th scope="row"><span class="sello sello--oficial">✓ oficial</span></th><td>La dio la cátedra (revisión, Moodle) o se deduce de la nota de un examen corregido.</td></tr>
+    <tr><th scope="row">sin marca</th><td>Todas las fuentes coinciden.</td></tr>
+    <tr><th scope="row"><span class="sello sello--polemica">⚠️ polémica</span></th><td>Las fuentes se contradicen o tienen un error; se decidió razonando y está la explicación.</td></tr>
+    <tr><th scope="row"><span class="sello sello--polemica">⬜ en blanco</span></th><td>No hay forma segura de decidir: en el final conviene no responderla. No entra en el ejercicio, solo en la lista.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Los V/F marcados «práctica de la guía» no salieron en finales: están para fijar conceptos de temas con pocas preguntas.</p>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transacciones y concurrencia</title>
+<meta name="description" content="Unidad 4: transacciones, ACID, niveles de aislamiento, bloqueos y deadlocks para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="transacciones">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 4: Bases de datos</a></p>
+<h1>Transacciones y concurrencia</h1>
+<p>ACID, niveles de aislamiento, bloqueos y deadlocks. Es <strong>el tema de teoría que más se toma</strong> y el que define los prácticos de procesos en paralelo.</p>
+
+<div class="datos-tema" data-estadisticas="transacciones" data-tipos="D" data-rotulo-practica="prácticos de concurrencia"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<!-- ============ EN 30 SEGUNDOS ============ -->
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Una <strong>transacción</strong> es un bloque de sentencias que el motor trata como una sola: <strong>se confirma todo (COMMIT) o se deshace todo (ROLLBACK)</strong>.</li>
+    <li>Cumple <strong>ACID</strong>: Atomicidad, Consistencia, Aislamiento (<em>Isolation</em>) y Durabilidad.</li>
+    <li>Con varias transacciones a la vez, el <strong>nivel de aislamiento</strong> decide qué ve cada una de las otras y cuánto duran los <strong>bloqueos de lectura</strong>. Escribir siempre bloquea en exclusivo hasta el final.</li>
+    <li>Más aislamiento = menos anomalías, pero <strong>más esperas y más deadlocks</strong>.</li>
+  </ul>
+</section>
+
+<!-- ============ DIAGRAMAS ============ -->
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Las tres anomalías que evitan los niveles</h3>
+<p>Dos transacciones, T1 y T2, sobre la misma cuenta. El tiempo corre de izquierda a derecha.</p>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 420" role="img" aria-labelledby="anom-titulo anom-desc">
+  <title id="anom-titulo">Lectura sucia, lectura no repetible y lectura fantasma</title>
+  <desc id="anom-desc">Tres líneas de tiempo. Lectura sucia: T2 actualiza sin confirmar, T1 lee ese valor y T2 hace rollback. No repetible: T1 lee 100, T2 actualiza a 50 y confirma, T1 vuelve a leer y obtiene 50. Fantasma: T1 cuenta 3 filas, T2 inserta una y confirma, T1 vuelve a contar y obtiene 4.</desc>
+
+  <!-- Panel 1: lectura sucia -->
+  <g transform="translate(0,0)">
+    <text class="dg-texto dg-texto--titulo" x="10" y="20">Lectura sucia</text>
+    <text class="dg-texto dg-texto--2" x="890" y="20" text-anchor="end">La evita: READ COMMITTED y superiores</text>
+    <rect class="dg-carril" x="70" y="32" width="820" height="34" rx="6"/>
+    <rect class="dg-carril" x="70" y="74" width="820" height="34" rx="6"/>
+    <text class="dg-texto dg-texto--titulo" x="30" y="54">T1</text>
+    <text class="dg-texto dg-texto--titulo" x="30" y="96">T2</text>
+    <rect class="dg-caja" x="116" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="205" y="96" text-anchor="middle">UPDATE saldo = 50</text>
+    <rect class="dg-caja" x="316" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="405" y="54" text-anchor="middle">SELECT saldo → 50</text>
+    <rect class="dg-caja" x="516" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="605" y="96" text-anchor="middle">ROLLBACK (era 100)</text>
+    <rect class="dg-caja dg-caja--mal" x="716" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-texto dg-texto--chico" x="805" y="54" text-anchor="middle">usó un 50 que nunca existió</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="205" y="126" text-anchor="middle">t1</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="405" y="126" text-anchor="middle">t2</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="605" y="126" text-anchor="middle">t3</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="805" y="126" text-anchor="middle">t4</text>
+  </g>
+
+  <!-- Panel 2: lectura no repetible -->
+  <g transform="translate(0,140)">
+    <text class="dg-texto dg-texto--titulo" x="10" y="20">Lectura no repetible</text>
+    <text class="dg-texto dg-texto--2" x="890" y="20" text-anchor="end">La evita: REPEATABLE READ y SERIALIZABLE</text>
+    <rect class="dg-carril" x="70" y="32" width="820" height="34" rx="6"/>
+    <rect class="dg-carril" x="70" y="74" width="820" height="34" rx="6"/>
+    <text class="dg-texto dg-texto--titulo" x="30" y="54">T1</text>
+    <text class="dg-texto dg-texto--titulo" x="30" y="96">T2</text>
+    <rect class="dg-caja" x="116" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="205" y="54" text-anchor="middle">SELECT saldo → 100</text>
+    <rect class="dg-caja" x="316" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="405" y="96" text-anchor="middle">UPDATE saldo = 50</text>
+    <rect class="dg-caja" x="516" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="605" y="96" text-anchor="middle">COMMIT</text>
+    <rect class="dg-caja dg-caja--mal" x="716" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="805" y="54" text-anchor="middle">SELECT saldo → 50</text>
+    <text class="dg-texto dg-texto--chico" x="805" y="96" text-anchor="middle">misma fila, otro valor</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="205" y="126" text-anchor="middle">t1</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="405" y="126" text-anchor="middle">t2</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="605" y="126" text-anchor="middle">t3</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="805" y="126" text-anchor="middle">t4</text>
+  </g>
+
+  <!-- Panel 3: lectura fantasma -->
+  <g transform="translate(0,280)">
+    <text class="dg-texto dg-texto--titulo" x="10" y="20">Lectura fantasma</text>
+    <text class="dg-texto dg-texto--2" x="890" y="20" text-anchor="end">La evita: solo SERIALIZABLE</text>
+    <rect class="dg-carril" x="70" y="32" width="820" height="34" rx="6"/>
+    <rect class="dg-carril" x="70" y="74" width="820" height="34" rx="6"/>
+    <text class="dg-texto dg-texto--titulo" x="30" y="54">T1</text>
+    <text class="dg-texto dg-texto--titulo" x="30" y="96">T2</text>
+    <rect class="dg-caja" x="116" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="205" y="54" text-anchor="middle">SELECT COUNT(*) → 3</text>
+    <rect class="dg-caja" x="316" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="405" y="96" text-anchor="middle">INSERT fila nueva</text>
+    <rect class="dg-caja" x="516" y="78" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="605" y="96" text-anchor="middle">COMMIT</text>
+    <rect class="dg-caja dg-caja--mal" x="716" y="36" width="178" height="26" rx="13"/>
+    <text class="dg-codigo" x="805" y="54" text-anchor="middle">SELECT COUNT(*) → 4</text>
+    <text class="dg-texto dg-texto--chico" x="805" y="96" text-anchor="middle">apareció una fila nueva</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="205" y="126" text-anchor="middle">t1</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="405" y="126" text-anchor="middle">t2</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="605" y="126" text-anchor="middle">t3</text>
+    <text class="dg-texto dg-texto--2 dg-texto--chico" x="805" y="126" text-anchor="middle">t4</text>
+  </g>
+</svg>
+</div>
+<figcaption>No repetible = <strong>cambia una fila</strong> que ya leíste. Fantasma = <strong>aparecen filas nuevas</strong> que cumplen tu WHERE.</figcaption>
+</figure>
+
+<h3>Línea de tiempo de un deadlock</h3>
+<p>El ejercicio que más se repite (06/12/2022 y variantes): A y B en <code>SERIALIZABLE</code>, leen la misma fila y después la quieren actualizar.</p>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 290" role="img" aria-labelledby="dl-titulo dl-desc">
+  <title id="dl-titulo">Deadlock entre los procesos A y B</title>
+  <desc id="dl-desc">A y B abren transacción. A lee la fila 1 y toma un bloqueo compartido. B lee la misma fila y toma otro compartido. A quiere actualizar y pide exclusivo: espera a que B suelte su compartido. B quiere actualizar y pide exclusivo: espera a A. Ninguno avanza. El motor elige a B como víctima y le hace rollback; A obtiene el exclusivo, actualiza y confirma.</desc>
+
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="170" y="22" text-anchor="middle">T0</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="290" y="22" text-anchor="middle">T1</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="410" y="22" text-anchor="middle">T2</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="530" y="22" text-anchor="middle">T3</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="650" y="22" text-anchor="middle">T4</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="790" y="22" text-anchor="middle">T5: el motor resuelve</text>
+  <line class="dg-guia" x1="720" y1="30" x2="720" y2="250"/>
+
+  <rect class="dg-carril" x="100" y="40" width="790" height="70" rx="8"/>
+  <rect class="dg-carril" x="100" y="150" width="790" height="70" rx="8"/>
+  <text class="dg-texto dg-texto--titulo" x="10" y="80">Proceso A</text>
+  <text class="dg-texto dg-texto--titulo" x="10" y="190">Proceso B</text>
+
+  <!-- Proceso A -->
+  <rect class="dg-caja" x="116" y="62" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="170" y="80" text-anchor="middle">BEGIN TRAN</text>
+  <rect class="dg-caja" x="236" y="62" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="290" y="80" text-anchor="middle">SELECT fila 1</text>
+  <circle class="dg-s" cx="340" cy="60" r="11"/>
+  <text class="dg-texto-blanco" x="340" y="64" text-anchor="middle">S</text>
+  <rect class="dg-caja" x="476" y="62" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="530" y="80" text-anchor="middle">UPDATE fila 1</text>
+  <line class="dg-espera" x1="586" y1="75" x2="716" y2="75"/>
+  <text class="dg-texto dg-texto--chico" x="650" y="58" text-anchor="middle">pide X: espera a B</text>
+  <rect class="dg-caja dg-caja--bien" x="730" y="62" width="150" height="26" rx="13"/>
+  <text class="dg-codigo" x="805" y="80" text-anchor="middle">UPDATE + COMMIT</text>
+  <rect class="dg-x" x="866" y="48" width="22" height="22" rx="5"/>
+  <text class="dg-texto-blanco" x="877" y="64" text-anchor="middle">X</text>
+
+  <!-- Proceso B -->
+  <rect class="dg-caja" x="116" y="172" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="170" y="190" text-anchor="middle">BEGIN TRAN</text>
+  <rect class="dg-caja" x="356" y="172" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="410" y="190" text-anchor="middle">SELECT fila 1</text>
+  <circle class="dg-s" cx="460" cy="170" r="11"/>
+  <text class="dg-texto-blanco" x="460" y="174" text-anchor="middle">S</text>
+  <rect class="dg-caja" x="596" y="172" width="108" height="26" rx="13"/>
+  <text class="dg-codigo" x="650" y="190" text-anchor="middle">UPDATE fila 1</text>
+  <line class="dg-espera" x1="704" y1="185" x2="716" y2="185"/>
+  <text class="dg-texto dg-texto--chico" x="650" y="234" text-anchor="middle">pide X: espera a A</text>
+  <rect class="dg-caja dg-caja--mal" x="730" y="172" width="150" height="26" rx="13"/>
+  <text class="dg-codigo" x="805" y="190" text-anchor="middle">víctima: ROLLBACK</text>
+
+  <!-- leyenda -->
+  <circle class="dg-s" cx="120" cy="272" r="9"/>
+  <text class="dg-texto-blanco" x="120" y="276" text-anchor="middle">S</text>
+  <text class="dg-texto dg-texto--chico" x="136" y="276">compartido (leer)</text>
+  <rect class="dg-x" x="270" y="263" width="18" height="18" rx="4"/>
+  <text class="dg-texto-blanco" x="279" y="276" text-anchor="middle">X</text>
+  <text class="dg-texto dg-texto--chico" x="296" y="276">exclusivo (escribir)</text>
+  <line class="dg-espera" x1="440" y1="272" x2="480" y2="272"/>
+  <text class="dg-texto dg-texto--chico" x="488" y="276">esperando un bloqueo</text>
+</svg>
+</div>
+<figcaption>Cada uno tiene un <strong>S</strong> sobre la fila y pide un <strong>X</strong>, que choca con el S del otro. Nadie suelta nada: <strong>deadlock</strong>. El motor elige una víctima, le hace ROLLBACK y el otro termina. Por eso la respuesta es «deadlock, queda A <em>o</em> B».</figcaption>
+</figure>
+
+<div class="rejilla">
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 190" role="img" aria-labelledby="ge-titulo ge-desc">
+  <title id="ge-titulo">Grafo de espera</title>
+  <desc id="ge-desc">Dos nodos, A y B. Una flecha va de A a B (A espera a B) y otra de B a A (B espera a A). Forman un ciclo.</desc>
+  <defs>
+    <marker id="punta-roja" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path class="dg-flecha" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <circle class="dg-caja" cx="70" cy="95" r="34"/>
+  <text class="dg-texto dg-texto--titulo" x="70" y="101" text-anchor="middle">A</text>
+  <circle class="dg-caja" cx="250" cy="95" r="34"/>
+  <text class="dg-texto dg-texto--titulo" x="250" y="101" text-anchor="middle">B</text>
+  <path class="dg-espera" d="M100,78 Q160,30 218,78" marker-end="url(#punta-roja)"/>
+  <path class="dg-espera" d="M220,112 Q160,160 102,112" marker-end="url(#punta-roja)"/>
+  <text class="dg-texto dg-texto--chico" x="160" y="34" text-anchor="middle">A espera a B</text>
+  <text class="dg-texto dg-texto--chico" x="160" y="168" text-anchor="middle">B espera a A</text>
+</svg>
+</div>
+<figcaption><strong>Ciclo en el grafo de espera = deadlock.</strong> El motor lo detecta y rompe el ciclo abortando a una transacción (la «víctima»).</figcaption>
+</figure>
+
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 190" role="img" aria-labelledby="gr-titulo gr-desc">
+  <title id="gr-titulo">Granularidad de los bloqueos</title>
+  <desc id="gr-desc">Cajas una dentro de otra: base de datos, tabla, página y fila. Bloquear algo más chico deja trabajar a más transacciones a la vez.</desc>
+  <rect class="dg-caja" x="6" y="6" width="308" height="178" rx="10"/>
+  <text class="dg-texto dg-texto--titulo" x="18" y="28">Base de datos</text>
+  <rect class="dg-caja" x="26" y="40" width="268" height="136" rx="9"/>
+  <text class="dg-texto dg-texto--titulo" x="38" y="62">Tabla</text>
+  <rect class="dg-caja" x="46" y="74" width="228" height="94" rx="8"/>
+  <text class="dg-texto dg-texto--titulo" x="58" y="96">Página</text>
+  <rect class="dg-caja dg-caja--bien" x="66" y="108" width="188" height="50" rx="7"/>
+  <text class="dg-texto dg-texto--titulo" x="160" y="138" text-anchor="middle">Fila</text>
+</svg>
+</div>
+<figcaption>Se puede bloquear a nivel <strong>BD, tabla, página o fila</strong>. Cuanto más fino, más concurrencia, pero más bloqueos que administrar.</figcaption>
+</figure>
+</div>
+</section>
+
+<!-- ============ TABLAS ============ -->
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Niveles de aislamiento × anomalías</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead>
+    <tr><th scope="col">Nivel</th><th scope="col">Lectura sucia</th><th scope="col">No repetible</th><th scope="col">Fantasma</th><th scope="col">El bloqueo compartido al leer…</th><th scope="col">Para qué sirve</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">READ UNCOMMITTED</th><td class="celda-mal"><span class="si">✗ pasa</span></td><td class="celda-mal"><span class="si">✗ pasa</span></td><td class="celda-mal"><span class="si">✗ pasa</span></td><td>no se pide</td><td>Tableros y estadísticas aproximadas</td></tr>
+    <tr><th scope="row">READ COMMITTED <small>(default de SQL Server)</small></th><td class="celda-bien"><span class="no">✓ evitada</span></td><td class="celda-mal"><span class="si">✗ pasa</span></td><td class="celda-mal"><span class="si">✗ pasa</span></td><td>se suelta al terminar de leer</td><td>La mayoría de los sistemas OLTP</td></tr>
+    <tr><th scope="row">REPEATABLE READ</th><td class="celda-bien"><span class="no">✓ evitada</span></td><td class="celda-bien"><span class="no">✓ evitada</span></td><td class="celda-mal"><span class="si">✗ pasa</span></td><td>se mantiene hasta el COMMIT</td><td>Leer una fila y actualizarla sin que cambie en el medio</td></tr>
+    <tr><th scope="row">SERIALIZABLE</th><td class="celda-bien"><span class="no">✓ evitada</span></td><td class="celda-bien"><span class="no">✓ evitada</span></td><td class="celda-bien"><span class="no">✓ evitada</span></td><td>se mantiene hasta el COMMIT y además bloquea el <strong>rango</strong> leído</td><td>Reservas, numeradores sin huecos, transferencias</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="aviso"><strong>Lo que no cambia con el nivel:</strong> INSERT, UPDATE y DELETE siempre toman bloqueo <strong>exclusivo hasta el COMMIT o ROLLBACK</strong>. Incluso en READ UNCOMMITTED, una escritura espera si otro tiene la fila bloqueada.</p>
+
+<h3>Tipos de bloqueo y compatibilidad</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Bloqueo</th><th scope="col">Lo toma</th><th scope="col">Deja que otros…</th><th scope="col">Dura</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Compartido (S)</th><td>SELECT</td><td>lean (otro S), pero no escriban</td><td>según el nivel (tabla de arriba)</td></tr>
+    <tr><th scope="row">Promovible o de actualización (U)</th><td>UPDATE mientras busca las filas</td><td>lean, pero solo uno puede tener U</td><td>hasta convertirse en X</td></tr>
+    <tr><th scope="row">Exclusivo (X)</th><td>INSERT, UPDATE, DELETE</td><td>nada (ni leer, salvo READ UNCOMMITTED)</td><td>hasta COMMIT o ROLLBACK</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="tabla-envoltura" style="max-width:420px">
+<table>
+  <caption>¿Se pueden tener a la vez sobre la misma fila?</caption>
+  <thead><tr><th scope="col">Pedido \ Tomado</th><th scope="col">S</th><th scope="col">U</th><th scope="col">X</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">S</th><td class="celda-bien"><span class="no">✓</span></td><td class="celda-bien"><span class="no">✓</span></td><td class="celda-mal"><span class="si">✗</span></td></tr>
+    <tr><th scope="row">U</th><td class="celda-bien"><span class="no">✓</span></td><td class="celda-mal"><span class="si">✗</span></td><td class="celda-mal"><span class="si">✗</span></td></tr>
+    <tr><th scope="row">X</th><td class="celda-mal"><span class="si">✗</span></td><td class="celda-mal"><span class="si">✗</span></td><td class="celda-mal"><span class="si">✗</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>ACID: qué garantiza cada letra y cómo</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Propiedad</th><th scope="col">Qué garantiza</th><th scope="col">Cómo lo logra el motor</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Atomicidad</th><td>Todo o nada</td><td>Log de transacciones + ROLLBACK</td></tr>
+    <tr><th scope="row">Consistencia</th><td>Pasa de un estado válido a otro válido</td><td>Constraints, triggers y la atomicidad</td></tr>
+    <tr><th scope="row">Aislamiento</th><td>Las transacciones concurrentes no se pisan</td><td>Niveles de aislamiento + bloqueos</td></tr>
+    <tr><th scope="row">Durabilidad</th><td>Lo confirmado sobrevive a una caída</td><td>Log en disco + recovery al reiniciar</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Los comandos de T-SQL que vas a usar</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Comando</th><th scope="col">Qué hace</th></tr></thead>
+  <tbody>
+    <tr><td><code>BEGIN TRANSACTION</code></td><td>Abre una transacción explícita (sin ella, cada sentencia se confirma sola).</td></tr>
+    <tr><td><code>COMMIT</code> / <code>ROLLBACK</code></td><td>Confirma o deshace todo lo hecho desde el BEGIN. Sin transacción abierta, dan error y no hacen nada.</td></tr>
+    <tr><td><code>SET TRANSACTION ISOLATION LEVEL …</code></td><td>Cambia el nivel para la sesión. Se puede ejecutar dentro de un SP y con una transacción abierta.</td></tr>
+    <tr><td><code>SAVE TRANSACTION p</code></td><td>Punto de guardado: <code>ROLLBACK TRANSACTION p</code> vuelve solo hasta ahí.</td></tr>
+    <tr><td><code>@@TRANCOUNT</code></td><td>Cuántas transacciones hay abiertas (0 = ninguna).</td></tr>
+    <tr><td><code>SET XACT_ABORT ON</code></td><td>Cualquier error aborta y deshace la transacción entera. Por defecto está OFF: falla solo la sentencia con error y la transacción sigue.</td></tr>
+    <tr><td><code>BEGIN TRY … END TRY BEGIN CATCH … END CATCH</code></td><td>Atrapa el error para hacer ROLLBACK y avisar.</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- ============ TRAMPAS ============ -->
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los marcados <span class="sello sello--polemica">⚠️ polémica</span> tienen fuentes que se contradicen: está la explicación.</p>
+<ul class="trampas" data-trampas="transacciones"></ul>
+</section>
+
+<!-- ============ RESPUESTAS MODELO ============ -->
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+<p>Escritas como para el examen: entran en 15 renglones. Abrí cada una.</p>
+
+<details class="modelo" open>
+  <summary>Describa transaccionalidad, aislamiento y bloqueos <small>la más tomada</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Una <strong>transacción</strong> es un conjunto de sentencias que el DBMS ejecuta como una unidad: se confirman todas (COMMIT) o se deshacen todas (ROLLBACK). Cumple <strong>ACID</strong>: atomicidad, consistencia, aislamiento y durabilidad.</p>
+    <p>El <strong>aislamiento</strong> define qué ve una transacción de las demás que corren a la vez. Hay 4 niveles: READ UNCOMMITTED (permite lecturas sucias, no repetibles y fantasmas), READ COMMITTED (evita las sucias; es el default de SQL Server), REPEATABLE READ (evita también las no repetibles) y SERIALIZABLE (evita además los fantasmas).</p>
+    <p>Para lograrlo, el motor usa <strong>bloqueos</strong>: compartidos para leer (compatibles entre sí), exclusivos para escribir y promovibles (de actualización), a nivel fila, página, tabla o base. Escribir siempre bloquea en exclusivo hasta el final; el nivel cambia los bloqueos de lectura: RU no los pide, RC los suelta al terminar de leer, RR los mantiene hasta el COMMIT y SERIALIZABLE bloquea además el rango leído.</p>
+    <p>Más aislamiento: menos anomalías, pero más esperas y más deadlocks.</p>
+  </div>
+  <p class="modelo__salio">Salió el 17/07/2018, en 2022, el 18/10/2024 y el 10/12/2024.</p>
+</details>
+
+<details class="modelo">
+  <summary>¿Qué representa la sigla ACID? <small>5 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>ACID son las cuatro propiedades que debe cumplir una transacción para que un DBMS se considere transaccional:</p>
+    <ul>
+      <li><strong>Atomicidad:</strong> se ejecuta completa o no se ejecuta; si algo falla, el ROLLBACK deshace todo (usando el log).</li>
+      <li><strong>Consistencia:</strong> lleva la base de un estado válido a otro válido, sin violar las reglas de integridad (PK, FK, CHECK, triggers).</li>
+      <li><strong>Aislamiento:</strong> las transacciones concurrentes no se interfieren; cada una ve los datos según su nivel de aislamiento, que el motor implementa con bloqueos.</li>
+      <li><strong>Durabilidad:</strong> después del COMMIT, los cambios persisten aunque se caiga el sistema; el log permite recuperarlos (recovery).</li>
+    </ul>
+    <p>Ejemplo: una transferencia debita una cuenta y acredita otra; con ACID no puede quedar solo el débito.</p>
+  </div>
+  <p class="modelo__salio">Salió el 12/03/2018, el 26/02/2019, en 2022, el 05/03/2024 y el 29/07/2025.</p>
+</details>
+
+<details class="modelo">
+  <summary>Niveles de aislamiento y qué bloqueos usa cada uno <small>5 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>El nivel de aislamiento define cuánto se protege una transacción de las demás. Toda escritura toma bloqueo exclusivo hasta el fin de la transacción; los niveles difieren en el <strong>bloqueo de lectura</strong>:</p>
+    <ul>
+      <li><strong>READ UNCOMMITTED:</strong> no pide bloqueo compartido al leer, así que ve datos sin confirmar. Permite lectura sucia, no repetible y fantasma. Máxima concurrencia.</li>
+      <li><strong>READ COMMITTED</strong> (default): bloqueo compartido solo mientras lee. Evita la lectura sucia; permite la no repetible y el fantasma.</li>
+      <li><strong>REPEATABLE READ:</strong> mantiene el compartido sobre lo leído hasta el COMMIT. Evita sucia y no repetible; permite fantasmas, porque no bloquea los inserts.</li>
+      <li><strong>SERIALIZABLE:</strong> además bloquea el rango leído, así nadie inserta filas que cumplan el WHERE. Evita las tres; menos concurrencia y más deadlocks.</li>
+    </ul>
+    <p>Sucia: leer lo no confirmado. No repetible: releer una fila y que haya cambiado. Fantasma: repetir una consulta y que aparezcan filas nuevas.</p>
+  </div>
+  <p class="modelo__salio">Salió el 04/12/2019, el 09/09/2022, el 06/12/2022, el 23/07/2024 y el 11/02/2025.</p>
+</details>
+
+<details class="modelo">
+  <summary>Un ejemplo para READ UNCOMMITTED y otro para SERIALIZABLE <small>2 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p><strong>READ UNCOMMITTED</strong> sirve cuando importa la velocidad y un dato aproximado no hace daño. Ejemplo: un tablero que muestra cada minuto los pedidos del día. Leer sin bloqueos no frena a las transacciones que cargan pedidos, y si cuenta uno que después se deshace, el error es despreciable.</p>
+    <p><strong>SERIALIZABLE</strong> sirve cuando un dato inconsistente es inaceptable. Ejemplo: vender el último asiento de un vuelo o generar números de factura sin huecos ni repetidos. Al bloquear el rango leído, dos transacciones no pueden ver «queda 1 asiento» a la vez: la segunda espera, o es víctima de un deadlock y se reintenta. Se paga con menos concurrencia.</p>
+  </div>
+  <p class="modelo__salio">Salió el 25/07/2023 y el 12/12/2023.</p>
+</details>
+</section>
+
+<!-- ============ EJERCITÁ ============ -->
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<h3>Cómo resolver un ejercicio de procesos en los tiempos T1…Tn</h3>
+<ol class="pasos">
+  <li><strong>Anotá el nivel de cada proceso.</strong> Si no lo dice, es READ COMMITTED. Ojo: el SET puede estar en un tiempo posterior al BEGIN.</li>
+  <li><strong>Recorré los tiempos y anotá qué bloqueo pide cada sentencia:</strong> SELECT pide S (salvo en READ UNCOMMITTED); INSERT, UPDATE y DELETE piden X hasta el final.</li>
+  <li><strong>¿Cuánto dura cada S?</strong> En READ COMMITTED se suelta apenas termina el SELECT; en REPEATABLE READ y SERIALIZABLE, al COMMIT.</li>
+  <li><strong>Si un pedido choca con un bloqueo ajeno, ese proceso espera</strong> y no ejecuta sus tiempos siguientes. Si los dos se esperan entre sí: deadlock, uno es víctima (ROLLBACK).</li>
+  <li><strong>Leé el código letra por letra.</strong> Nombre de tabla o columna mal escrito, más valores que columnas, PK repetida, COMMIT sin BEGIN: la cátedra los usa para que la respuesta sea «ninguna».</li>
+  <li><strong>Al final, mirá qué quedó confirmado.</strong> Lo que hizo un proceso antes de su ROLLBACK no queda.</li>
+</ol>
+
+<h3>¿Qué pasa? Seis ejercicios de finales</h3>
+<p>Abrí uno, elegí una opción y mirá la explicación. Hacelos en orden: van de lo más tomado a lo más raro.</p>
+
+<details class="ejercicio" data-correcta="d" open>
+  <summary class="ejercicio__titulo">1. Final 06/12/2022: los dos en SERIALIZABLE</summary>
+  <div class="tabla-envoltura">
+  <table>
+    <thead><tr><th scope="col">Tiempo</th><th scope="col">Proceso A</th><th scope="col">Proceso B</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">T0</th><td><code>BEGIN TRANSACTION</code></td><td><code>BEGIN TRANSACTION</code></td></tr>
+      <tr><th scope="row">T1</th><td><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code></td><td><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code></td></tr>
+      <tr><th scope="row">T2</th><td><code>SELECT * FROM PRODUCTO WHERE PROD_CODIGO = '00000001'</code></td><td></td></tr>
+      <tr><th scope="row">T3</th><td></td><td><code>SELECT * FROM PRODUCTO WHERE PROD_CODIGO = '00000001'</code></td></tr>
+      <tr><th scope="row">T4</th><td><code>UPDATE PRODUCTO SET PROD_DETALLE = 'PROCESO A' WHERE PROD_CODIGO = '00000001'</code></td><td></td></tr>
+      <tr><th scope="row">T5</th><td></td><td><code>UPDATE PRODUCTO SET PROD_DETALLE = 'PROCESO B' WHERE PROD_CODIGO = '00000001'</code></td></tr>
+      <tr><th scope="row">T6</th><td><code>COMMIT</code></td><td><code>COMMIT</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Queda prod_detalle = 'PROCESO A'</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Queda prod_detalle = 'PROCESO B'</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Queda el valor anterior a los dos procesos</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Deadlock; el detalle queda con 'PROCESO A' o 'PROCESO B'</button></li>
+    <li><button class="opcion" type="button" data-op="e">e) Ninguna de las anteriores</button></li>
+  </ul>
+  <div class="explicacion"><strong>d.</strong> En T2 y T3 los dos toman un S sobre la fila y, por ser SERIALIZABLE, lo mantienen. En T4, A pide X y espera el S de B; en T5, B pide X y espera el S de A. Es el deadlock del diagrama: el motor mata a uno y el otro confirma su valor.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Final 16/12/2022: A en REPEATABLE READ, B en READ COMMITTED</summary>
+  <div class="tabla-envoltura">
+  <table>
+    <thead><tr><th scope="col">Tiempo</th><th scope="col">Proceso A</th><th scope="col">Proceso B</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">T0</th><td><code>BEGIN TRANSACTION</code></td><td><code>BEGIN TRANSACTION</code></td></tr>
+      <tr><th scope="row">T1</th><td><code>SET TRANSACTION ISOLATION LEVEL REPEATABLE READ</code></td><td><code>SET TRANSACTION ISOLATION LEVEL READ COMMITTED</code></td></tr>
+      <tr><th scope="row">T2</th><td><code>SELECT * FROM PRODUCTO WHERE PROD_CODIGO = '00000001'</code></td><td></td></tr>
+      <tr><th scope="row">T3</th><td></td><td><code>SELECT * FROM PRODUCTO WHERE PROD_CODIGO = '00000001'</code></td></tr>
+      <tr><th scope="row">T4</th><td><code>UPDATE … SET PROD_DETALLE = 'PROCESO A' …</code></td><td></td></tr>
+      <tr><th scope="row">T5</th><td></td><td><code>UPDATE … SET PROD_DETALLE = 'PROCESO B' …</code></td></tr>
+      <tr><th scope="row">T6</th><td><code>COMMIT</code></td><td><code>COMMIT</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Queda 'PROCESO A'</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Queda 'PROCESO B'</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Queda el valor anterior</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Deadlock; queda 'PROCESO A' o 'PROCESO B'</button></li>
+    <li><button class="opcion" type="button" data-op="e">e) Ninguna de las anteriores</button></li>
+  </ul>
+  <div class="explicacion"><strong>b</strong> (oficial: el alumno que la marcó sacó 2/2). B está en READ COMMITTED: lee en T3 y suelta su S enseguida. En T4, A convierte su S en X sin problema. En T5, B pide X y espera a A. En T6, A confirma, B destraba, escribe 'PROCESO B' y confirma. Gana el último.</div>
+</details>
+
+<details class="ejercicio" data-correcta="E">
+  <summary class="ejercicio__titulo">3. Final 30/07/2024: el mismo país en dos procesos («sabiendo que no hay errores de sintaxis»)</summary>
+  <div class="tabla-envoltura">
+  <table>
+    <thead><tr><th scope="col">Tiempo</th><th scope="col">Proceso A</th><th scope="col">Proceso B</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">1</th><td><code>BEGIN TRANSACTION</code></td><td><code>BEGIN TRANSACTION</code></td></tr>
+      <tr><th scope="row">2</th><td><code>INSERT INTO pais (idpais, detalle) VALUES (1000, 'ARG')</code></td><td><code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code></td></tr>
+      <tr><th scope="row">3</th><td><code>INSERT INTO Provincia (idpcia, idpais, habitants) VALUES (1000, 1000, 'BS AS', 10000000)</code></td><td><code>INSERT INTO pais (idpais, detalle) VALUES (1000, 'ARG')</code></td></tr>
+      <tr><th scope="row">4</th><td><code>COMMIT</code></td><td><code>COMMIT</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="A">A) B ingresa el país 1000 porque es una transacción no confirmada</button></li>
+    <li><button class="opcion" type="button" data-op="B">B) A no ingresa el país 1000 porque se bloquea con la transacción no confirmada B</button></li>
+    <li><button class="opcion" type="button" data-op="C">C) Se registra la provincia pero no el país, porque hay interbloqueo</button></li>
+    <li><button class="opcion" type="button" data-op="D">D) Se registra el país pero no la provincia, porque A aborta antes por error de PK</button></li>
+    <li><button class="opcion" type="button" data-op="E">E) Ninguna de las anteriores</button></li>
+  </ul>
+  <div class="explicacion"><strong>E</strong> (respuesta de la cátedra). El INSERT de provincia de A falla: 3 columnas y 4 valores (además, la columna se llama HABITANTES). No es error de sintaxis, pero es error. A igual confirma el país. B quería insertar la misma PK: READ UNCOMMITTED no cambia nada para las escrituras, así que espera el bloqueo de A y, cuando A confirma, falla por PK duplicada. Queda el país sin provincia, pero no por lo que dice D.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">4. Moodle 2021: ¿qué devuelve cada SELECT COUNT(*)? (tabla prueba vacía)</summary>
+  <div class="tabla-envoltura">
+  <table>
+    <thead><tr><th scope="col">Tiempo</th><th scope="col">TRAN1</th><th scope="col">TRAN2</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">1</th><td><code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code></td><td></td></tr>
+      <tr><th scope="row">2</th><td><code>BEGIN TRANSACTION T1</code></td><td></td></tr>
+      <tr><th scope="row">3</th><td></td><td><code>SET TRANSACTION ISOLATION LEVEL READ COMMITTED</code></td></tr>
+      <tr><th scope="row">4</th><td></td><td><code>BEGIN TRANSACTION T2</code></td></tr>
+      <tr><th scope="row">5</th><td></td><td><code>INSERT INTO PRUEBA VALUES (1)</code></td></tr>
+      <tr><th scope="row">6</th><td></td><td><code>SELECT COUNT(*) FROM PRUEBA</code></td></tr>
+      <tr><th scope="row">7</th><td><code>SELECT COUNT(*) FROM PRUEBA</code></td><td></td></tr>
+      <tr><th scope="row">8</th><td></td><td><code>COMMIT TRANSACTION T2</code></td></tr>
+      <tr><th scope="row">9</th><td></td><td><code>ROLLBACK TRANSACTION T2</code></td></tr>
+      <tr><th scope="row">10</th><td><code>SELECT COUNT(*) FROM PRUEBA</code></td><td></td></tr>
+      <tr><th scope="row">11</th><td><code>COMMIT TRANSACTION T1</code></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Tiempo 6 = 1, tiempo 7 = 1, tiempo 10 = 1</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Tiempo 6 = 0, tiempo 7 = 0, tiempo 10 = 1</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Tiempo 6 = 0, tiempo 7 = 1, tiempo 10 = 1</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Tiempo 6 = 0, tiempo 7 = 0, tiempo 10 = 0</button></li>
+  </ul>
+  <div class="explicacion"><strong>1, 1, 1</strong> (oficial de Moodle). En 6, TRAN2 ve su propio insert. En 7, TRAN1 está en READ UNCOMMITTED: lee lo no confirmado (lectura sucia) y ve 1. En 8, TRAN2 confirma. En 9, el ROLLBACK no deshace nada porque ya no hay transacción abierta. En 10 hay 1 fila.</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">5. Final 02/03/2022: STOCK con cantidad 100, los dos en SERIALIZABLE</summary>
+  <div class="tabla-envoltura">
+  <table>
+    <thead><tr><th scope="col">Tiempo</th><th scope="col">Transacción A</th><th scope="col">Transacción B</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">0</th><td><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code></td><td><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code></td></tr>
+      <tr><th scope="row">1</th><td><code>BEGIN TRANSACTION</code></td><td><code>BEGIN TRANSACTION</code></td></tr>
+      <tr><th scope="row">2</th><td><code>SELECT * FROM STOCK WHERE id_producto = 1</code></td><td><code>SELECT * FROM STOCK WHERE id_producto = 1</code></td></tr>
+      <tr><th scope="row">3</th><td><code>UPDATE STOCK SET cantidad = cantidad - 1 WHERE id_producto = 1</code></td><td><code>UPDATE STOCK SET cantidad = cantidad - 1 WHERE id_producto = 1</code></td></tr>
+      <tr><th scope="row">4</th><td><code>COMMIT</code></td><td><code>ROLLBACK</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Queda 99, porque se hace ROLLBACK de B</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Puede quedar 100 o 99, según qué decida el motor</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Por el deadlock, siempre queda 100</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) Ninguna de las anteriores</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> Los dos leen con S, los dos piden X: deadlock. Si el motor mata a A, B descuenta pero después hace ROLLBACK: queda 100. Si mata a B, A descuenta y confirma: queda 99. <span class="sello sello--polemica">⚠️</span> El enunciado original dice «SET set cantidad», que tomado literal es un error de sintaxis; lo tomamos como error de tipeo.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">6. Final 09/09/2022: prueba(col1 INT NOT NULL) vacía, en paralelo</summary>
+  <div class="codigo"><pre><code class="sql">-- Proceso 1
+BEGIN TRANSACTION
+DECLARE @a AS INT
+DECLARE @b AS INT
+SELECT @a = COUNT(*) FROM prueba
+SELECT @b = COUNT(*) FROM prueba
+COMMIT;
+
+-- Proceso 2
+BEGIN TRANSACTION
+INSERT INTO prueba (col1) (SELECT MAX(col1) + 1 FROM prueba)
+COMMIT;</code></pre></div>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) @a y @b siempre son iguales</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) @a y @b nunca son iguales</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Depende de cómo se ejecuten los movimientos</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) No hay suficiente información</button></li>
+    <li><button class="opcion" type="button" data-op="e">e) Ninguna de las anteriores</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> Con la tabla vacía, <code>MAX(col1)</code> es NULL y <code>NULL + 1</code> sigue siendo NULL: el INSERT falla por el NOT NULL. La tabla nunca tiene filas, así que @a y @b valen 0, con cualquier nivel de aislamiento.</div>
+</details>
+
+<h3>Escribí el código: descontar stock sin que quede negativo</h3>
+<div class="ejercicio">
+  <p>En los finales del 28/02/2023 y 01/08/2023 este SP dejaba el stock en negativo con READ COMMITTED y daba deadlocks con niveles altos. Escribí una versión correcta en T-SQL.</p>
+  <div class="codigo"><pre><code class="sql">CREATE PROCEDURE descuenta_stock (@prod_id INT, @id_dep INT, @cant INT)
+AS
+BEGIN TRANSACTION
+  IF EXISTS (SELECT 1 FROM stock
+             WHERE id_producto = @prod_id AND id_deposito = @id_dep
+               AND cantidad &gt;= @cant)
+  BEGIN
+    UPDATE stock SET cantidad = cantidad - @cant
+    WHERE id_producto = @prod_id AND id_deposito = @id_dep
+    COMMIT
+  END
+  ELSE
+    ROLLBACK</code></pre></div>
+  <details class="solucion">
+    <summary>Ver una solución</summary>
+    <p>La clave: <strong>validar y descontar en una sola sentencia</strong>. El UPDATE bloquea la fila antes de evaluar el WHERE, así que dos ejecuciones no pueden validar el mismo stock.</p>
+    <div class="codigo"><pre><code class="sql">-- Motor: SQL Server (T-SQL)
+CREATE PROCEDURE descontar_stock
+  @prod_id INT, @depo_id INT, @cant INT
+AS
+BEGIN
+  SET NOCOUNT ON;
+  BEGIN TRY
+    BEGIN TRANSACTION;
+
+    -- validar y descontar juntos: no queda un hueco entre leer y escribir
+    UPDATE Stock
+       SET cantidad = cantidad - @cant
+     WHERE id_producto = @prod_id
+       AND id_deposito = @depo_id
+       AND cantidad &gt;= @cant;
+
+    IF @@ROWCOUNT = 0
+      THROW 50001, 'No hay stock suficiente en ese depósito.', 1;
+
+    COMMIT TRANSACTION;
+  END TRY
+  BEGIN CATCH
+    IF @@TRANCOUNT &gt; 0 ROLLBACK TRANSACTION;
+    THROW;  -- devuelve el error original a quien llamó
+  END CATCH
+END;
+
+-- red de seguridad: el motor rechaza cualquier stock negativo
+ALTER TABLE Stock ADD CONSTRAINT ck_stock_no_negativo CHECK (cantidad &gt;= 0);</code></pre></div>
+    <p>¿Por qué no subir a REPEATABLE READ? Evita el negativo, pero los dos procesos retienen su S y piden X: cambiás un error por deadlocks.</p>
+  </details>
+</div>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F del tema que hay en tus archivos, mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="transacciones"></div>
+</details>
+</section>
+
+<section id="repaso-corto" aria-labelledby="t-repaso">
+<h2 id="t-repaso">Repaso corto: recuperación</h2>
+<p>Está en el programa pero casi no se toma. Alcanza con esto:</p>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Concepto</th><th scope="col">En una línea</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Log de transacciones</th><td>Registro de cada cambio antes de aplicarlo. Es lo que permite deshacer (atomicidad) y rehacer (durabilidad).</td></tr>
+    <tr><th scope="row">Recovery</th><td>Al reiniciar después de una caída, el motor usa el log para rehacer lo confirmado y deshacer lo que quedó a medias.</td></tr>
+    <tr><th scope="row">Backup / Restore</th><td>Copia de la base (completa, diferencial o del log) y su recuperación sobre una base.</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

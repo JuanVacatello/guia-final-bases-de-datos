@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilas, colas y listas</title>
+<meta name="description" content="Unidad 1: estructuras lineales (vector, pila, cola, doble cola, lista) y representación secuencial y linkeada, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="estructuras">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 1: Estructuras de datos</a></p>
+<h1>Pilas, colas, listas y su representación</h1>
+<p>Las estructuras lineales. <strong>Nunca salieron solas en un final</strong>, pero son la base de dos cosas que sí salen: la representación estática y dinámica (grafos y árboles) y los recorridos (BFS usa una cola, DFS una pila). Leela rápido.</p>
+<p class="aviso">Página corta a propósito: <strong>20 minutos</strong> alcanzan. Si vas justo de tiempo, quedate con las dos tablas.</p>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#modelo">🟪 Respuesta modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Una <strong>lista</strong> es un grafo lineal: cada elemento tiene a lo sumo un anterior y un siguiente.</li>
+    <li>Según dónde se agrega y se saca: <strong>pila</strong> (LIFO, un extremo), <strong>cola</strong> (FIFO, entra por uno y sale por el otro), <strong>doble cola</strong> (los dos extremos), <strong>lista irrestricta</strong> (cualquier lugar). Si no cambia de tamaño, es un <strong>vector</strong> (n-upla).</li>
+    <li><strong>Secuencial</strong>: los elementos contiguos en memoria (vector). <strong>Linkeada</strong>: cada nodo apunta al siguiente.</li>
+    <li>Regla del libro: <strong>linkeada para datos que cambian mucho, secuencial para datos estáticos</strong>.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>Por dónde entra y por dónde sale</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 230" role="img" aria-labelledby="pc-t pc-d">
+  <title id="pc-t">Pila, cola y doble cola</title>
+  <desc id="pc-d">Pila: una columna de cajas; se apila y se desapila por arriba. Cola: una fila de cajas; entra por la derecha y sale por la izquierda. Doble cola: una fila con flechas de entrada y salida en los dos extremos.</desc>
+  <defs><marker id="pe" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--azul" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">Pila (LIFO)</text>
+  <rect class="dg-caja" x="70" y="100" width="90" height="30" rx="4"/><text class="dg-codigo" x="115" y="120" text-anchor="middle">C ← tope</text>
+  <rect class="dg-caja" x="70" y="132" width="90" height="30" rx="4"/><text class="dg-codigo" x="115" y="152" text-anchor="middle">B</text>
+  <rect class="dg-caja" x="70" y="164" width="90" height="30" rx="4"/><text class="dg-codigo" x="115" y="184" text-anchor="middle">A</text>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="100" y1="50" x2="100" y2="94" marker-end="url(#pe)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="130" y1="94" x2="130" y2="50" marker-end="url(#pe)"/>
+  <text class="dg-texto dg-texto--chico" x="58" y="62" text-anchor="end">push</text>
+  <text class="dg-texto dg-texto--chico" x="140" y="62">pop</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="115" y="218" text-anchor="middle">sale primero el último (C)</text>
+
+  <text class="dg-texto dg-texto--titulo" x="270" y="24">Cola (FIFO)</text>
+  <rect class="dg-caja" x="330" y="110" width="60" height="34" rx="4"/><text class="dg-codigo" x="360" y="132" text-anchor="middle">A</text>
+  <rect class="dg-caja" x="392" y="110" width="60" height="34" rx="4"/><text class="dg-codigo" x="422" y="132" text-anchor="middle">B</text>
+  <rect class="dg-caja" x="454" y="110" width="60" height="34" rx="4"/><text class="dg-codigo" x="484" y="132" text-anchor="middle">C</text>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="578" y1="127" x2="520" y2="127" marker-end="url(#pe)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="324" y1="127" x2="276" y2="127" marker-end="url(#pe)"/>
+  <text class="dg-texto dg-texto--chico" x="300" y="104" text-anchor="middle">sale</text>
+  <text class="dg-texto dg-texto--chico" x="550" y="104" text-anchor="middle">entra</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="422" y="218" text-anchor="middle">sale primero el primero (A)</text>
+
+  <text class="dg-texto dg-texto--titulo" x="640" y="24">Doble cola</text>
+  <rect class="dg-caja" x="690" y="110" width="50" height="34" rx="4"/><text class="dg-codigo" x="715" y="132" text-anchor="middle">A</text>
+  <rect class="dg-caja" x="742" y="110" width="50" height="34" rx="4"/><text class="dg-codigo" x="767" y="132" text-anchor="middle">B</text>
+  <rect class="dg-caja" x="794" y="110" width="50" height="34" rx="4"/><text class="dg-codigo" x="819" y="132" text-anchor="middle">C</text>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="652" y1="118" x2="684" y2="118" marker-end="url(#pe)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="684" y1="138" x2="652" y2="138" marker-end="url(#pe)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="884" y1="118" x2="850" y2="118" marker-end="url(#pe)"/>
+  <line class="dg-linea dg-linea--azul dg-linea--gruesa" x1="850" y1="138" x2="884" y2="138" marker-end="url(#pe)"/>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="767" y="218" text-anchor="middle">entra y sale por los dos extremos</text>
+</svg>
+</div>
+<figcaption>Mismo grafo lineal, distinta regla de altas y bajas. Una <strong>lista irrestricta</strong> permite insertar y borrar en cualquier posición.</figcaption>
+</figure>
+
+<h3>Insertar «X» entre B y C</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 250" role="img" aria-labelledby="sl-t sl-d">
+  <title id="sl-t">Inserción en representación secuencial y linkeada</title>
+  <desc id="sl-d">Secuencial: un vector A, B, C, D; para insertar X después de B hay que correr C y D un lugar a la derecha. Linkeada: nodos A, B, C, D unidos por punteros; se crea X y solo se cambian dos punteros: B apunta a X y X apunta a C.</desc>
+  <defs><marker id="pi" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="pv" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">Secuencial (vector)</text>
+  <g>
+    <rect class="dg-caja" x="20" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="48" y="73" text-anchor="middle">A</text>
+    <rect class="dg-caja" x="76" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="104" y="73" text-anchor="middle">B</text>
+    <rect class="dg-caja dg-caja--ambar" x="132" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="160" y="73" text-anchor="middle">C</text>
+    <rect class="dg-caja dg-caja--ambar" x="188" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="216" y="73" text-anchor="middle">D</text>
+    <rect class="dg-caja" x="244" y="50" width="56" height="36" rx="3"/>
+    <text class="dg-texto dg-texto--chico" x="300" y="112" text-anchor="end">1. correr C y D un lugar</text>
+    <path class="dg-linea dg-linea--roja" d="M216,88 q28,22 56,0" marker-end="url(#pv)"/>
+    <path class="dg-linea dg-linea--roja" d="M160,88 q28,22 56,0" marker-end="url(#pv)"/>
+  </g>
+  <g transform="translate(0,110)">
+    <rect class="dg-caja" x="20" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="48" y="73" text-anchor="middle">A</text>
+    <rect class="dg-caja" x="76" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="104" y="73" text-anchor="middle">B</text>
+    <rect class="dg-caja dg-caja--bien" x="132" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="160" y="73" text-anchor="middle">X</text>
+    <rect class="dg-caja" x="188" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="216" y="73" text-anchor="middle">C</text>
+    <rect class="dg-caja" x="244" y="50" width="56" height="36" rx="3"/><text class="dg-codigo" x="272" y="73" text-anchor="middle">D</text>
+    <text class="dg-texto dg-texto--chico" x="20" y="112">2. poner X: en promedio se mueven n/2</text>
+  </g>
+
+  <text class="dg-texto dg-texto--titulo" x="380" y="24">Linkeada (punteros)</text>
+  <g>
+    <rect class="dg-caja" x="390" y="62" width="70" height="36" rx="5"/><text class="dg-codigo" x="414" y="85" text-anchor="middle">A</text><line class="dg-linea dg-linea--fina" x1="438" y1="62" x2="438" y2="98"/>
+    <rect class="dg-caja" x="510" y="62" width="70" height="36" rx="5"/><text class="dg-codigo" x="534" y="85" text-anchor="middle">B</text><line class="dg-linea dg-linea--fina" x1="558" y1="62" x2="558" y2="98"/>
+    <rect class="dg-caja" x="690" y="62" width="70" height="36" rx="5"/><text class="dg-codigo" x="714" y="85" text-anchor="middle">C</text><line class="dg-linea dg-linea--fina" x1="738" y1="62" x2="738" y2="98"/>
+    <rect class="dg-caja" x="810" y="62" width="70" height="36" rx="5"/><text class="dg-codigo" x="834" y="85" text-anchor="middle">D</text><line class="dg-linea dg-linea--fina" x1="858" y1="62" x2="858" y2="98"/><text class="dg-codigo" x="868" y="85" text-anchor="middle">/</text>
+    <line class="dg-linea" x1="450" y1="80" x2="508" y2="80" marker-end="url(#pi)"/>
+    <line class="dg-linea dg-linea--punteada" x1="570" y1="80" x2="688" y2="80" marker-end="url(#pi)"/>
+    <line class="dg-linea" x1="750" y1="80" x2="808" y2="80" marker-end="url(#pi)"/>
+    <rect class="dg-caja dg-caja--bien" x="600" y="160" width="70" height="36" rx="5"/><text class="dg-codigo" x="624" y="183" text-anchor="middle">X</text><line class="dg-linea dg-linea--fina" x1="648" y1="160" x2="648" y2="196"/>
+    <path class="dg-linea dg-linea--roja dg-linea--gruesa" d="M570,92 Q580,170 598,176" marker-end="url(#pv)"/>
+    <path class="dg-linea dg-linea--roja dg-linea--gruesa" d="M660,176 Q700,170 708,100" marker-end="url(#pv)"/>
+    <text class="dg-texto dg-texto--chico" x="640" y="225" text-anchor="middle">solo cambian 2 punteros (en rojo); el punteado deja de usarse</text>
+  </g>
+</svg>
+</div>
+<figcaption>En el vector, insertar en el medio cuesta mover la mitad de los elementos. En la linkeada es instantáneo, pero cada nodo carga su puntero y para llegar a la posición hay que recorrer.</figcaption>
+</figure>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Los cinco tipos de lista (libro de la cátedra)</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Nombre</th><th scope="col">Altas y bajas</th><th scope="col">Uso típico</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">N-upla (vector)</th><td>Ninguna: tamaño fijo</td><td>Arreglo de un subíndice</td></tr>
+    <tr><th scope="row">Pila (LIFO)</th><td>Las dos en el mismo extremo</td><td>Deshacer, llamadas a funciones, DFS</td></tr>
+    <tr><th scope="row">Cola (FIFO)</th><td>Alta en un extremo, baja en el otro</td><td>Cola de impresión, turnos, BFS</td></tr>
+    <tr><th scope="row">Doble cola</th><td>En cualquiera de los dos extremos</td><td>Ventanas deslizantes, historial</td></tr>
+    <tr><th scope="row">Lista irrestricta</th><td>En cualquier posición</td><td>Listas ordenadas que cambian</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Secuencial contra linkeada</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Secuencial (estática)</th><th scope="col">Linkeada (dinámica)</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Cómo representa los arcos</th><td>Implícitos: el siguiente está en la posición siguiente</td><td>Explícitos: cada nodo guarda un puntero</td></tr>
+    <tr><th scope="row">Acceso al i-ésimo</th><td class="celda-bien">Directo</td><td class="celda-mal">Hay que recorrer</td></tr>
+    <tr><th scope="row">Insertar o borrar en el medio</th><td class="celda-mal">Mover n/2 en promedio</td><td class="celda-bien">Cambiar 2 punteros</td></tr>
+    <tr><th scope="row">Espacio</th><td>Fijo; se desperdicia si sobra lugar</td><td>Exacto, más un puntero por nodo</td></tr>
+    <tr><th scope="row">Conviene</th><td>Datos estáticos o casi estáticos</td><td>Datos dinámicos</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuesta modelo</h2>
+<details class="modelo" open>
+  <summary>Pila y cola: definición y representaciones <small>de práctica, no salió</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Pila y cola son <strong>listas</strong>: estructuras lineales donde cada elemento tiene a lo sumo un antecesor y un sucesor (grafo biunívoco). Se distinguen por dónde se agregan y se sacan elementos.</p>
+    <p>En la <strong>pila</strong> (LIFO) las altas y bajas ocurren en un mismo extremo, el tope: sale primero el último que entró. Se usa para deshacer acciones, para las llamadas a funciones y en el recorrido en profundidad. En la <strong>cola</strong> (FIFO) se agrega por un extremo y se saca por el otro: sale primero el que llegó primero. Se usa para turnos, colas de impresión y el recorrido en anchura.</p>
+    <p>Se pueden representar en forma <strong>secuencial</strong> (un vector con un índice al tope, o dos índices frente y final, en forma circular) o <strong>linkeada</strong> (nodos con un puntero al siguiente). La secuencial es más rápida y compacta pero tiene tamaño fijo; la linkeada crece según haga falta, a costa de un puntero por nodo.</p>
+  </div>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+
+<details class="ejercicio" data-correcta="b" open>
+  <summary class="ejercicio__titulo">1. En una pila vacía: push 1, push 2, pop, push 3, push 4, pop. ¿Qué queda, de abajo hacia arriba?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 1, 2</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 1, 3</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 3, 4</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) 2, 4</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> [1] → [1,2] → pop saca 2 → [1] → [1,3] → [1,3,4] → pop saca 4 → [1,3].</div>
+</details>
+
+<details class="ejercicio" data-correcta="c">
+  <summary class="ejercicio__titulo">2. Lo mismo en una cola: entra 1, entra 2, sale, entra 3, entra 4, sale. ¿Qué queda, del frente al final?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 1, 3</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 2, 4</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) 3, 4</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) 1, 4</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> [1,2] → sale 1 → [2] → [2,3,4] → sale 2 → [3,4].</div>
+</details>
+
+<h3>V/F de práctica</h3>
+<p>No salieron en finales, pero fijan los conceptos. Misma regla: +1 / −1 / 0.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="estructuras"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

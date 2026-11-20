@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de estudio</title>
+<meta name="description" content="Plan de 4 semanas para el final de Bases de Datos de diciembre de 2026, con días livianos para cursar Análisis Matemático.">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/estilos.css">
+</head>
+<body data-raiz="" data-pagina="plan">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<h1>Plan de estudio</h1>
+<p>Cuatro semanas, de lo que más se toma a lo que menos. Las tareas marcadas <span class="tarea__liviano">liviano</span> duran 15 a 30 minutos: dejalas para los días que cursás Análisis Matemático.</p>
+
+<div class="cuenta">
+  <span class="cuenta__dias" id="dias-restantes">26</span>
+  <span id="texto-restantes">días para el final</span>
+  <label>Fecha de tu mesa: <input type="date" id="fecha-examen" value="2026-12-15"></label>
+  <span id="avance-general" style="margin-left:auto;color:var(--tinta-2)"></span>
+</div>
+<p class="aviso">Las mesas de 2024 y 2025 fueron <strong>martes</strong>; en diciembre de 2026 los martes son el 1, el 8 y el 15. El plan apunta al <strong>15/12</strong>. Si rendís el 8, juntá las semanas 3 y 4; si rendís el 1, hacé solo las semanas 1 y 2 y el simulacro 1.</p>
+
+<!-- ============ SEMANA 1 ============ -->
+<section class="semana" aria-labelledby="s1">
+  <div class="semana__cabeza">
+    <h2 id="s1">Semana 1: transacciones y la práctica que decide el final</h2>
+    <span class="semana__fechas">jue 19/11 al mié 25/11</span>
+  </div>
+  <div class="progreso"><div></div></div>
+  <p class="semana__avance-linea"><span class="semana__avance"></span> tareas hechas</p>
+  <ul class="tareas">
+    <li class="tarea"><input type="checkbox" id="s1-1"><label for="s1-1">Leer <a href="unidad-4/transacciones.html">Transacciones y concurrencia</a> hasta las tablas</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-2"><label for="s1-2">Hacer los <a href="unidad-4/transacciones.html#ejercita">6 ejercicios de procesos en paralelo</a> sin mirar la respuesta</label><span class="tarea__tiempo">45 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-3"><label for="s1-3">Escribir de memoria las respuestas modelo de ACID y de niveles de aislamiento, y compararlas</label><span class="tarea__tiempo">40 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-4"><label for="s1-4"><a href="practica/sql.html#trampas">Práctica tipo A</a>: producto cartesiano, self-join, LEFT JOIN anulado, NULL y AND antes que OR</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-5"><label for="s1-5">Práctica tipo B: Persona (abuelos y padres) y País-Provincia-Ciudad en <a href="practica/finales.html#a2024">Finales resueltos</a></label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-6"><label for="s1-6"><span class="tarea__liviano">liviano</span> <a href="unidad-4/transacciones.html#ejercita">V/F de transacciones</a> con la regla +1 / −1 / 0</label><span class="tarea__tiempo">20 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s1-7"><label for="s1-7"><span class="tarea__liviano">liviano</span> Repasar los «🟦 en 30 segundos» y el diagrama del deadlock</label><span class="tarea__tiempo">15 min</span></li>
+  </ul>
+</section>
+
+<!-- ============ SEMANA 2 ============ -->
+<section class="semana" aria-labelledby="s2">
+  <div class="semana__cabeza">
+    <h2 id="s2">Semana 2: objetos de BD, SQL, hashing y OLAP</h2>
+    <span class="semana__fechas">jue 26/11 al mié 2/12</span>
+  </div>
+  <div class="progreso"><div></div></div>
+  <p class="semana__avance-linea"><span class="semana__avance"></span> tareas hechas</p>
+  <ul class="tareas">
+    <li class="tarea"><input type="checkbox" id="s2-1"><label for="s2-1"><a href="unidad-4/objetos.html">Constraints, triggers, vistas y SP vs función</a></label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-2"><label for="s2-2"><a href="practica/sql.html#plantillas">Plantillas de trigger</a>: AFTER con ROLLBACK e INSTEAD OF DELETE multifila (escribirlas a mano)</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-3"><label for="s2-3"><a href="unidad-4/sql.html">SQL: joins, NULL, precedencia y plan de ejecución</a></label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-4"><label for="s2-4"><a href="unidad-2/hashing.html">Hashing e índices</a> + respuesta modelo «hashing vs árbol B»</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-5"><label for="s2-5"><a href="unidad-4/olap.html">OLTP, OLAP, Data Warehouse, ETL y modelo estrella</a> + respuesta modelo</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-6"><label for="s2-6"><span class="tarea__liviano">liviano</span> <a href="practica/banco-vf.html">V/F de objetos de BD</a> (banco, tema Objetos)</label><span class="tarea__tiempo">20 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s2-7"><label for="s2-7"><span class="tarea__liviano">liviano</span> <a href="practica/banco-vf.html">V/F de hashing e índices</a> (banco)</label><span class="tarea__tiempo">20 min</span></li>
+  </ul>
+</section>
+
+<!-- ============ SEMANA 3 ============ -->
+<section class="semana" aria-labelledby="s3">
+  <div class="semana__cabeza">
+    <h2 id="s3">Semana 3: unidades 1, 2 y 3, y el primer simulacro</h2>
+    <span class="semana__fechas">jue 3/12 al mié 9/12</span>
+  </div>
+  <div class="progreso"><div></div></div>
+  <p class="semana__avance-linea"><span class="semana__avance"></span> tareas hechas</p>
+  <ul class="tareas">
+    <li class="tarea"><input type="checkbox" id="s3-1"><label for="s3-1"><a href="unidad-2/arboles.html">Árboles binarios, barridos</a> y el vocabulario de la cátedra (completo, lleno, balanceado)</label><span class="tarea__tiempo">45 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-2"><label for="s3-2"><a href="unidad-2/arbol-b.html">Árbol B y B+</a>: split, fusión y factor de carga</label><span class="tarea__tiempo">45 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-3"><label for="s3-3"><a href="unidad-2/huffman.html">Huffman paso a paso</a> y los 6 hechos que se preguntan</label><span class="tarea__tiempo">45 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-4"><label for="s3-4"><a href="unidad-2/ordenamiento.html">Ordenamiento</a>: la tabla de complejidades</label><span class="tarea__tiempo">30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-5"><label for="s3-5"><a href="unidad-1/grafos.html">Grafos</a>, <a href="unidad-3/modelo-relacional.html">modelo relacional</a> y <a href="unidad-3/arquitectura.html">ANSI/SPARC</a></label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-6"><label for="s3-6"><a href="practica/simulacros.html#sim1">Simulacro 1</a> con reloj (2 h) y corrección</label><span class="tarea__tiempo">2 h 30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s3-7"><label for="s3-7"><span class="tarea__liviano">liviano</span> <a href="practica/banco-vf.html">V/F de árboles y Huffman</a> (banco)</label><span class="tarea__tiempo">20 min</span></li>
+  </ul>
+</section>
+
+<!-- ============ SEMANA 4 ============ -->
+<section class="semana" aria-labelledby="s4">
+  <div class="semana__cabeza">
+    <h2 id="s4">Semana 4: simulacros y repaso fino</h2>
+    <span class="semana__fechas">jue 10/12 al lun 14/12</span>
+  </div>
+  <div class="progreso"><div></div></div>
+  <p class="semana__avance-linea"><span class="semana__avance"></span> tareas hechas</p>
+  <ul class="tareas">
+    <li class="tarea"><input type="checkbox" id="s4-1"><label for="s4-1"><a href="practica/simulacros.html#sim2">Simulacro 2</a> con reloj y corrección</label><span class="tarea__tiempo">2 h 30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s4-2"><label for="s4-2">Rehacer los ejercicios que fallaste en los simulacros</label><span class="tarea__tiempo">1 h</span></li>
+    <li class="tarea"><input type="checkbox" id="s4-3"><label for="s4-3"><a href="practica/finales.html#a2024">Finales 2024 y 2025</a> completos</label><span class="tarea__tiempo">1 h 30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s4-4"><label for="s4-4"><a href="practica/simulacros.html#sim3">Simulacro 3</a></label><span class="tarea__tiempo">2 h 30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s4-5"><label for="s4-5"><span class="tarea__liviano">liviano</span> Todas las trampas marcadas ⚠️ de una pasada (<a href="practica/banco-vf.html">banco</a>, filtro «polémicas»)</label><span class="tarea__tiempo">30 min</span></li>
+    <li class="tarea"><input type="checkbox" id="s4-6"><label for="s4-6">Día anterior: solo V/F y respuestas modelo en voz alta. Nada nuevo, y a dormir temprano</label><span class="tarea__tiempo">1 h</span></li>
+  </ul>
+</section>
+
+<p class="aviso">Las casillas y la fecha se guardan en este navegador. Si abrís la guía en otro dispositivo, empieza vacía.</p>
+</main>
+</div>
+
+<script src="assets/datos.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

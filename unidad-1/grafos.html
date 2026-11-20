@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grafos</title>
+<meta name="description" content="Unidad 1: grafos, clasificación, restrictos e irrestrictos y representación estática y dinámica, para el final de Bases de Datos (UTN FRBA).">
+<script>try{var t=JSON.parse(localStorage.getItem("guiabd:tema"));if(t&&t!=="auto")document.documentElement.setAttribute("data-tema",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body data-raiz="../" data-pagina="grafos">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <button class="barra__boton barra__menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="nav">Menú</button>
+  <a class="barra__marca" href="../index.html">Final de Bases de Datos <small>guía de estudio</small></a>
+  <button class="barra__boton" id="boton-tema" type="button">Tema: auto</button>
+</header>
+
+<div class="marco">
+<nav class="nav" id="nav" aria-label="Unidades y temas"></nav>
+
+<main class="contenido" id="contenido">
+
+<p class="migas"><a href="../index.html#unidades">Unidad 1: Estructuras de datos</a></p>
+<h1>Grafos</h1>
+<p>Qué es un grafo, cómo se clasifica y cómo se guarda en la computadora. Sale como pregunta de teoría casi igual cada vez: <strong>«concepto, clasificación y representación»</strong>.</p>
+
+<div class="datos-tema" data-estadisticas="grafos"></div>
+<p><button class="estudiado" type="button" aria-pressed="false">Marcar como estudiado</button></p>
+
+<nav class="indice-pagina" aria-label="En esta página">
+  <a href="#en-30-segundos">🟦 En 30 segundos</a>
+  <a href="#diagramas">Diagramas</a>
+  <a href="#tablas">Tablas</a>
+  <a href="#trampas">🟥 Trampas</a>
+  <a href="#modelo">🟪 Respuestas modelo</a>
+  <a href="#ejercita">🟩 Ejercitá</a>
+</nav>
+
+<section class="bloque bloque--30" id="en-30-segundos" aria-labelledby="t-30">
+  <h2 class="bloque__titulo" id="t-30">🟦 En 30 segundos</h2>
+  <ul>
+    <li>Un <strong>grafo G = (P, E)</strong> es un conjunto de puntos (nodos) P y una relación E entre ellos (arcos). Modela <strong>cualquier estructura de datos</strong>.</li>
+    <li><strong>Restrictos</strong>: la lista (cada nodo con ≤ 1 antecesor y ≤ 1 sucesor: <em>biunívoco</em>) y el árbol (≤ 1 antecesor: <em>unívoco</em>). <strong>Irrestricto</strong>: cualquier relación.</li>
+    <li>Representación <strong>estática</strong> (vector o matriz, espacio fijo) o <strong>dinámica</strong> (nodos con punteros, crece con lo que hay).</li>
+    <li>Estática: grafos <strong>chicos o densos</strong>, más rápida. Dinámica: grafos <strong>grandes o dispersos</strong>, ahorra espacio.</li>
+  </ul>
+</section>
+
+<section id="diagramas" aria-labelledby="t-diagramas">
+<h2 class="titulo-seccion titulo-seccion--diagramas" id="t-diagramas">Diagramas</h2>
+
+<h3>De lo más restringido a lo libre</h3>
+<p>Cuantos más antecesores y sucesores puede tener un nodo, más relaciones modela el grafo y más difícil es manejarlo.</p>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 270" role="img" aria-labelledby="cl-t cl-d">
+  <title id="cl-t">Grafo lineal, árbol y grafo irrestricto</title>
+  <desc id="cl-d">Tres paneles. Lista: a, b, c, d en fila, cada uno con un solo antecesor y un solo sucesor. Árbol: a arriba con hijos b y c; b con hijos d y e; cada nodo tiene un solo antecesor. Irrestricto: a, b, c y d con arcos en cualquier sentido, un ciclo a, b, c y un nodo c con dos antecesores.</desc>
+  <defs>
+    <marker id="pg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+  <rect class="dg-carril" x="5" y="5" width="280" height="260" rx="12"/>
+  <rect class="dg-carril" x="310" y="5" width="280" height="260" rx="12"/>
+  <rect class="dg-carril" x="615" y="5" width="280" height="260" rx="12"/>
+  <text class="dg-texto dg-texto--titulo" x="20" y="32">Lista (biunívoco)</text>
+  <text class="dg-texto dg-texto--titulo" x="325" y="32">Árbol (unívoco)</text>
+  <text class="dg-texto dg-texto--titulo" x="630" y="32">Irrestricto</text>
+
+  <!-- lista -->
+  <line class="dg-linea" x1="58" y1="130" x2="92" y2="130" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="128" y1="130" x2="162" y2="130" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="198" y1="130" x2="232" y2="130" marker-end="url(#pg)"/>
+  <circle class="dg-caja dg-caja--azul" cx="40" cy="130" r="18"/><text class="dg-texto" x="40" y="135" text-anchor="middle">a</text>
+  <circle class="dg-caja dg-caja--azul" cx="110" cy="130" r="18"/><text class="dg-texto" x="110" y="135" text-anchor="middle">b</text>
+  <circle class="dg-caja dg-caja--azul" cx="180" cy="130" r="18"/><text class="dg-texto" x="180" y="135" text-anchor="middle">c</text>
+  <circle class="dg-caja dg-caja--azul" cx="250" cy="130" r="18"/><text class="dg-texto" x="250" y="135" text-anchor="middle">d</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="145" y="200" text-anchor="middle">≤ 1 antecesor y ≤ 1 sucesor</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="145" y="220" text-anchor="middle">pila, cola, doble cola, vector</text>
+
+  <!-- árbol -->
+  <line class="dg-linea" x1="440" y1="76" x2="402" y2="112" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="460" y1="76" x2="498" y2="112" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="380" y1="146" x2="362" y2="176" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="400" y1="146" x2="418" y2="176" marker-end="url(#pg)"/>
+  <circle class="dg-caja dg-caja--azul" cx="450" cy="62" r="18"/><text class="dg-texto" x="450" y="67" text-anchor="middle">a</text>
+  <circle class="dg-caja dg-caja--azul" cx="390" cy="130" r="18"/><text class="dg-texto" x="390" y="135" text-anchor="middle">b</text>
+  <circle class="dg-caja dg-caja--azul" cx="510" cy="130" r="18"/><text class="dg-texto" x="510" y="135" text-anchor="middle">c</text>
+  <circle class="dg-caja dg-caja--azul" cx="355" cy="194" r="18"/><text class="dg-texto" x="355" y="199" text-anchor="middle">d</text>
+  <circle class="dg-caja dg-caja--azul" cx="425" cy="194" r="18"/><text class="dg-texto" x="425" y="199" text-anchor="middle">e</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="450" y="245" text-anchor="middle">≤ 1 antecesor, muchos sucesores</text>
+
+  <!-- irrestricto -->
+  <line class="dg-linea" x1="688" y1="80" x2="800" y2="80" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="808" y1="96" x2="760" y2="172" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="740" y1="172" x2="680" y2="96" marker-end="url(#pg)"/>
+  <line class="dg-linea" x1="842" y1="172" x2="770" y2="186" marker-end="url(#pg)"/>
+  <path class="dg-linea" d="M664,62 C630,30 690,26 676,58" marker-end="url(#pg)"/>
+  <circle class="dg-caja dg-caja--violeta" cx="670" cy="80" r="18"/><text class="dg-texto" x="670" y="85" text-anchor="middle">a</text>
+  <circle class="dg-caja dg-caja--violeta" cx="818" cy="80" r="18"/><text class="dg-texto" x="818" y="85" text-anchor="middle">b</text>
+  <circle class="dg-caja dg-caja--violeta" cx="752" cy="190" r="18"/><text class="dg-texto" x="752" y="195" text-anchor="middle">c</text>
+  <circle class="dg-caja dg-caja--violeta" cx="858" cy="166" r="18"/><text class="dg-texto" x="858" y="171" text-anchor="middle">d</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="755" y="245" text-anchor="middle">ciclos, bucles, varios antecesores</text>
+</svg>
+</div>
+<figcaption>Lista y árbol son <strong>restrictos</strong>. Si algún nodo tiene <strong>más de un antecesor</strong> (como c, que recibe de b y de d), ya es <strong>irrestricto</strong>.</figcaption>
+</figure>
+
+<h3>El mismo grafo, guardado de tres formas</h3>
+<figure>
+<p class="figura__pista">Deslizá el diagrama de costado para verlo completo.</p>
+<div class="figura">
+<svg viewBox="0 0 900 290" role="img" aria-labelledby="rp-t rp-d">
+  <title id="rp-t">Grafo dibujado, matriz de adyacencia y listas de adyacencia</title>
+  <desc id="rp-d">Grafo dirigido con nodos A, B, C y D y arcos A a B, A a C, B a C, C a D y D a B. La matriz de adyacencia de 4 por 4 tiene un 1 en las filas y columnas de esos arcos y 0 en el resto. Las listas de adyacencia: A apunta a B y C; B a C; C a D; D a B.</desc>
+  <defs>
+    <marker id="pr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha--tinta" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+  <text class="dg-texto dg-texto--titulo" x="20" y="24">El grafo</text>
+  <line class="dg-linea" x1="78" y1="70" x2="182" y2="70" marker-end="url(#pr)"/>
+  <line class="dg-linea" x1="60" y1="88" x2="60" y2="192" marker-end="url(#pr)"/>
+  <line class="dg-linea" x1="187" y1="83" x2="73" y2="197" marker-end="url(#pr)"/>
+  <line class="dg-linea" x1="78" y1="210" x2="182" y2="210" marker-end="url(#pr)"/>
+  <line class="dg-linea" x1="200" y1="192" x2="200" y2="88" marker-end="url(#pr)"/>
+  <circle class="dg-caja dg-caja--azul" cx="60" cy="70" r="18"/><text class="dg-texto" x="60" y="75" text-anchor="middle">A</text>
+  <circle class="dg-caja dg-caja--azul" cx="200" cy="70" r="18"/><text class="dg-texto" x="200" y="75" text-anchor="middle">B</text>
+  <circle class="dg-caja dg-caja--azul" cx="60" cy="210" r="18"/><text class="dg-texto" x="60" y="215" text-anchor="middle">C</text>
+  <circle class="dg-caja dg-caja--azul" cx="200" cy="210" r="18"/><text class="dg-texto" x="200" y="215" text-anchor="middle">D</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="130" y="262" text-anchor="middle">4 nodos, 5 arcos</text>
+
+  <text class="dg-texto dg-texto--titulo" x="300" y="24">Estática: matriz de adyacencia</text>
+  <g font-family="IBM Plex Mono, monospace">
+    <text class="dg-codigo" x="372" y="64" text-anchor="middle">A</text><text class="dg-codigo" x="412" y="64" text-anchor="middle">B</text><text class="dg-codigo" x="452" y="64" text-anchor="middle">C</text><text class="dg-codigo" x="492" y="64" text-anchor="middle">D</text>
+    <text class="dg-codigo" x="330" y="94">A</text><text class="dg-codigo" x="330" y="134">B</text><text class="dg-codigo" x="330" y="174">C</text><text class="dg-codigo" x="330" y="214">D</text>
+  </g>
+  <rect class="dg-caja" x="352" y="74" width="160" height="160" rx="4"/>
+  <rect class="dg-caja dg-caja--bien" x="394" y="78" width="36" height="30" rx="4"/>
+  <rect class="dg-caja dg-caja--bien" x="434" y="78" width="36" height="30" rx="4"/>
+  <rect class="dg-caja dg-caja--bien" x="434" y="118" width="36" height="30" rx="4"/>
+  <rect class="dg-caja dg-caja--bien" x="474" y="158" width="36" height="30" rx="4"/>
+  <rect class="dg-caja dg-caja--bien" x="394" y="198" width="36" height="30" rx="4"/>
+  <text class="dg-codigo" x="372" y="98" text-anchor="middle">0</text><text class="dg-codigo" x="412" y="98" text-anchor="middle">1</text><text class="dg-codigo" x="452" y="98" text-anchor="middle">1</text><text class="dg-codigo" x="492" y="98" text-anchor="middle">0</text>
+  <text class="dg-codigo" x="372" y="138" text-anchor="middle">0</text><text class="dg-codigo" x="412" y="138" text-anchor="middle">0</text><text class="dg-codigo" x="452" y="138" text-anchor="middle">1</text><text class="dg-codigo" x="492" y="138" text-anchor="middle">0</text>
+  <text class="dg-codigo" x="372" y="178" text-anchor="middle">0</text><text class="dg-codigo" x="412" y="178" text-anchor="middle">0</text><text class="dg-codigo" x="452" y="178" text-anchor="middle">0</text><text class="dg-codigo" x="492" y="178" text-anchor="middle">1</text>
+  <text class="dg-codigo" x="372" y="218" text-anchor="middle">0</text><text class="dg-codigo" x="412" y="218" text-anchor="middle">1</text><text class="dg-codigo" x="452" y="218" text-anchor="middle">0</text><text class="dg-codigo" x="492" y="218" text-anchor="middle">0</text>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="432" y="262" text-anchor="middle">16 lugares para 5 arcos (fila = desde)</text>
+
+  <text class="dg-texto dg-texto--titulo" x="590" y="24">Dinámica: listas de adyacencia</text>
+  <defs>
+    <marker id="pl" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="dg-flecha--azul" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+  <g>
+    <rect class="dg-caja dg-caja--azul" x="600" y="74" width="40" height="30" rx="4"/><text class="dg-codigo" x="620" y="94" text-anchor="middle">A</text>
+    <rect class="dg-caja" x="680" y="74" width="54" height="30" rx="4"/><text class="dg-codigo" x="700" y="94" text-anchor="middle">B</text><line class="dg-linea dg-linea--fina" x1="718" y1="74" x2="718" y2="104"/>
+    <rect class="dg-caja" x="772" y="74" width="54" height="30" rx="4"/><text class="dg-codigo" x="792" y="94" text-anchor="middle">C</text><line class="dg-linea dg-linea--fina" x1="810" y1="74" x2="810" y2="104"/><text class="dg-codigo" x="818" y="94" text-anchor="middle">/</text>
+    <line class="dg-linea dg-linea--azul" x1="640" y1="89" x2="678" y2="89" marker-end="url(#pl)"/>
+    <line class="dg-linea dg-linea--azul" x1="726" y1="89" x2="770" y2="89" marker-end="url(#pl)"/>
+  </g>
+  <g transform="translate(0,48)">
+    <rect class="dg-caja dg-caja--azul" x="600" y="74" width="40" height="30" rx="4"/><text class="dg-codigo" x="620" y="94" text-anchor="middle">B</text>
+    <rect class="dg-caja" x="680" y="74" width="54" height="30" rx="4"/><text class="dg-codigo" x="700" y="94" text-anchor="middle">C</text><line class="dg-linea dg-linea--fina" x1="718" y1="74" x2="718" y2="104"/><text class="dg-codigo" x="726" y="94" text-anchor="middle">/</text>
+    <line class="dg-linea dg-linea--azul" x1="640" y1="89" x2="678" y2="89" marker-end="url(#pl)"/>
+  </g>
+  <g transform="translate(0,96)">
+    <rect class="dg-caja dg-caja--azul" x="600" y="74" width="40" height="30" rx="4"/><text class="dg-codigo" x="620" y="94" text-anchor="middle">C</text>
+    <rect class="dg-caja" x="680" y="74" width="54" height="30" rx="4"/><text class="dg-codigo" x="700" y="94" text-anchor="middle">D</text><line class="dg-linea dg-linea--fina" x1="718" y1="74" x2="718" y2="104"/><text class="dg-codigo" x="726" y="94" text-anchor="middle">/</text>
+    <line class="dg-linea dg-linea--azul" x1="640" y1="89" x2="678" y2="89" marker-end="url(#pl)"/>
+  </g>
+  <g transform="translate(0,144)">
+    <rect class="dg-caja dg-caja--azul" x="600" y="74" width="40" height="30" rx="4"/><text class="dg-codigo" x="620" y="94" text-anchor="middle">D</text>
+    <rect class="dg-caja" x="680" y="74" width="54" height="30" rx="4"/><text class="dg-codigo" x="700" y="94" text-anchor="middle">B</text><line class="dg-linea dg-linea--fina" x1="718" y1="74" x2="718" y2="104"/><text class="dg-codigo" x="726" y="94" text-anchor="middle">/</text>
+    <line class="dg-linea dg-linea--azul" x1="640" y1="89" x2="678" y2="89" marker-end="url(#pl)"/>
+  </g>
+  <text class="dg-texto dg-texto--2 dg-texto--chico" x="730" y="262" text-anchor="middle">solo lo que existe, más un puntero por arco</text>
+</svg>
+</div>
+<figcaption>La matriz reserva lugar para <strong>todos los arcos posibles</strong> (n²): si hay pocos, desperdicia. La lista guarda <strong>solo los arcos que existen</strong>, pero paga un puntero por cada uno.</figcaption>
+</figure>
+
+<div class="rejilla">
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 200" role="img" aria-labelledby="g2-t g2-d">
+  <title id="g2-t">Un grafo de grado 2 que no es árbol</title>
+  <desc id="g2-d">Tres nodos a, b y c con arcos a a b, b a c y c a a. Cada nodo tiene un solo sucesor, pero forman un ciclo y no hay raíz.</desc>
+  <defs><marker id="pt" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-flecha" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <line class="dg-linea dg-linea--roja" x1="146" y1="46" x2="86" y2="138" marker-end="url(#pt)"/>
+  <line class="dg-linea dg-linea--roja" x1="96" y1="156" x2="222" y2="156" marker-end="url(#pt)"/>
+  <line class="dg-linea dg-linea--roja" x1="232" y1="138" x2="172" y2="46" marker-end="url(#pt)"/>
+  <circle class="dg-caja dg-caja--mal" cx="160" cy="34" r="18"/><text class="dg-texto" x="160" y="39" text-anchor="middle">a</text>
+  <circle class="dg-caja dg-caja--mal" cx="78" cy="156" r="18"/><text class="dg-texto" x="78" y="161" text-anchor="middle">b</text>
+  <circle class="dg-caja dg-caja--mal" cx="240" cy="156" r="18"/><text class="dg-texto" x="240" y="161" text-anchor="middle">c</text>
+  <text class="dg-texto dg-texto--chico" x="160" y="194" text-anchor="middle">grado ≤ 2, pero hay ciclo y no hay raíz</text>
+</svg>
+</div>
+<figcaption>«Todo grafo de grado 2 es un árbol binario» es <strong>F</strong> (salió dos veces). El grado no impide los ciclos.</figcaption>
+</figure>
+
+<figure>
+<div class="figura figura--chica">
+<svg viewBox="0 0 320 200" role="img" aria-labelledby="bd-t bd-d">
+  <title id="bd-t">Orden de visita en anchura y en profundidad</title>
+  <desc id="bd-d">Árbol con raíz 1, hijos 2 y 3, y nietos 4 y 5 debajo de 2. En anchura se visita 1, 2, 3, 4, 5 usando una cola. En profundidad se visita 1, 2, 4, 5, 3 usando una pila.</desc>
+  <line class="dg-linea" x1="160" y1="40" x2="100" y2="88"/><line class="dg-linea" x1="160" y1="40" x2="220" y2="88"/>
+  <line class="dg-linea" x1="100" y1="100" x2="64" y2="142"/><line class="dg-linea" x1="100" y1="100" x2="136" y2="142"/>
+  <circle class="dg-caja dg-caja--azul" cx="160" cy="34" r="16"/><text class="dg-texto" x="160" y="39" text-anchor="middle">1</text>
+  <circle class="dg-caja dg-caja--azul" cx="100" cy="98" r="16"/><text class="dg-texto" x="100" y="103" text-anchor="middle">2</text>
+  <circle class="dg-caja dg-caja--azul" cx="220" cy="98" r="16"/><text class="dg-texto" x="220" y="103" text-anchor="middle">3</text>
+  <circle class="dg-caja dg-caja--azul" cx="62" cy="150" r="16"/><text class="dg-texto" x="62" y="155" text-anchor="middle">4</text>
+  <circle class="dg-caja dg-caja--azul" cx="138" cy="150" r="16"/><text class="dg-texto" x="138" y="155" text-anchor="middle">5</text>
+  <text class="dg-texto dg-texto--chico" x="200" y="150">BFS (cola): 1 2 3 4 5</text>
+  <text class="dg-texto dg-texto--chico" x="200" y="170">DFS (pila): 1 2 4 5 3</text>
+</svg>
+</div>
+<figcaption><strong>Anchura (BFS)</strong> va por niveles con una cola. <strong>Profundidad (DFS)</strong> baja hasta el fondo y vuelve (backtracking) con una pila.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="tablas" aria-labelledby="t-tablas">
+<h2 class="titulo-seccion titulo-seccion--tablas" id="t-tablas">Tablas comparativas</h2>
+
+<h3>Vocabulario que piden usar</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Término</th><th scope="col">Qué es</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Grado de entrada / salida</th><td>Cuántos arcos llegan a un nodo (|L(x)|) y cuántos salen (|R(x)|).</td></tr>
+    <tr><th scope="row">Minimal / maximal</th><td>Nodo al que no llega ningún arco (la raíz) / del que no sale ninguno (las hojas).</td></tr>
+    <tr><th scope="row">Camino y paso</th><td>Sucesión de arcos que une dos nodos. El paso respeta el sentido de las flechas (grafos dirigidos).</td></tr>
+    <tr><th scope="row">Ciclo</th><td>Camino que vuelve al nodo de partida. Un <strong>bucle</strong> es un arco de un nodo a sí mismo.</td></tr>
+    <tr><th scope="row">Conexo</th><td>Hay un camino entre cualquier par de nodos.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Clasificación de grafos</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col">Según…</th><th scope="col">Tipos</th><th scope="col">Ejemplo</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">La relación (lo que pide la cátedra)</th><td><strong>Restricto</strong>: biunívoco (lista) o unívoco (árbol). <strong>Irrestricto</strong>: cualquier relación.</td><td>Cola de impresión / organigrama / red de rutas</td></tr>
+    <tr><th scope="row">La dirección</th><td>Dirigido (las flechas tienen sentido) o no dirigido.</td><td>«A sigue a B» en una red social / «A es amigo de B»</td></tr>
+    <tr><th scope="row">Los arcos</th><td>Simple (a lo sumo un arco por par) o multigrafo. Ponderado si cada arco tiene un costo.</td><td>Mapa con kilómetros entre ciudades</td></tr>
+    <tr><th scope="row">La conexión</th><td>Conexo o no conexo. Completo: todos con todos (n(n − 1)/2 arcos si es no dirigido).</td><td>Torneo todos contra todos</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Estática contra dinámica</h3>
+<div class="tabla-envoltura">
+<table>
+  <thead><tr><th scope="col"></th><th scope="col">Estática</th><th scope="col">Dinámica</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Cómo</th><td>Vector (listas, árboles) o matriz de adyacencia / incidencia (cualquier grafo)</td><td>Nodos con punteros: listas de adyacencia, estructura de Pfaltz</td></tr>
+    <tr><th scope="row">Espacio</th><td>Fijo: reserva todas las relaciones posibles</td><td>Variable: solo lo que existe, más los punteros</td></tr>
+    <tr><th scope="row">Velocidad</th><td>Suele ser mayor: el lugar ya existe, se accede por índice</td><td>Pide memoria en cada alta y recorre punteros</td></tr>
+    <tr><th scope="row">Conviene para</th><td class="celda-bien">Grafos <strong>chicos o densos</strong></td><td class="celda-bien">Grafos <strong>grandes o dispersos</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="aviso"><strong>No hay una «siempre mejor».</strong> Cualquier V/F que diga «siempre conviene la dinámica» o «solo se puede de forma dinámica» es F.</p>
+</section>
+
+<section id="trampas" aria-labelledby="t-trampas">
+<h2 class="titulo-seccion titulo-seccion--trampas" id="t-trampas">🟥 Trampas: los V/F que ya salieron</h2>
+<p>Con respuesta y por qué. Los marcados <span class="sello sello--polemica">⚠️ polémica</span> tienen fuentes que se contradicen: está la explicación.</p>
+<ul class="trampas" data-trampas="grafos"></ul>
+</section>
+
+<section id="modelo" aria-labelledby="t-modelo">
+<h2 class="titulo-seccion titulo-seccion--modelo" id="t-modelo">🟪 Respuestas modelo</h2>
+<p>Escritas como para el examen: entran en 15 renglones. Abrí cada una.</p>
+
+<details class="modelo" open>
+  <summary>Desarrolle el concepto de grafo, su clasificación y su representación computacional <small>5 veces</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Un <strong>grafo G = (P, E)</strong> es un conjunto de puntos P (nodos) y una relación E sobre ellos: cada par (x, y) de E es un arco. Es el modelo matemático de cualquier estructura de datos: los nodos son los datos y los arcos, las relaciones entre ellos. Se usa para modelar redes, rutas, dependencias, jerarquías.</p>
+    <p><strong>Clasificación.</strong> Según la relación: <strong>restrictos</strong>, que son los biunívocos (cada nodo con a lo sumo un antecesor y un sucesor: listas, pilas, colas) y los unívocos (a lo sumo un antecesor: árboles); e <strong>irrestrictos</strong>, que admiten cualquier relación (ciclos, varios antecesores). También: dirigidos o no, simples o multigrafos, ponderados, conexos, completos.</p>
+    <p><strong>Representación.</strong> <em>Estática</em>: espacio fijo reservado para todas las relaciones posibles; vector para los restrictos y matriz de adyacencia (n × n) o de incidencia (nodos × arcos) para cualquiera. Es más rápida y conviene para grafos chicos o densos. <em>Dinámica</em>: nodos con punteros (listas de adyacencia, estructura de Pfaltz); ocupa solo lo que existe más los punteros y conviene para grafos grandes o dispersos.</p>
+  </div>
+  <p class="modelo__salio">Salió el 12/02/2019, el 09/09/2022, el 20/02/2024, el 10/12/2024 y el 18/02/2025.</p>
+</details>
+
+<details class="modelo">
+  <summary>Dos ejemplos donde haga falta un grafo irrestricto <small>02/03/2022</small></summary>
+  <div class="modelo__cuerpo">
+    <p>Un grafo irrestricto hace falta cuando un elemento puede tener <strong>varios antecesores</strong> o la relación puede formar <strong>ciclos</strong>:</p>
+    <ul>
+      <li><strong>Red de rutas entre ciudades:</strong> de una ciudad se llega a varias y a cada una se llega desde varias; hay ciclos (ida y vuelta) y cada arco puede tener un costo (kilómetros). Sirve para calcular el camino más corto.</li>
+      <li><strong>Correlatividades de materias:</strong> una materia puede requerir varias anteriores y habilitar varias posteriores. Un árbol no alcanza porque una materia tiene más de un «padre».</li>
+    </ul>
+    <p>Otros válidos: red social (seguidores), páginas web con links, dependencias entre tareas de un proyecto.</p>
+  </div>
+  <p class="modelo__salio">Salió el 02/03/2022.</p>
+</details>
+
+<details class="modelo">
+  <summary>Cómo representar en forma estática y dinámica un grafo irrestricto <small>22/02/2023</small></summary>
+  <div class="modelo__cuerpo">
+    <p><strong>Estática:</strong> con una <strong>matriz de adyacencia</strong> de n × n (n = cantidad de nodos), donde la celda [i][j] vale 1 si hay un arco de i a j (o el costo, si es ponderado). Otra opción es la <strong>matriz de incidencia</strong> (nodos × arcos), que marca en qué nodos empieza y termina cada arco. Reserva lugar para todas las relaciones posibles: acceso directo y rápido, pero desperdicia espacio si el grafo tiene pocos arcos.</p>
+    <p><strong>Dinámica:</strong> con <strong>listas de adyacencia</strong>: una lista de nodos y, colgando de cada uno, una lista enlazada con sus sucesores. (La estructura de Pfaltz agrega nodos para los arcos.) Ocupa solo lo que existe, más un puntero por arco; las altas piden memoria y las búsquedas recorren punteros.</p>
+    <p>Regla: estática para grafos chicos o densos; dinámica para grafos grandes o dispersos.</p>
+  </div>
+  <p class="modelo__salio">Salió el 22/02/2023.</p>
+</details>
+</section>
+
+<section id="ejercita" aria-labelledby="t-ejercita">
+<h2 class="titulo-seccion titulo-seccion--ejercita" id="t-ejercita">🟩 Ejercitá</h2>
+<p>Ejercicios para fijar las definiciones. Elegí una opción y mirá la explicación.</p>
+
+<details class="ejercicio" data-correcta="c" open>
+  <summary class="ejercicio__titulo">1. ¿Qué es este grafo? P = {a, b, c, d}; E = {(a,b), (a,c), (b,d), (c,d)}</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Una lista (biunívoco)</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Un árbol (unívoco)</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Un grafo irrestricto</button></li>
+    <li><button class="opcion" type="button" data-op="d">d) No es un grafo: tiene un ciclo</button></li>
+  </ul>
+  <div class="explicacion"><strong>c.</strong> d tiene dos antecesores (b y c): ya no es unívoco. No hace falta un ciclo para ser irrestricto; alcanza con que un nodo tenga más de un «padre».</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">2. Un grafo de 1000 nodos donde cada uno se relaciona con 3 o 4. ¿Cómo lo representás?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Matriz de adyacencia: siempre es más rápida</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Listas de adyacencia: es grande y disperso</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Un vector de 1000 posiciones</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> La matriz tendría 1.000.000 de celdas para unos 3500 arcos: casi todo ceros. Un vector solo alcanza si fuera restricto.</div>
+</details>
+
+<details class="ejercicio" data-correcta="a">
+  <summary class="ejercicio__titulo">3. En la matriz de adyacencia de un grafo dirigido, ¿qué es la suma de la fila de un nodo?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) Su grado de salida</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) Su grado de entrada</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) La cantidad de ciclos que lo incluyen</button></li>
+  </ul>
+  <div class="explicacion"><strong>a.</strong> La fila i marca los arcos que <em>salen</em> de i. La columna j suma los que <em>llegan</em> a j (grado de entrada). En el diagrama: fila A = 2 (A→B, A→C), columna B = 2 (A→B, D→B).</div>
+</details>
+
+<details class="ejercicio" data-correcta="b">
+  <summary class="ejercicio__titulo">4. ¿Cuántos arcos tiene un árbol de 12 nodos?</summary>
+  <ul class="opciones">
+    <li><button class="opcion" type="button" data-op="a">a) 12</button></li>
+    <li><button class="opcion" type="button" data-op="b">b) 11</button></li>
+    <li><button class="opcion" type="button" data-op="c">c) Depende del grado</button></li>
+  </ul>
+  <div class="explicacion"><strong>b.</strong> Cada nodo salvo la raíz tiene exactamente un arco que le llega: n − 1. Por eso un nodo con un bucle (1 nodo, 1 arco) no es árbol.</div>
+</details>
+
+<h3>V/F con la regla del final</h3>
+<p>Todos los V/F de grafos que hay en tus archivos, mezclados. Bien suma 1, mal resta 1, en blanco no suma ni resta.</p>
+<details class="ejercicio">
+  <summary class="ejercicio__titulo">Hacer los V/F del tema</summary>
+  <div class="quiz" data-quiz="grafos"></div>
+</details>
+</section>
+
+<nav class="pie-tema" aria-label="Temas vecinos"></nav>
+</main>
+</div>
+
+<script src="../assets/datos.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
